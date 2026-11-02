@@ -1,8 +1,18 @@
 # HADGALY — PROJECT CONTEXT
 
-Last Updated: **2026-11-01, Asia/Ulaanbaatar**
+Last Updated: **2026-11-02, Asia/Ulaanbaatar**
 
-Current status: **Environment Preparation incomplete; Stage 1 NOT started.** Flutter installation is blocked by network policy. Only this handoff document is authorized for creation, commit, and push in the closing task. The next agent must verify live state rather than assuming the observations below remain current.
+Current status: **Stage 1 implementation authorized by CEO Directive #008; founder acceptance pending.** Environment Preparation passed on Windows Local Codex at `D:\sum\hadgaly`. Earlier cloud observations and closing-task restrictions below are historical and superseded by Directives #006–008.
+
+## Current directive overrides — 2026-11-02
+
+- #006: Windows local environment inspected; local/remote `main` matched handoff commit `b080b7d9ee3e4ca8bf6890228b9fb1cffbb48d73`.
+- #007: Pin Flutter **3.47.9** / bundled Dart **3.13.7**. SDK: `C:\dev\flutter`. Android AVD: `Medium_Phone_API_37.0`, API 37. NVIDIA `nvoglv64.dll` crashed the normal renderer; cold boot with `-gpu software -no-snapshot-load -no-snapshot-save` brought `emulator-5554` online. No AVD data wipe.
+- First account is **mandatory, cannot be skipped**. Account name must not be blank. Opening balance is required, **zero and negative permitted**. All amounts use integer MNT without fractions.
+- #008: Implement **Stage 1 only**, including foundation, offline Mongolian onboarding, first/default account, restart-safe local persistence, simple Home with honest unavailable +/− feedback, tests and interactive Android demo. Do not start Stage 2.
+- Authorized engineering choice for Stage 1 amounts: **−999,999,999,999 through 999,999,999,999 MNT**, exact integer validation; no rounding/truncation. Names: trimmed, single-line, nonblank, at most 60 Unicode code points.
+- Six-stage roadmap and stage acceptance gates are unchanged. Stage 1 remains unaccepted until tests, Android demo and explicit founder approval. See README and `STAGE1_REVIEW.md` for current verification results.
+- Stage 1 verification: analyze clean, 36 unit/widget tests pass, 1 Android integration test passes, debug APK/build/run pass. Native 320dp keyboard and force-stop/relaunch preserve drafts. Basic software rendering later hung; the verified launch is `-gpu swiftshader -feature -Vulkan -cores 4 -no-snapshot-load -no-snapshot-save`, with process-local `QT_OPENGL=angle`. No data wipe. Required NDK 28.2.13676358 and CMake 3.22.1 were installed through official tooling. Founder acceptance is still pending.
 
 This document is the consolidated source of truth for a new Codex conversation with no prior chat. Later explicit founder decisions supersede this document. Confirmed decisions, proposals, and unresolved items are intentionally separated. The original discovery document and six mockups were reviewed, but are not assumed to exist in this repository.
 

@@ -39,10 +39,18 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 40),
                 Text(
                   'Сайн уу, $name',
-                  style: Theme.of(context).textTheme.headlineLarge,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    height: 1.4,
+                    fontWeight: FontWeight.w600,
+                    color: ink,
+                  ),
                 ),
-                const SizedBox(height: 12),
-                const Text('Өдөр тутмын мөнгөө хамтдаа цэгцэлье.'),
+                const SizedBox(height: 8),
+                const Text(
+                  'Өдөр тутмын мөнгөө хамтдаа цэгцэлье.',
+                  style: TextStyle(color: ink),
+                ),
                 const SizedBox(height: 32),
                 LayoutBuilder(
                   builder: (context, constraints) {
@@ -82,7 +90,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(28),
@@ -93,12 +101,9 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       const Text(
                         'Үндсэн данс',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF53655B),
-                        ),
+                        style: TextStyle(fontSize: 13, color: secondaryInk),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       Text(
                         account.name,
                         style: const TextStyle(
@@ -106,7 +111,7 @@ class HomeScreen extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 10),
                       Text(
                         formatMnt(account.openingBalance),
                         key: const Key('homeBalance'),
@@ -116,8 +121,6 @@ class HomeScreen extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      const Text('Одоогийн үлдэгдэл'),
                     ],
                   ),
                 ),

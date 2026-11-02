@@ -119,12 +119,21 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('nickname')));
     await tester.tap(find.byKey(const Key('nickname')));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(const Key('nickname')), 'Өнөр');
+    await tester.enterText(
+      find.byKey(const Key('nickname')),
+      'Өнөржаргал ' * 5,
+    );
     await tapNext(tester);
     await tapNext(tester);
-    await tester.enterText(find.byKey(const Key('accountName')), 'Хэтэвч');
+    await tester.enterText(
+      find.byKey(const Key('accountName')),
+      'Хувийн өдөр тутмын хэрэглээний данс',
+    );
     await tester.ensureVisible(find.byKey(const Key('openingBalance')));
-    await tester.enterText(find.byKey(const Key('openingBalance')), '0');
+    await tester.enterText(
+      find.byKey(const Key('openingBalance')),
+      '-999999999999',
+    );
     tester.view.viewInsets = const FakeViewPadding(bottom: 250);
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);

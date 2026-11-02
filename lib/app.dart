@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'features/onboarding/presentation/onboarding_screen.dart';
 
 const ink = Color(0xFF243E35);
+const secondaryInk = Color(0xFF40584D);
 const green = Color(0xFF356B50);
 const mint = Color(0xFFE0EEDF);
 const paper = Color(0xFFFAF9F4);

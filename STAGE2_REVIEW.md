@@ -1,5 +1,8 @@
 # Stage 2 — Миний данс ба найдвартай үлдэгдэл
 
+Latest UI refinement and updated verification: see STAGE2_UI_REFINEMENT.md. Current founder data
+was preserved during that UI update. The fresh-install statements below describe the earlier baseline.
+
 2026-11-02, Asia/Ulaanbaatar. Stage 1-ийг founder илэрхий зөвшөөрсөн.
 Stage 2-ийн хэрэгжүүлэлт review-д бэлэн; **Stage 2 acceptance хүлээгдсэн**.
 Stage 3 эхлээгүй. Branch: `codex/stage-2-accounts`; review SHA-г эцсийн тайланд өгнө.

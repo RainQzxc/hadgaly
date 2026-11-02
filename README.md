@@ -5,6 +5,8 @@ Riverpod, SQLite/Drift; feature-first organization. Preserve `pubspec.lock`.
 
 Stage 1 is explicitly accepted. Stage 2 is ready for founder review, **not accepted yet**.
 No Stage 3 entry UI, transfers or bank integration is implemented.
+Stage 2 UI now uses Flutter Cupertino components, Comfortaa and Hadgaly's soft green identity;
+see `STAGE2_UI_REFINEMENT.md` for current UI/accessibility/data-preservation results.
 
 ## Fresh-start decision
 
@@ -26,10 +28,17 @@ flutter pub get
 flutter analyze
 flutter test
 flutter build apk --debug --flavor production
-flutter run --flavor production -d emulator-5554
+$adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
+$aapt = "$env:LOCALAPPDATA\Android\Sdk\build-tools\37.0.0\aapt.exe"
+$apk = (Resolve-Path 'build\app\outputs\flutter-apk\app-production-debug.apk').Path
+$identity = (& $aapt dump badging $apk | Select-String '^package:').Line
+if ($identity -notmatch "^package: name='mn.hadgaly.hadgaly'") { throw 'Unexpected production package' }
+& $adb -s emulator-5554 install -r $apk
+if ($LASTEXITCODE -ne 0) { throw 'Update failed; do not uninstall or clear data.' }
+& $adb -s emulator-5554 shell am start -W -n mn.hadgaly.hadgaly/.MainActivity
 ```
 
-These normal build/run commands preserve the current app database. Do not uninstall or clear data
+This checked install uses Android replace/update mode and preserves the current app database. Do not uninstall or clear data
 to repeat onboarding. Do not run direct integration tests on the founder device.
 Never wipe the AVD or install a test APK over the main app.
 

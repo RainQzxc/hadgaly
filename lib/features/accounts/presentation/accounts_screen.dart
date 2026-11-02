@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app.dart';
+import '../../../core/presentation/hadgaly_ui.dart';
 import '../../../core/domain/money.dart';
 import '../application/accounts_providers.dart';
 import '../data/accounts_repository.dart';
@@ -15,17 +15,57 @@ class AccountsScreen extends ConsumerStatefulWidget {
 
 class _AccountsScreenState extends ConsumerState<AccountsScreen> {
   bool busy = false;
-  Future<void> selectDefault(int id) async {
+  String? error;
+  Future<void> chooseDefault(AccountsSnapshot snapshot) async {
     if (busy) return;
-    setState(() => busy = true);
+    final id = await showActionSheet<int>(
+      context,
+      (sheetContext) => CupertinoActionSheet(
+        title: const Text('Үндсэн данс', style: sectionStyle),
+        message: const Text(
+          'Нүүрэнд харагдах дансаа сонгоорой.',
+          style: captionStyle,
+        ),
+        actions: [
+          for (final account in snapshot.accounts)
+            CupertinoActionSheetAction(
+              key: Key('default-${account.account.id}'),
+              onPressed: () => Navigator.pop(sheetContext, account.account.id),
+              child: Text(
+                '${snapshot.defaultId == account.account.id ? '✓ ' : ''}${account.account.name}',
+                style: const TextStyle(
+                  fontFamily: 'Comfortaa',
+                  fontSize: 17,
+                  color: green,
+                ),
+              ),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          key: const Key('cancelDefault'),
+          onPressed: () => Navigator.pop(sheetContext),
+          child: const Text(
+            'Болих',
+            style: TextStyle(
+              fontFamily: 'Comfortaa',
+              color: green,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
+    );
+    if (id == null || !mounted) return;
+    setState(() {
+      busy = true;
+      error = null;
+    });
     try {
       await ref.read(accountsRepositoryProvider).selectDefault(id);
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Үндсэн дансыг сольж чадсангүй. Дахин оролдоорой.'),
-          ),
+        setState(
+          () => error = 'Үндсэн дансыг сольж чадсангүй. Дахин оролдоорой.',
         );
       }
     } finally {
@@ -34,167 +74,181 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Миний данс')),
-    body: ref
+  Widget build(BuildContext context) => HadgalyPage(
+    title: 'Миний данс',
+    child: ref
         .watch(accountsProvider)
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('Дансны мэдээллийг нээж чадсангүй. Дахин нээгээрэй.'),
-            ),
+          loading: () => const LoadingContent(),
+          error: (_, _) => const PageContent(
+            children: [
+              InlineError('Дансны мэдээллийг нээж чадсангүй. Дахин нээгээрэй.'),
+            ],
           ),
-          data: (snapshot) => SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 480),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    BalanceCard(
-                      account: snapshot.defaultAccount,
-                      label: 'Үндсэн данс',
-                    ),
-                    const SizedBox(height: 24),
-                    FilledButton.icon(
-                      key: const Key('addAccount'),
-                      onPressed: () => Navigator.push(
+          data: (snapshot) => PageContent(
+            children: [
+              BalanceCard(
+                account: snapshot.defaultAccount,
+                label: 'Үндсэн данс',
+                canChooseDefault: true,
+                onChooseDefault: busy ? null : () => chooseDefault(snapshot),
+              ),
+              if (error != null) InlineError(error!),
+              const SizedBox(height: 20),
+              Semantics(
+                header: true,
+                child: const Text('Миний бүх данс', style: sectionStyle),
+              ),
+              const SizedBox(height: 12),
+              InsetGroup(
+                children: [
+                  for (final account in snapshot.accounts)
+                    CupertinoButton(
+                      key: Key('account-${account.account.id}'),
+                      minimumSize: const Size(48, 80),
+                      padding: const EdgeInsets.all(18),
+                      onPressed: () => openPage<void>(
                         context,
-                        MaterialPageRoute<void>(
-                          builder: (_) => const AccountFormScreen(),
-                        ),
+                        AccountDetailScreen(id: account.account.id),
                       ),
-                      icon: const Icon(Icons.add_rounded),
-                      label: const Text('Данс нэмэх'),
-                    ),
-                    const SizedBox(height: 28),
-                    Semantics(
-                      header: true,
-                      child: const Text(
-                        'Миний бүх данс',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    for (final account in snapshot.accounts)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Card(
-                          margin: EdgeInsets.zero,
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(26),
-                            side: const BorderSide(color: Color(0xFFDDE5DC)),
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              ListTile(
-                                key: Key('account-${account.account.id}'),
-                                contentPadding: const EdgeInsets.all(20),
-                                title: Text(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
                                   account.account.name,
                                   style: const TextStyle(
+                                    fontSize: 16,
+                                    height: 1.4,
                                     fontWeight: FontWeight.w700,
+                                    color: ink,
                                   ),
                                 ),
-                                subtitle: Padding(
-                                  padding: const EdgeInsets.only(top: 10),
-                                  child: Text(
-                                    formatMnt(account.balance),
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      color: ink,
-                                    ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  formatMnt(account.balance),
+                                  style: const TextStyle(
+                                    fontSize: 19,
+                                    height: 1.4,
+                                    color: ink,
                                   ),
                                 ),
-                                trailing: const Icon(
-                                  Icons.chevron_right_rounded,
-                                ),
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute<void>(
-                                    builder: (_) => AccountDetailScreen(
-                                      id: account.account.id,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              if (snapshot.defaultId == account.account.id)
-                                const Padding(
-                                  padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
-                                  child: Text(
+                                if (snapshot.defaultId ==
+                                    account.account.id) ...[
+                                  const SizedBox(height: 6),
+                                  const Text(
                                     'Үндсэн данс',
-                                    style: TextStyle(color: green),
+                                    style: captionStyle,
                                   ),
-                                )
-                              else
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      8,
-                                      0,
-                                      8,
-                                      8,
-                                    ),
-                                    child: TextButton(
-                                      key: Key('default-${account.account.id}'),
-                                      onPressed: busy
-                                          ? null
-                                          : () => selectDefault(
-                                              account.account.id,
-                                            ),
-                                      child: const Text('Үндсэн болгох'),
-                                    ),
-                                  ),
-                                ),
-                            ],
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Icon(
+                            CupertinoIcons.chevron_right,
+                            size: 17,
+                            color: secondaryInk,
+                          ),
+                        ],
+                      ),
+                    ),
+                  CupertinoButton(
+                    key: const Key('addAccount'),
+                    minimumSize: const Size(48, 60),
+                    padding: const EdgeInsets.all(18),
+                    onPressed: () =>
+                        openPage<void>(context, const AccountFormScreen()),
+                    child: const Row(
+                      children: [
+                        Icon(CupertinoIcons.add_circled, size: 23),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Данс нэмэх',
+                            style: TextStyle(
+                              fontSize: 16,
+                              height: 1.4,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
+            ],
           ),
         ),
   );
 }
 
 class BalanceCard extends StatelessWidget {
-  const BalanceCard({super.key, required this.account, required this.label});
+  const BalanceCard({
+    super.key,
+    required this.account,
+    required this.label,
+    this.canChooseDefault = false,
+    this.onChooseDefault,
+  });
   final AccountView account;
   final String label;
+  final bool canChooseDefault;
+  final VoidCallback? onChooseDefault;
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(24),
+    padding: const EdgeInsets.all(22),
     decoration: BoxDecoration(
       color: mint,
-      borderRadius: BorderRadius.circular(28),
+      borderRadius: BorderRadius.circular(24),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: secondaryInk)),
-        const SizedBox(height: 12),
-        Text(
-          account.account.name,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        Row(
+          children: [
+            Expanded(child: Text(label, style: captionStyle)),
+            if (canChooseDefault)
+              Semantics(
+                label: 'Үндсэн данс солих',
+                button: true,
+                enabled: onChooseDefault != null,
+                onTap: onChooseDefault,
+                child: ExcludeSemantics(
+                  child: CupertinoButton(
+                    key: const Key('chooseDefault'),
+                    minimumSize: const Size(48, 48),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 10,
+                    ),
+                    onPressed: onChooseDefault,
+                    child: const Text(
+                      'Солих',
+                      style: TextStyle(
+                        fontFamily: 'Comfortaa',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: green,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
+        const SizedBox(height: 10),
+        Text(account.account.name, style: sectionStyle),
         const SizedBox(height: 12),
         Text(
           formatMnt(account.balance),
           key: const Key('defaultBalance'),
           style: const TextStyle(
-            fontSize: 28,
+            fontSize: 29,
+            height: 1.35,
             fontWeight: FontWeight.w700,
             color: ink,
           ),
@@ -208,135 +262,159 @@ class AccountDetailScreen extends ConsumerWidget {
   const AccountDetailScreen({super.key, required this.id});
   final int id;
   @override
-  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(title: const Text('Дансны дэлгэрэнгүй')),
-    body: ref
+  Widget build(BuildContext context, WidgetRef ref) => HadgalyPage(
+    title: 'Данс',
+    child: ref
         .watch(accountsProvider)
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) =>
-              const Center(child: Text('Дансны мэдээллийг нээж чадсангүй.')),
+          loading: () => const LoadingContent(),
+          error: (_, _) => const PageContent(
+            children: [InlineError('Дансны мэдээллийг нээж чадсангүй.')],
+          ),
           data: (snapshot) {
             final account = snapshot.byId(id);
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+            return PageContent(
+              children: [
+                BalanceCard(account: account, label: 'Үлдэгдэл'),
+                const SizedBox(height: 12),
+                Text(
+                  'Эхний үлдэгдэл: ${formatMnt(account.account.openingBalance)}',
+                  style: captionStyle,
+                ),
+                const SizedBox(height: 16),
+                HadgalyButton(
+                  label: 'Дансны нэр засах',
+                  filled: false,
+                  icon: CupertinoIcons.pencil,
+                  onPressed: () => openPage<void>(
+                    context,
+                    AccountFormScreen(account: account),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                HadgalyButton(
+                  key: const Key('adjustBalance'),
+                  label: 'Үлдэгдэл тохируулах',
+                  onPressed: () => openPage<void>(
+                    context,
+                    BalanceFormScreen(account: account),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Semantics(
+                  header: true,
+                  child: const Text(
+                    'Үлдэгдэл тохируулгын түүх',
+                    style: sectionStyle,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                if (account.adjustments.isEmpty)
+                  const Text(
+                    'Үлдэгдэл тохируулга хараахан хийгээгүй байна.',
+                    style: TextStyle(color: secondaryInk),
+                  ),
+                if (account.adjustments.isNotEmpty)
+                  InsetGroup(
                     children: [
-                      BalanceCard(account: account, label: 'Үлдэгдэл'),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Эхний үлдэгдэл: ${formatMnt(account.account.openingBalance)}',
-                      ),
-                      const SizedBox(height: 12),
-                      OutlinedButton.icon(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => AccountFormScreen(account: account),
-                          ),
-                        ),
-                        icon: const Icon(Icons.edit_outlined),
-                        label: const Text('Дансны нэр засах'),
-                      ),
-                      const SizedBox(height: 12),
-                      FilledButton(
-                        key: const Key('adjustBalance'),
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => BalanceFormScreen(account: account),
-                          ),
-                        ),
-                        child: const Text('Үлдэгдэл тохируулах'),
-                      ),
-                      const SizedBox(height: 28),
-                      Semantics(
-                        header: true,
-                        child: const Text(
-                          'Үлдэгдэл тохируулгын түүх',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      if (account.adjustments.isEmpty)
-                        const Text(
-                          'Үлдэгдэл тохируулга хараахан хийгээгүй байна.',
-                        ),
                       for (final adjustment in account.adjustments)
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(26),
-                              border: Border.all(
-                                color: const Color(0xFFDDE5DC),
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                formatMnt(adjustment.record.target),
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  height: 1.4,
+                                  fontWeight: FontWeight.w700,
+                                  color: ink,
+                                ),
                               ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(
-                                  formatMnt(adjustment.record.target),
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
+                              const SizedBox(height: 8),
+                              Text(
+                                'Хүчинтэй: ${displayTime(adjustment.record.effectiveAt)}',
+                                style: captionStyle,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Анх ажигласан зөрүү: ${formatMnt(adjustment.originalDifference)}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  height: 1.6,
+                                  color: ink,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Дахин тооцсон зөрүү: ${formatMnt(adjustment.point.difference!)}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  height: 1.6,
+                                  color: ink,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Орлого, зарлагад тооцохгүй.',
+                                style: captionStyle,
+                              ),
+                              const SizedBox(height: 4),
+                              HadgalyButton(
+                                key: Key(
+                                  'editAdjustment-${adjustment.record.id}',
+                                ),
+                                label: 'Тохируулгын дүн засах',
+                                filled: false,
+                                onPressed: () => openPage<void>(
+                                  context,
+                                  BalanceFormScreen(
+                                    account: account,
+                                    adjustment: adjustment,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Хүчинтэй: ${displayTime(adjustment.record.effectiveAt)}',
-                                ),
+                              ),
+                              if (adjustment.edits.isNotEmpty) ...[
                                 const SizedBox(height: 12),
-                                Text(
-                                  'Анх ажигласан зөрүү: ${formatMnt(adjustment.originalDifference)}',
-                                ),
-                                Text(
-                                  'Дахин тооцсон зөрүү: ${formatMnt(adjustment.point.difference!)}',
-                                ),
-                                const SizedBox(height: 8),
                                 const Text(
-                                  'Орлого, зарлагад тооцохгүй.',
-                                  style: TextStyle(color: secondaryInk),
-                                ),
-                                TextButton(
-                                  key: Key(
-                                    'editAdjustment-${adjustment.record.id}',
+                                  'Засварын түүх',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: ink,
                                   ),
-                                  onPressed: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                      builder: (_) => BalanceFormScreen(
-                                        account: account,
-                                        adjustment: adjustment,
-                                      ),
-                                    ),
-                                  ),
-                                  child: const Text('Тохируулгын дүн засах'),
                                 ),
                                 for (final edit in adjustment.edits)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 12),
-                                    child: Text(
-                                      'Засвар: ${formatMnt(edit.oldTarget)} → ${formatMnt(edit.newTarget)}\n${displayTime(edit.editedAt)}',
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Засвар: ${formatMnt(edit.oldTarget)} → ${formatMnt(edit.newTarget)}',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            height: 1.6,
+                                            color: ink,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          displayTime(edit.editedAt),
+                                          style: captionStyle,
+                                        ),
+                                      ],
                                     ),
                                   ),
                               ],
-                            ),
+                            ],
                           ),
                         ),
                     ],
                   ),
-                ),
-              ),
+              ],
             );
           },
         ),

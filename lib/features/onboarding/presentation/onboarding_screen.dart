@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app.dart';
+import '../../../core/presentation/hadgaly_ui.dart';
 import '../application/onboarding_controller.dart';
 import '../../home/presentation/home_screen.dart';
 
@@ -11,24 +11,12 @@ class OnboardingScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(onboardingProvider);
     if (state.loading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(
-            semanticsLabel: 'Мэдээлэл нээж байна',
-          ),
-        ),
-      );
+      return const HadgalyPage(title: 'хадгалъя', child: LoadingContent());
     }
     if (state.loadFailed) {
-      return Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(state.error!),
-            ),
-          ),
-        ),
+      return HadgalyPage(
+        title: 'хадгалъя',
+        child: PageContent(children: [InlineError(state.error!)]),
       );
     }
     if (state.step == 4 && state.account != null) {
@@ -39,116 +27,71 @@ class OnboardingScreen extends ConsumerWidget {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) state.back();
       },
-      child: Scaffold(
-        body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) => SingleChildScrollView(
-              key: ValueKey('step-${state.step}'),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 440),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        children: [
-                          if (state.step == 1 || state.step == 2)
-                            IconButton(
-                              onPressed: state.busy ? null : state.back,
-                              tooltip: 'Буцах',
-                              icon: const Icon(Icons.arrow_back_rounded),
-                            ),
-                          const Expanded(
-                            child: Text(
-                              'хадгалъя',
-                              style: TextStyle(
-                                fontSize: 21,
-                                fontWeight: FontWeight.w700,
-                                color: green,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            '${state.step + 1} / 4',
-                            semanticsLabel:
-                                'Танилцах ${state.step + 1}-р алхам, нийт 4',
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: constraints.maxHeight > 650 ? 64 : 28),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          padding: const EdgeInsets.all(22),
-                          decoration: BoxDecoration(
-                            color: mint,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Icon(
-                            switch (state.step) {
-                              0 => Icons.waving_hand_outlined,
-                              1 => Icons.favorite_border_rounded,
-                              2 => Icons.account_balance_wallet_outlined,
-                              _ => Icons.check_rounded,
-                            },
-                            color: green,
-                            size: 42,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      _StepBody(key: ValueKey(state.step), state: state),
-                      if (state.error != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 18),
-                          child: Semantics(
-                            liveRegion: true,
-                            child: Text(
-                              state.error!,
-                              key: const Key('error'),
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                          ),
-                        ),
-                      const SizedBox(height: 28),
-                      FilledButton(
-                        key: const Key('next'),
-                        onPressed: state.busy
-                            ? null
-                            : () {
-                                FocusScope.of(context).unfocus();
-                                state.next();
-                              },
-                        child: Text(
-                          state.busy
-                              ? 'Хадгалж байна…'
-                              : switch (state.step) {
-                                  0 => 'Болсон',
-                                  1 => 'Эхэлцгээе',
-                                  2 => 'Дансаа үүсгэх',
-                                  _ => 'Нүүр рүү орох',
-                                },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Таны мэдээлэл зөвхөн энэ төхөөрөмжид хадгалагдана.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.6,
-                          color: Color(0xFF53655B),
-                        ),
-                      ),
-                    ],
-                  ),
+      child: HadgalyPage(
+        title: 'хадгалъя',
+        onBack: state.step == 1 || state.step == 2 ? state.back : null,
+        backEnabled: !state.busy,
+        trailing: Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: Text(
+            '${state.step + 1} / 4',
+            semanticsLabel: 'Танилцах ${state.step + 1}-р алхам, нийт 4',
+            style: captionStyle,
+          ),
+        ),
+        child: PageContent(
+          scrollKey: ValueKey('step-${state.step}'),
+          children: [
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: mint,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  switch (state.step) {
+                    0 => CupertinoIcons.hand_raised,
+                    1 => CupertinoIcons.heart,
+                    2 => CupertinoIcons.creditcard,
+                    _ => CupertinoIcons.check_mark,
+                  },
+                  color: green,
+                  size: 30,
                 ),
               ),
             ),
-          ),
+            const SizedBox(height: 28),
+            _StepBody(key: ValueKey(state.step), state: state),
+            if (state.error != null)
+              InlineError(state.error!, key: const Key('error')),
+            const SizedBox(height: 28),
+            HadgalyButton(
+              key: const Key('next'),
+              onPressed: state.busy
+                  ? null
+                  : () {
+                      FocusScope.of(context).unfocus();
+                      state.next();
+                    },
+              label: state.busy
+                  ? 'Хадгалж байна…'
+                  : switch (state.step) {
+                      0 => 'Болсон',
+                      1 => 'Эхэлцгээе',
+                      2 => 'Дансаа үүсгэх',
+                      _ => 'Нүүр рүү орох',
+                    },
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Таны мэдээлэл зөвхөн энэ төхөөрөмжид хадгалагдана.',
+              textAlign: TextAlign.center,
+              style: captionStyle,
+            ),
+          ],
         ),
       ),
     );
@@ -186,63 +129,50 @@ class _StepBodyState extends State<_StepBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Semantics(
-          header: true,
-          child: Text(title, style: Theme.of(context).textTheme.headlineLarge),
-        ),
+        Semantics(header: true, child: Text(title, style: headingStyle)),
         const SizedBox(height: 16),
         Text(switch (state.step) {
           0 => 'Чамайг хэн гэж дуудах вэ?',
           1 => 'Өдөр тутмын мөнгөө энгийнээр тэмдэглэе. Эхлээд мөнгөө хаана хадгалдгаа оруулъя.',
           2 => 'Бэлэн мөнгө, карт эсвэл өөрийн хүссэн нэрийг өгөөрэй.',
           _ => 'Таны “${state.account?.name ?? ''}” данс үндсэн данс боллоо.',
-        }, style: Theme.of(context).textTheme.bodyLarge),
-        const SizedBox(height: 26),
+        }),
+        const SizedBox(height: 28),
         if (state.step == 0)
-          TextField(
-            key: const Key('nickname'),
+          HadgalyField(
+            fieldKey: const Key('nickname'),
             controller: name,
+            label: 'Дуудах нэр',
+            placeholder: 'Нэрээ бичээрэй…',
             enabled: !state.busy,
-            decoration: const InputDecoration(
-              labelText: 'Дуудах нэр',
-              hintText: 'Нэрээ бичээрэй…',
-            ),
-            textCapitalization: TextCapitalization.words,
-            textInputAction: TextInputAction.done,
-            onChanged: (value) => state.draft(name: value),
+            onChanged: (v) => state.draft(name: v),
             onSubmitted: (_) => state.next(),
           ),
         if (state.step == 2) ...[
-          TextField(
-            key: const Key('accountName'),
+          HadgalyField(
+            fieldKey: const Key('accountName'),
             controller: account,
+            label: 'Дансны нэр',
+            placeholder: 'Жишээ нь: Миний хэтэвч',
             enabled: !state.busy,
-            decoration: const InputDecoration(
-              labelText: 'Дансны нэр',
-              hintText: 'Жишээ нь: Миний хэтэвч',
-            ),
-            textInputAction: TextInputAction.next,
-            onChanged: (value) => state.draft(account: value),
+            action: TextInputAction.next,
+            onChanged: (v) => state.draft(account: v),
           ),
           const SizedBox(height: 20),
-          TextField(
-            key: const Key('openingBalance'),
+          HadgalyField(
+            fieldKey: const Key('openingBalance'),
             controller: balance,
+            label: 'Эхний үлдэгдэл',
+            placeholder: '0',
+            money: true,
             enabled: !state.busy,
-            decoration: const InputDecoration(
-              labelText: 'Эхний үлдэгдэл',
-              suffixText: '₮',
-              hintText: '0',
-            ),
-            keyboardType: const TextInputType.numberWithOptions(signed: true),
-            textInputAction: TextInputAction.done,
-            onChanged: (value) => state.draft(amount: value),
+            onChanged: (v) => state.draft(amount: v),
             onSubmitted: (_) => state.next(),
           ),
           const SizedBox(height: 12),
           const Text(
             'Бүхэл төгрөгөөр оруулна. 0 болон сөрөг үлдэгдэл байж болно.',
-            style: TextStyle(fontSize: 13, height: 1.6),
+            style: captionStyle,
           ),
         ],
       ],

@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/money.dart';
+import '../../../core/presentation/hadgaly_ui.dart';
 import '../application/accounts_providers.dart';
 import '../data/accounts_repository.dart';
 
@@ -57,67 +58,62 @@ class _AccountFormState extends ConsumerState<AccountFormScreen> {
   @override
   Widget build(BuildContext context) => PopScope(
     canPop: !busy,
-    child: Scaffold(
-      appBar: AppBar(
-        title: Text(widget.account == null ? 'Данс нэмэх' : 'Дансны нэр засах'),
-      ),
-      body: Form(
+    child: HadgalyPage(
+      title: widget.account == null ? 'Данс нэмэх' : 'Нэр засах',
+      backEnabled: !busy,
+      child: Form(
         key: form,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text('Өөрт ойлгомжтой нэр өгөөрэй.'),
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    key: const Key('accountName'),
-                    controller: name,
-                    enabled: !busy,
-                    decoration: const InputDecoration(labelText: 'Дансны нэр'),
-                    textInputAction: widget.account == null
-                        ? TextInputAction.next
-                        : TextInputAction.done,
-                    validator: (v) => nameError(v),
-                    onFieldSubmitted: (_) {
-                      if (widget.account != null) save();
-                    },
-                  ),
-                  if (widget.account == null) ...[
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      key: const Key('openingBalance'),
-                      controller: balance,
-                      enabled: !busy,
-                      decoration: const InputDecoration(
-                        labelText: 'Эхний үлдэгдэл',
-                        suffixText: '₮',
-                        hintText: '0',
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(
-                        signed: true,
-                      ),
-                      textInputAction: TextInputAction.done,
-                      validator: amountError,
-                      onFieldSubmitted: (_) => save(),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text('0 болон сөрөг үлдэгдэл байж болно.'),
-                  ],
-                  if (error != null) ErrorMessage(error!),
-                  const SizedBox(height: 28),
-                  FilledButton(
-                    key: const Key('accountSave'),
-                    onPressed: busy ? null : save,
-                    child: Text(busy ? 'Хадгалж байна…' : 'Хадгалах'),
-                  ),
-                ],
-              ),
+        child: PageContent(
+          children: [
+            Text(
+              widget.account == null ? 'Шинэ данс' : 'Дансны нэр засах',
+              style: headingStyle,
             ),
-          ),
+            const SizedBox(height: 12),
+            const Text(
+              'Өөрт ойлгомжтой нэр өгөөрэй.',
+              style: TextStyle(color: secondaryInk),
+            ),
+            const SizedBox(height: 28),
+            HadgalyField(
+              fieldKey: const Key('accountName'),
+              controller: name,
+              label: 'Дансны нэр',
+              enabled: !busy,
+              action: widget.account == null
+                  ? TextInputAction.next
+                  : TextInputAction.done,
+              validator: nameError,
+              onSubmitted: (_) {
+                if (widget.account != null) save();
+              },
+            ),
+            if (widget.account == null) ...[
+              const SizedBox(height: 20),
+              HadgalyField(
+                fieldKey: const Key('openingBalance'),
+                controller: balance,
+                label: 'Эхний үлдэгдэл',
+                placeholder: '0',
+                enabled: !busy,
+                money: true,
+                validator: amountError,
+                onSubmitted: (_) => save(),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                '0 болон сөрөг үлдэгдэл байж болно.',
+                style: captionStyle,
+              ),
+            ],
+            if (error != null) ErrorMessage(error!),
+            const SizedBox(height: 28),
+            HadgalyButton(
+              key: const Key('accountSave'),
+              label: busy ? 'Хадгалж байна…' : 'Хадгалах',
+              onPressed: busy ? null : save,
+            ),
+          ],
         ),
       ),
     ),
@@ -185,72 +181,57 @@ class _BalanceFormState extends ConsumerState<BalanceFormScreen> {
   @override
   Widget build(BuildContext context) => PopScope(
     canPop: !busy,
-    child: Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.adjustment == null
-              ? 'Үлдэгдэл тохируулах'
-              : 'Тохируулгын дүн засах',
-        ),
-      ),
-      body: Form(
+    child: HadgalyPage(
+      title: widget.adjustment == null ? 'Тохируулах' : 'Дүн засах',
+      backEnabled: !busy,
+      child: Form(
         key: form,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    widget.account.account.name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    widget.adjustment == null
-                        ? 'Одоо бүртгэлтэй: ${formatMnt(widget.account.balance)}'
-                        : 'Хүчинтэй огноо: ${displayTime(widget.adjustment!.record.effectiveAt)}',
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    widget.adjustment == null
-                        ? 'Яг одоогийн бодит үлдэгдлээ оруулаарай.'
-                        : 'Тухайн үеийн зөв үлдэгдлийг оруулаарай. Хүчинтэй огноо хэвээр үлдэнэ.',
-                  ),
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    key: const Key('targetBalance'),
-                    controller: amount,
-                    enabled: !busy,
-                    decoration: const InputDecoration(
-                      labelText: 'Бодит үлдэгдэл',
-                      suffixText: '₮',
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      signed: true,
-                    ),
-                    textInputAction: TextInputAction.done,
-                    validator: amountError,
-                    onFieldSubmitted: (_) => save(),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Энэ тохируулга орлого, зарлагад тооцогдохгүй.'),
-                  if (error != null) ErrorMessage(error!),
-                  const SizedBox(height: 28),
-                  FilledButton(
-                    key: const Key('adjustmentSave'),
-                    onPressed: busy ? null : save,
-                    child: Text(busy ? 'Хадгалж байна…' : 'Хадгалах'),
-                  ),
-                ],
-              ),
+        child: PageContent(
+          children: [
+            Text(
+              widget.adjustment == null
+                  ? 'Үлдэгдэл тохируулах'
+                  : 'Тохируулгын дүн засах',
+              style: headingStyle,
             ),
-          ),
+            const SizedBox(height: 20),
+            Text(widget.account.account.name, style: sectionStyle),
+            const SizedBox(height: 8),
+            Text(
+              widget.adjustment == null
+                  ? 'Одоо бүртгэлтэй: ${formatMnt(widget.account.balance)}'
+                  : 'Хүчинтэй огноо: ${displayTime(widget.adjustment!.record.effectiveAt)}',
+              style: captionStyle,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              widget.adjustment == null
+                  ? 'Яг одоогийн бодит үлдэгдлээ оруулаарай.'
+                  : 'Тухайн үеийн зөв үлдэгдлийг оруулаарай. Хүчинтэй огноо хэвээр үлдэнэ.',
+            ),
+            const SizedBox(height: 24),
+            HadgalyField(
+              fieldKey: const Key('targetBalance'),
+              controller: amount,
+              label: 'Бодит үлдэгдэл',
+              money: true,
+              enabled: !busy,
+              validator: amountError,
+              onSubmitted: (_) => save(),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Энэ тохируулга орлого, зарлагад тооцогдохгүй.',
+              style: captionStyle,
+            ),
+            if (error != null) ErrorMessage(error!),
+            const SizedBox(height: 28),
+            HadgalyButton(
+              key: const Key('adjustmentSave'),
+              label: busy ? 'Хадгалж байна…' : 'Хадгалах',
+              onPressed: busy ? null : save,
+            ),
+          ],
         ),
       ),
     ),
@@ -285,14 +266,5 @@ class ErrorMessage extends StatelessWidget {
   const ErrorMessage(this.message, {super.key});
   final String message;
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 16),
-    child: Semantics(
-      liveRegion: true,
-      child: Text(
-        message,
-        style: TextStyle(color: Theme.of(context).colorScheme.error),
-      ),
-    ),
-  );
+  Widget build(BuildContext context) => InlineError(message);
 }

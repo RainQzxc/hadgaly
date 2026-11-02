@@ -1,5 +1,5 @@
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -42,6 +42,7 @@ void main() {
       await t.enterText(find.byKey(const Key('accountName')), 'Миний карт');
       await t.enterText(find.byKey(const Key('openingBalance')), '-500');
       await tap(find.byKey(const Key('accountSave')));
+      await tap(find.byKey(const Key('chooseDefault')));
       await tap(find.byKey(const Key('default-2')));
       expect(
         t.widget<Text>(find.byKey(const Key('defaultBalance'))).data,

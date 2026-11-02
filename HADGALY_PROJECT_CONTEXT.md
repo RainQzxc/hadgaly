@@ -3,18 +3,24 @@
 Last Updated: **2026-11-02, Asia/Ulaanbaatar**
 
 Current status: **Stage 1 accepted. Stage 2 implemented and verified for founder review; Stage 2 acceptance pending.**
-The founder explicitly authorized a **fresh local start** after the integration-test incident.
-Previous user data **was not recovered**. Main app `mn.hadgaly.hadgaly` is installed fresh on
-`emulator-5554`, with empty onboarding and no invented user accounts/balances.
-Synthetic fixture migration results are separate from that fresh installation.
-See `STAGE2_REVIEW.md`, `STAGE2_FINANCIAL_RULES.md` and the historical `STAGE2_BLOCKER.md`.
+The founder previously authorized a **fresh local start** after the integration-test incident;
+previous incident data was not recovered. The founder's subsequently entered records were
+**preserved exactly** during the latest Stage 2 Cupertino UI refinement. Financial/application,
+repository, schema/migration source hashes are unchanged; schema remains v2.
+See `STAGE2_UI_REFINEMENT.md` for the latest UI/test/demo evidence, and `STAGE2_REVIEW.md`,
+`STAGE2_FINANCIAL_RULES.md`, historical `STAGE2_BLOCKER.md` for prior implementation context.
 
 ## Current directive overrides — 2026-11-02
 
 ### Latest authorization and verified resolution
 
+- Latest authorized work is **Stage 2 UI refinement only**, using Flutter Cupertino components and Hadgaly's Comfortaa/green/rounded identity. No third-party UI kit; official cupertino_icons font only. No Stage 3, financial/domain/persistence/schema/migration changes.
+- Refined UI uses grouped lists, Cupertino fields/buttons/action sheets, accessible Android navigation, native iOS navigation and reduced-motion-aware transitions. Home +/− remain unavailable with honest inline feedback.
+- Latest checks: **76 unit/widget tests pass**, analyze clean, production Android debug build/update passes, sandbox Stage 1/2 Android flows pass, two synthetic v1→v2 device fixture cases pass. Primary app was updated with adb install -r only; all account/profile/adjustment/audit records and schema match the pre-refinement fingerprint.
+- Main app remains on emulator-5554 with existing user data. Disposable emulator-5556 is used only for synthetic sandbox integration checks and is stopped afterward. See STAGE2_UI_REFINEMENT.md for details and known unrun iOS-device/TalkBack checks.
+
 - Founder authorized fresh main-app data; recovery is no longer a prerequisite. No old user data was recovered or reconstructed. Do not describe re-entered balances as recovered history.
-- Main app: native `production` flavor, actual inspected APK id `mn.hadgaly.hadgaly`; fresh schema v2, no accounts/default/nickname, incomplete onboarding. Founder enters all real data.
+- Main app: native `production` flavor, actual inspected APK id `mn.hadgaly.hadgaly`. The initial fresh-start state was empty; the founder subsequently entered records. Preserve current data and never reset it to repeat onboarding.
 - Tests: explicit `sandbox` flavor, inspected APK id `mn.hadgaly.hadgaly.sandbox`, only `Hadgaly_Stage2_Disposable` / `emulator-5556`. Use `tool/run_android_checks.ps1`, which verifies device identity, binary applicationId and hash BEFORE installing the exact APK through flutter drive. No direct integration-test command on the founder emulator.
 - `flutter drive` cleanup also uninstalls the test package. Its target is the inspected sandbox APK id; the wrapper verifies no unrelated package changes. The normal app remains installed on emulator-5554.
 - Stage 2 checks: 72 unit/widget tests passed; Android Stage 1 and Stage 2 scenarios passed on the disposable device; both preserved synthetic v1 completed/partial binary fixtures upgraded to v2 with records, balances, default account and onboarding unchanged. This does not establish real-user-data migration or recovery.

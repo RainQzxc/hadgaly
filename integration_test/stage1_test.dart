@@ -1,5 +1,5 @@
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -62,13 +62,13 @@ void main() {
       expect(
         (tester.widget(
           find.byKey(const Key('accountName')),
-        ) as TextField).controller!.text,
+        ) as CupertinoTextField).controller!.text,
         'Миний хэтэвч',
       );
       expect(
         (tester.widget(
           find.byKey(const Key('openingBalance')),
-        ) as TextField).controller!.text,
+        ) as CupertinoTextField).controller!.text,
         '-',
       );
       await tester.ensureVisible(find.byKey(const Key('openingBalance')));

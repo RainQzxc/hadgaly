@@ -1,174 +1,145 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app.dart';
+import '../../../core/presentation/hadgaly_ui.dart';
 import '../../../core/domain/money.dart';
 import '../../accounts/application/accounts_providers.dart';
 import '../../accounts/data/accounts_repository.dart';
 import '../../accounts/presentation/accounts_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.name});
   final String name;
-  void _unavailable(BuildContext context) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Гүйлгээ бүртгэх боломж хараахан нээгдээгүй байна.'),
-      ),
-    );
-  }
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) => ref
-      .watch(accountsProvider)
-      .when(
-        data: (snapshot) => _body(context, snapshot.defaultAccount),
-        loading: () =>
-            const Scaffold(body: Center(child: CircularProgressIndicator())),
-        error: (_, _) => const Scaffold(
-          body: SafeArea(
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  'Дансны мэдээллийг нээж чадсангүй. Дахин нээгээрэй.',
-                ),
-              ),
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool showUnavailable = false;
+  @override
+  Widget build(BuildContext context) => HadgalyPage(
+    title: 'хадгалъя',
+    child: ref
+        .watch(accountsProvider)
+        .when(
+          loading: () => const LoadingContent(),
+          error: (_, _) => const PageContent(
+            children: [
+              InlineError('Дансны мэдээллийг нээж чадсангүй. Дахин нээгээрэй.'),
+            ],
+          ),
+          data: (snapshot) => _body(snapshot.defaultAccount),
+        ),
+  );
+  Widget _body(AccountView current) => PageContent(
+    children: [
+      Text(
+        'Сайн уу, ${widget.name}',
+        style: const TextStyle(
+          fontSize: 23,
+          height: 1.4,
+          fontWeight: FontWeight.w600,
+          color: ink,
+        ),
+      ),
+      const SizedBox(height: 8),
+      const Text(
+        'Өдөр тутмын мөнгөө хамтдаа цэгцэлье.',
+        style: TextStyle(color: secondaryInk),
+      ),
+      const SizedBox(height: 28),
+      LayoutBuilder(
+        builder: (context, c) {
+          final actions = [
+            _EntryAction(
+              label: 'Орлого',
+              symbol: '+',
+              color: mint,
+              onTap: () => setState(() => showUnavailable = true),
+            ),
+            _EntryAction(
+              label: 'Зарлага',
+              symbol: '−',
+              color: const Color(0xFFF8E1D9),
+              onTap: () => setState(() => showUnavailable = true),
+            ),
+          ];
+          return c.maxWidth < 300 ||
+                  MediaQuery.textScalerOf(context).scale(16) > 22
+              ? Column(
+                  children: [
+                    actions[0],
+                    const SizedBox(height: 14),
+                    actions[1],
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(child: actions[0]),
+                    const SizedBox(width: 16),
+                    Expanded(child: actions[1]),
+                  ],
+                );
+        },
+      ),
+      if (showUnavailable)
+        Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: Semantics(
+            liveRegion: true,
+            child: const Text(
+              'Гүйлгээ бүртгэх боломж хараахан нээгдээгүй байна.',
+              style: captionStyle,
             ),
           ),
         ),
-      );
-
-  Widget _body(BuildContext context, AccountView current) => Scaffold(
-    body: SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
+      const SizedBox(height: 28),
+      InsetGroup(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'хадгалъя',
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: green,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                Text(
-                  'Сайн уу, $name',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    height: 1.4,
-                    fontWeight: FontWeight.w600,
-                    color: ink,
-                  ),
-                ),
+                const Text('Үндсэн данс', style: captionStyle),
                 const SizedBox(height: 8),
-                const Text(
-                  'Өдөр тутмын мөнгөө хамтдаа цэгцэлье.',
-                  style: TextStyle(color: ink),
-                ),
-                const SizedBox(height: 32),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final stack =
-                        constraints.maxWidth < 300 ||
-                        MediaQuery.textScalerOf(context).scale(16) > 22;
-                    final actions = [
-                      _EntryAction(
-                        label: 'Орлого',
-                        symbol: '+',
-                        color: mint,
-                        onTap: () => _unavailable(context),
-                      ),
-                      _EntryAction(
-                        label: 'Зарлага',
-                        symbol: '−',
-                        color: const Color(0xFFF8E1D9),
-                        onTap: () => _unavailable(context),
-                      ),
-                    ];
-                    return stack
-                        ? Column(
-                            children: [
-                              actions[0],
-                              const SizedBox(height: 16),
-                              actions[1],
-                            ],
-                          )
-                        : Row(
-                            children: [
-                              Expanded(child: actions[0]),
-                              const SizedBox(width: 16),
-                              Expanded(child: actions[1]),
-                            ],
-                          );
-                  },
-                ),
-                const SizedBox(height: 32),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: const Color(0xFFDDE5DC)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Үндсэн данс',
-                        style: TextStyle(fontSize: 13, color: secondaryInk),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        current.account.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        formatMnt(current.balance),
-                        key: const Key('homeBalance'),
-                        style: const TextStyle(
-                          fontSize: 28,
-                          height: 1.4,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton.icon(
-                          key: const Key('myAccounts'),
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (_) => const AccountsScreen(),
-                            ),
-                          ),
-                          icon: const Icon(
-                            Icons.account_balance_wallet_outlined,
-                          ),
-                          label: const Text('Миний данс'),
-                        ),
-                      ),
-                    ],
+                Text(current.account.name, style: sectionStyle),
+                const SizedBox(height: 10),
+                Text(
+                  formatMnt(current.balance),
+                  key: const Key('homeBalance'),
+                  style: const TextStyle(
+                    fontSize: 29,
+                    height: 1.35,
+                    fontWeight: FontWeight.w700,
+                    color: ink,
                   ),
                 ),
               ],
             ),
           ),
-        ),
+          CupertinoButton(
+            key: const Key('myAccounts'),
+            minimumSize: const Size(48, 56),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            onPressed: () => openPage<void>(context, const AccountsScreen()),
+            child: const Row(
+              children: [
+                Icon(CupertinoIcons.creditcard, size: 21),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Миний данс',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                Icon(CupertinoIcons.chevron_right, size: 16),
+              ],
+            ),
+          ),
+        ],
       ),
-    ),
+    ],
   );
 }
 
@@ -186,36 +157,38 @@ class _EntryAction extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     button: true,
     label: '$label. Гүйлгээ бүртгэх боломж хараахан нээгдээгүй',
-    child: Material(
-      color: color,
-      borderRadius: BorderRadius.circular(30),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(30),
-        child: Container(
+    enabled: true,
+    onTap: onTap,
+    child: ExcludeSemantics(
+      child: CupertinoButton(
+        color: color,
+        foregroundColor: ink,
+        borderRadius: BorderRadius.circular(26),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        minimumSize: const Size(48, 132),
+        onPressed: onTap,
+        child: SizedBox(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 12),
-          child: ExcludeSemantics(
-            child: Column(
-              children: [
-                Text(
-                  symbol,
-                  style: const TextStyle(
-                    fontSize: 48,
-                    height: 1.15,
-                    fontWeight: FontWeight.w500,
-                  ),
+          child: Column(
+            children: [
+              Text(
+                symbol,
+                style: const TextStyle(
+                  fontSize: 44,
+                  height: 1.15,
+                  fontWeight: FontWeight.w500,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  height: 1.4,
+                  fontWeight: FontWeight.w700,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,5 +1,5 @@
 import 'package:drift/native.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hadgaly/app.dart';
@@ -16,14 +16,11 @@ void main() {
   late AppDatabase db;
   setUp(() => db = AppDatabase(NativeDatabase.memory()));
   tearDown(() => db.close());
-  Future<void> mount(WidgetTester tester, {double scale = 1}) async {
+  Future<void> mount(WidgetTester tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [databaseProvider.overrideWithValue(db)],
-        child: MediaQuery(
-          data: MediaQueryData(textScaler: TextScaler.linear(scale)),
-          child: const HadgalyApp(),
-        ),
+        child: const HadgalyApp(),
       ),
     );
     await tester.pumpAndSettle();
@@ -45,7 +42,7 @@ void main() {
     expect(
       (tester.widget(
         find.byKey(const Key('nickname')),
-      ) as TextField).controller!.text,
+      ) as CupertinoTextField).controller!.text,
       'Ану',
     );
     expect((await db.loadProfile()).step, 0);
@@ -80,8 +77,8 @@ void main() {
     await tapNext(tester);
     expect(find.text('Танилцахад таатай байна, Болд! 💚'), findsOneWidget);
     await tapNext(tester);
-    await tester.ensureVisible(find.byTooltip('Буцах'));
-    await tester.tap(find.byTooltip('Буцах'));
+    await tester.ensureVisible(find.byKey(const Key('back')));
+    await tester.tap(find.byKey(const Key('back')));
     await tester.pumpAndSettle();
     expect(find.text('Танилцахад таатай байна, Болд! 💚'), findsOneWidget);
     await tapNext(tester);
@@ -117,7 +114,7 @@ void main() {
 
     tester.platformDispatcher.textScaleFactorTestValue = 1.8;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-    await mount(tester, scale: 1.8);
+    await mount(tester);
     await tester.ensureVisible(find.byKey(const Key('nickname')));
     await tester.tap(find.byKey(const Key('nickname')));
     await tester.pumpAndSettle();

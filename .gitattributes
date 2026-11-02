@@ -7,4 +7,5 @@
 *.bat text eol=crlf
 *.ttf binary
 *.png binary
+*.fixture binary
 assets/fonts/OFL.txt -whitespace

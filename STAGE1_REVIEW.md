@@ -1,5 +1,8 @@
 # Stage 1 — Founder review
 
+Stage 1 has since been explicitly accepted. Historical Android integration commands below are
+not the current workflow. Use tool/run_android_checks.ps1 on the disposable AVD only; see README.
+
 Огноо: 2026-11-02, Asia/Ulaanbaatar.
 Төлөв: **хэрэгжүүлэлт ба инженерийн шалгалт дууссан; founder acceptance хүлээгдэж байна.**
 Branch: `codex/stage-1-onboarding`. Review хийх commit SHA-г эцсийн тайланд өгнө;

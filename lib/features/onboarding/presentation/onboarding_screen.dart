@@ -32,7 +32,7 @@ class OnboardingScreen extends ConsumerWidget {
       );
     }
     if (state.step == 4 && state.account != null) {
-      return HomeScreen(name: state.nickname, account: state.account!);
+      return HomeScreen(name: state.nickname);
     }
     return PopScope(
       canPop: !state.busy && (state.step == 0 || state.step == 3),

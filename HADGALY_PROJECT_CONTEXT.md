@@ -2,9 +2,30 @@
 
 Last Updated: **2026-11-02, Asia/Ulaanbaatar**
 
-Current status: **Stage 1 implementation authorized by CEO Directive #008; founder acceptance pending.** Environment Preparation passed on Windows Local Codex at `D:\sum\hadgaly`. Earlier cloud observations and closing-task restrictions below are historical and superseded by Directives #006–008.
+Current status: **Stage 1 accepted. Stage 2 implemented and verified for founder review; Stage 2 acceptance pending.**
+The founder explicitly authorized a **fresh local start** after the integration-test incident.
+Previous user data **was not recovered**. Main app `mn.hadgaly.hadgaly` is installed fresh on
+`emulator-5554`, with empty onboarding and no invented user accounts/balances.
+Synthetic fixture migration results are separate from that fresh installation.
+See `STAGE2_REVIEW.md`, `STAGE2_FINANCIAL_RULES.md` and the historical `STAGE2_BLOCKER.md`.
 
 ## Current directive overrides — 2026-11-02
+
+### Latest authorization and verified resolution
+
+- Founder authorized fresh main-app data; recovery is no longer a prerequisite. No old user data was recovered or reconstructed. Do not describe re-entered balances as recovered history.
+- Main app: native `production` flavor, actual inspected APK id `mn.hadgaly.hadgaly`; fresh schema v2, no accounts/default/nickname, incomplete onboarding. Founder enters all real data.
+- Tests: explicit `sandbox` flavor, inspected APK id `mn.hadgaly.hadgaly.sandbox`, only `Hadgaly_Stage2_Disposable` / `emulator-5556`. Use `tool/run_android_checks.ps1`, which verifies device identity, binary applicationId and hash BEFORE installing the exact APK through flutter drive. No direct integration-test command on the founder emulator.
+- `flutter drive` cleanup also uninstalls the test package. Its target is the inspected sandbox APK id; the wrapper verifies no unrelated package changes. The normal app remains installed on emulator-5554.
+- Stage 2 checks: 72 unit/widget tests passed; Android Stage 1 and Stage 2 scenarios passed on the disposable device; both preserved synthetic v1 completed/partial binary fixtures upgraded to v2 with records, balances, default account and onboarding unchanged. This does not establish real-user-data migration or recovery.
+- Amount/audit/ordering rules are in STAGE2_FINANCIAL_RULES.md. Stage 2 is awaiting explicit founder acceptance; do not begin Stage 3.
+
+### Historical incident entries (superseded by fresh-start authorization)
+
+- Latest founder authorization: Stage 1 is accepted; implement Stage 2 only. Earlier Stage 1-pending statements below are historical.
+- Stage 2 approved rules: current-time-only balance anchors; target edits preserve effective time/order; append-only old/new/edit-time audit; no deletion; deterministic ties; original vs recalculated difference remain distinct. See `STAGE2_FINANCIAL_RULES.md`, written before implementation.
+- Stage 2 checks before stop: analyze clean, 72 unit/widget tests pass, debug APK build passes, 2 Android integration tests pass. Integration cleanup then uninstalled the founder's normal emulator package because the intended suffix did not activate. No normal Stage 2 live-demo/migration acceptance claim is valid.
+- Blocking next action: establish whether a pre-incident backup/snapshot exists, or obtain founder confirmation for any data reconstruction. Do not guess financial data. Fix/verify test APK package identity before any further device tests. Changes remain uncommitted on `codex/stage-2-accounts`; no Stage 2 push/review SHA yet.
 
 - #006: Windows local environment inspected; local/remote `main` matched handoff commit `b080b7d9ee3e4ca8bf6890228b9fb1cffbb48d73`.
 - #007: Pin Flutter **3.47.9** / bundled Dart **3.13.7**. SDK: `C:\dev\flutter`. Android AVD: `Medium_Phone_API_37.0`, API 37. NVIDIA `nvoglv64.dll` crashed the normal renderer; cold boot with `-gpu software -no-snapshot-load -no-snapshot-save` brought `emulator-5554` online. No AVD data wipe.
@@ -386,7 +407,7 @@ Hadgaly → structured export → user manually uploads to ChatGPT → analysis 
 - Never imply ChatGPT can see banks or unrecorded spending.
 - Exact schema, privacy defaults, context/prompt, rounding/export details remain open.
 
-## 9. Current environment and development status
+## 9. Historical cloud environment status — 2026-11-01 (superseded)
 
 ### Completed
 
@@ -468,8 +489,8 @@ For every development task report: implemented work; files changed; tests/comman
 
 ## 11. Open decisions and risks
 
-- Balance adjustment detailed ordering/backdating/audit semantics (model selected, mechanics not yet approved).
-- Onboarding skip behavior, main account deletion/archive/default fallback, negative/future-dated entries and amount range/precision.
+- Balance adjustment ordering/audit rules are now approved and documented in STAGE2_FINANCIAL_RULES.md; founder reviews Stage 2 implementation against that contract.
+- First account is mandatory; zero/negative integer opening balances are approved. Account deletion/archive/default fallback and future transaction dates remain outside Stage 2 scope.
 - Exact home/navigation and one-screen entry keyboard interactions; minimal friendly feedback.
 - Backup format/encryption/keys/restore confirmation and conflicts; optional PIN/biometrics.
 - Recurrence phase and 29/30/31 rules, missed cycles, schedule edits, local notification permissions/restart limitations.
@@ -480,25 +501,22 @@ For every development task report: implemented work; files changed; tests/comman
 - Real financial databases/notes/exports/credentials must not enter Git. Use synthetic test data.
 - Future export schema/privacy defaults and data completeness warnings.
 
-## 12. Exact next actions and authorization boundaries
+## 12. Current next actions and authorization boundaries
 
-1. Read this document in full and applicable AGENTS.md/runtime instructions. Inspect actual Git root/status/HEAD/origin; do not overwrite user changes. Confirm remote handoff is present.
-2. Recheck environment status/network draft. If latest storage domain addition is pending, explain founder settings/publish action; do not blindly reapply prior changes or publish yourself.
-3. With environment preparation authorization still applicable, resume official stable metadata/checksum-based SDK preparation; no Flutter app initialization. Stop on genuine external blockers, complete independent checks, report facts.
-4. Record exact Flutter/Dart versions and SDK path; verify doctor and test tooling; save tested reproducible setup instructions outside application source/supported draft fields. No speculative dependencies.
-5. Give founder matching Windows version and verify local Android device/emulator setup, then Hot Reload once a project is authorized and exists.
-6. Before **Stage 1 implementation**, obtain explicit founder authorization. Stage 1 has not begun; approved roadmap/environment setup are not blanket implementation consent.
-7. Before Stage 2 adjustment implementation, present chronology/recalculation decisions and automated numeric test cases for review.
-8. Complete one stage, report test results and exact demo commit, collect founder acceptance, then seek/receive next-stage approval. Never assume silence means approval.
+1. Read the current directive overrides, STAGE2_REVIEW.md and STAGE2_FINANCIAL_RULES.md. Preserve local changes; never force reset/clean.
+2. Founder reviews Stage 2 interactively using their own freshly entered nickname/accounts/balances. Main app is production flavor on emulator-5554; no further data reset is needed.
+3. Normal run: `flutter run --flavor production -d emulator-5554`. Keep Flutter 3.47.9/Dart 3.13.7 and pubspec.lock; do not reinstall working tools.
+4. Device integration tests use only tool/run_android_checks.ps1 with the explicitly named disposable AVD and a verified sandbox APK. Never run test cleanup against the main package/emulator.
+5. Preserved synthetic v1→v2 migration is tested separately. Previous real-user data was not recovered, and real-user-data migration is not verified. Founder-approved fresh installation is not migration evidence.
+6. Address founder review fixes within Stage 2, record the reviewed commit and test/device evidence, and collect explicit Stage 2 acceptance.
+7. Do not begin Stage 3 without its separate authorization. No transactions, transfers, deletion or speculative features are implied by successful tests/build.
+8. Any later recovery operation that overwrites existing state requires founder approval. Never reconstruct financial history from guesses or call manually re-entered balances recovered history.
 
 ## INSTRUCTIONS FOR THE NEXT CODEX SESSION
 
-You have no access to prior chat. Read **HADGALY_PROJECT_CONTEXT.md** first, then local AGENTS.md and managed environment runtime instructions. Treat the document as consolidated product context; distinguish confirmed requirements from proposals and verify all historical runtime claims.
-
-Your immediate objective is to finish **Environment Preparation**, not to build Stage 1. The last blocker is official Flutter storage access returning proxy 403; a domain addition was saved but runtime application/publication is unconfirmed. Inspect current settings and connectivity before changing configuration. Preserve platform HTTPS proxy authentication, TLS and artifact checksum verification. Never ask for a GitHub token merely because token variables are unset.
-
-Do not initialize Flutter, create application files, add project dependencies, implement financial rules or expand roadmap until founder explicitly authorizes Stage 1. The closing task's permission covers this document, commit and push only. Do not silently install tools during documentation handoff. Respect new user instructions overriding prior context.
-
-When implementation is authorized: use approved Flutter/Dart/Riverpod/Drift feature-first stack, independent tested financial domain, integer MNT, manual-only/offline data and clear + / - entry. Preserve balance-at-effective-time adjustments outside income/expense reports. Do not implement unsettled edge cases without review.
-
-Report in Mongolian, plainly and accurately. Show what ran and what did not. Give founder an interactive local Android demo, not screenshot-only acceptance. **Tests + Live Demo + Explicit Founder Approval** are required before every next stage. Do not fabricate CEO approval, tool readiness, remote persistence, test success, or completion.
+The current authorized scope is Stage 2 only; its implementation is ready for founder review,
+not accepted. Stage 1 is explicitly accepted. The founder approved fresh main-app data after
+an integration-test uninstall incident. Main app and disposable test APKs must remain isolated.
+Read the historical incident record without treating its superseded recovery gate as current.
+Report in Mongolian with actual test results, exact commit/device evidence and limitations.
+Tests + accessible interactive Android demo + explicit founder approval remain mandatory.

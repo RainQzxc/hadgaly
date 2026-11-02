@@ -1,12 +1,22 @@
 # Хадгалъя · Hadgaly
 
-Offline-first personal finance. Stage 1: friendly Mongolian onboarding and a minimal home.
-Founder acceptance is pending. Stage 2 and financial transactions are not implemented.
+Offline-first, manual-entry personal finance. Flutter **3.47.9**, bundled Dart **3.13.7**,
+Riverpod, SQLite/Drift; feature-first organization. Preserve `pubspec.lock`.
 
-## Local Android development
+Stage 1 is explicitly accepted. Stage 2 is ready for founder review, **not accepted yet**.
+No Stage 3 entry UI, transfers or bank integration is implemented.
 
-Pinned Flutter **3.47.9** (c197ca5199), bundled Dart **3.13.7**. Preserve `pubspec.lock`.
-In PowerShell:
+## Fresh-start decision
+
+The founder explicitly authorized a fresh main database after the device-test cleanup incident.
+**Previous data was not recovered.** No user profile/account/balance was guessed or reconstructed.
+The founder enters their own nickname and first account. Historical incident details remain in
+`STAGE2_BLOCKER.md`; current results and limitations are in `STAGE2_REVIEW.md`.
+
+## Main Android app
+
+Main APK applicationId: `mn.hadgaly.hadgaly`. Native flavor: `production` (default).
+Founder device: `emulator-5554` / `Medium_Phone_API_37.0`.
 
 ```powershell
 Set-Location D:\sum\hadgaly
@@ -15,79 +25,104 @@ flutter --version
 flutter pub get
 flutter analyze
 flutter test
-flutter build apk --debug
-flutter devices
-flutter run -d emulator-5554
+flutter build apk --debug --flavor production
+flutter run --flavor production -d emulator-5554
 ```
 
-If the emulator is not online, start in a separate terminal:
+These normal build/run commands preserve the current app database. Do not uninstall or clear data
+to repeat onboarding. Do not run direct integration tests on the founder device.
+Never wipe the AVD or install a test APK over the main app.
+
+If the main emulator needs starting, in a separate terminal:
 
 ```powershell
 $env:QT_OPENGL = 'angle'
 & "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd Medium_Phone_API_37.0 -no-snapshot-load -no-snapshot-save -gpu swiftshader -feature -Vulkan -cores 4
 ```
 
-The normal renderer crashed in NVIDIA `nvoglv64.dll`. `-gpu software` booted but later hung.
-The command above (SwiftShader, Vulkan disabled, 4 cores) passed the Android build/run,
-integration test and native keyboard/cold-start checks. No permanent AVD configuration was changed.
-The Android build also requires NDK **28.2.13676358**. On the new Android CLI,
-install the exact package if needed (the legacy sdkmanager wrapper misparsed it here):
+The normal renderer previously crashed in NVIDIA `nvoglv64.dll`; basic `-gpu software` later hung.
+The command above passed Android checks. No permanent main-AVD configuration change is required.
+NDK 28.2.13676358 and CMake 3.22.1 are already installed; do not reinstall working tools.
+Hot Reload: `r`; Hot Restart: `R`. Neither replaces cold-start persistence verification.
+
+## Safe Android integration checks
+
+Only synthetic data, only `Hadgaly_Stage2_Disposable`, default port/device `emulator-5556`.
+The sandbox applicationId is **`mn.hadgaly.hadgaly.sandbox`**, different from the main app.
+Flavor is explicit; it is never inferred from a generated Dart test path.
+
+Create the disposable AVD once (refuses to overwrite an existing AVD):
 
 ```powershell
-& "$env:LOCALAPPDATA\Android\Sdk\cmdline-tools\latest\bin\android.exe" --no-metrics --sdk="$env:LOCALAPPDATA\Android\Sdk" sdk install 'ndk/28.2.13676358'
+.\tool\create_disposable_avd.ps1
 ```
 
-Cold boot does not wipe AVD data. `r` reloads, `R` restarts; cold-start persistence acceptance
-requires closing/reopening the Android app, not just Hot Reload.
-
-Android integration test uses its own uniquely named SQLite file, with synthetic data:
+Start it in a separate terminal:
 
 ```powershell
-flutter test integration_test/stage1_test.dart -d emulator-5554
+$env:QT_OPENGL = 'angle'
+& "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd Hadgaly_Stage2_Disposable -port 5556 -no-snapshot-load -no-snapshot-save -gpu swiftshader -feature -Vulkan -cores 4
 ```
 
-## Structure and data rules
+Then use the guarded runner:
 
-- `lib/core/domain/money.dart`: pure Dart name/integer validation and formatting.
-- `lib/features/onboarding/data`: Drift schema, transactions and durable checkpoints.
-- `lib/features/onboarding/application`: Riverpod controller, ordered draft writes, submission guard.
-- `lib/features/onboarding/presentation`: welcome, greeting, mandatory first account, completion.
-- `lib/features/home/presentation`: default account/balance, prominent +/− with honest unavailable feedback.
+```powershell
+.\tool\run_android_checks.ps1
+# Or only preserved-fixture migration:
+.\tool\run_android_checks.ps1 -Tests migration_test
+```
 
-Amounts: **−999,999,999,999 through 999,999,999,999 MNT inclusive**. ASCII integer digits,
-optional leading minus, outer whitespace accepted, no fractions/separators/exponents/rounding.
-Parsing uses BigInt for validation before conversion; stored amounts are SQLite signed integers.
-Names are trimmed, nonblank, single-line, at most 60 Unicode code points.
+The runner verifies the AVD name and absence of the main package on the test device, checks preserved
+fixture hashes, builds the sandbox APK, inspects its actual applicationId using `aapt`, freezes and
+hashes that binary, and only then installs that exact verified APK with `flutter drive`.
+Drive cleanup uninstalls the **sandbox** package; unrelated packages are checked before/after.
+An attempted run against emulator-5554 was verified to fail before build/install.
+Evidence: `build/android-safety/<timestamp>/` (APK, badging, SHA-256/result JSON and driver logs).
+Do not copy any real user data to the disposable AVD. Do not bypass these guards.
 
-Only first-account creation is implemented. It atomically inserts the account, assigns the default,
-and advances to completion. The final Home action marks onboarding complete only with a valid account.
-Retries are idempotent. SQLite foreign keys and a trigger enforce the completed-profile prerequisite.
-Draft fields and step are saved in order after each change; an interrupted write retains the last
-committed checkpoint. Completed data is never reset automatically on startup failure.
+## Financial rules and persistence
 
-Database schema v1. No destructive migration fallback. No cloud, tracking, or financial logging.
-Android automatic backup is disabled pending the approved Stage 6 backup/restore design.
-Android platform defaults come from this pinned Flutter template; minimum supported OS is not yet a product commitment.
+See `STAGE2_FINANCIAL_RULES.md`, written before financial implementation.
 
-After schema changes during development:
+- Input/current-balance range: **−999,999,999,999 through 999,999,999,999 MNT** inclusive.
+  No fractions, floating-point arithmetic, silent rounding or truncation. BigInt validates arithmetic.
+- Opening is a baseline. Adjustment targets are authoritative anchors, ordered by effective UTC
+  microsecond and stable sequence. New adjustments are current-time only; no date picker/deletion.
+- Target edits preserve effective position and append old/new/edit-time audit in the same transaction.
+  Original observed difference and recalculated difference are separately preserved/displayed.
+- Later anchors stay authoritative. Adjustments/openings are excluded from income/expense/net cash flow.
+  Transaction add/edit/delete scenarios exist as pure-domain fixtures only, not Stage 3 persistence/UI.
+- Random form request keys, unique constraints, revision checks and busy guards prevent duplicate saves.
+- Database schema **v2** upgrades v1 additively, atomically. No destructive migration fallback.
+  SQLite foreign keys and triggers protect default accounts, immutable observation, audit and deletion rules.
+- Names: trimmed, nonblank, single-line, at most 60 Unicode code points.
+- Comfortaa is bundled offline under SIL OFL, including Mongolian Cyrillic, Ө/Ү and ₮.
+  Source: [Google Fonts](https://github.com/google/fonts/tree/main/ofl/comfortaa).
+- No sensitive financial logs, automatic data upload or automatic Android backup.
+  Product backup/restore remains Stage 6 scope.
+
+## Preserved v1 synthetic fixtures
+
+`test/fixtures/stage1_completed_v1.fixture` and `stage1_partial_v1.fixture` are real SQLite **v1**
+files containing synthetic data only. Their SHA-256 manifest is committed. Tests copy them to unique
+device paths, inspect version/records before upgrade, compare all original account/profile fields
+after v2 migration, verify balances/default/onboarding/foreign keys, then close/reopen.
+These assets are packaged **only in sandbox APKs**, not in the production app.
+Fresh-install success is separate evidence and does not validate migration or recover previous data.
+
+## Source and review
+
+- `lib/core/domain/money.dart`: exact validation/formatting.
+- `lib/features/accounts/domain/ledger.dart`: pure Dart chronological financial replay.
+- `lib/features/accounts/{data,application,presentation}`: repository, streams, forms, My Accounts/history.
+- `lib/features/onboarding/data`: current Drift schema and v1→v2 migration; generated Dart is committed.
+- `test`, `integration_test`, `test_driver`, `tool`: unit/widget/device checks and safety workflow.
+
+After changing the Drift schema, review/add a migration and regenerate:
 
 ```powershell
 dart run build_runner build
 ```
 
-Commit generated `app_database.g.dart`, review schema changes and add explicit migrations.
-Never commit actual financial databases, notes, credentials or device exports.
-
-## Founder review
-
-1. Fresh app: “Сайн уу? 👋”, blank/whitespace validation, preferred Mongolian name.
-2. Personalized greeting; back navigation preserves input.
-3. Required account name and integer opening balance; try 0, negative, invalid fraction/overflow.
-4. Close/reopen mid-account entry; the last committed partial input returns.
-5. Completion screen; first account becomes default; Home shows its exact balance.
-6. Close/reopen Home; state persists. Tap both +/−: feedback only, no financial posting.
-7. Review keyboard scrolling, small screen, large text, Mongolian typography and friendly copy.
-
-Comfortaa is bundled offline under SIL OFL, including Mongolian Cyrillic, Ө/Ү and ₮.
-Font source: [Google Fonts](https://github.com/google/fonts/tree/main/ofl/comfortaa).
-Persistence follows [Drift setup](https://drift.simonbinder.eu/setup/).
+Never commit real databases/notes/exports/credentials. Only the explicitly identified synthetic
+`.fixture` files are versioned. Founder acceptance gates remain tests + Android demo + explicit approval.

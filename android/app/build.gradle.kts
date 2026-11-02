@@ -29,6 +29,20 @@ android {
         versionName = flutter.versionName
     }
 
+    // Explicit native flavors: never infer package identity from a Dart target path.
+    flavorDimensions += "environment"
+    productFlavors {
+        create("production") {
+            dimension = "environment"
+            manifestPlaceholders["applicationLabel"] = "Хадгалъя"
+        }
+        create("sandbox") {
+            dimension = "environment"
+            applicationIdSuffix = ".sandbox"
+            manifestPlaceholders["applicationLabel"] = "Хадгалъя · Тест"
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

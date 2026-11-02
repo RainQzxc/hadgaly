@@ -103,6 +103,8 @@ void main() {
       findsOneWidget,
     );
     expect(await db.select(db.accounts).get(), hasLength(1));
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
   });
   testWidgets('Small screen, keyboard, large text and accessibility', (
     tester,
@@ -146,5 +148,7 @@ void main() {
     await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
     await expectLater(tester, meetsGuideline(textContrastGuideline));
     semantics.dispose();
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
   });
 }

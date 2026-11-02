@@ -1,5 +1,5 @@
 name: hadgaly
-description: Offline-first personal finance, Stage 1 onboarding.
+description: Offline-first personal finance, accounts and reliable local balances.
 publish_to: 'none'
 version: 0.1.0+1
 environment:
@@ -20,7 +20,13 @@ dev_dependencies:
   drift_dev: 2.35.2
   build_runner: 2.17.1
 flutter:
+  default-flavor: production
   uses-material-design: true
+  assets:
+    - path: test/fixtures/stage1_completed_v1.fixture
+      flavors: [sandbox]
+    - path: test/fixtures/stage1_partial_v1.fixture
+      flavors: [sandbox]
   fonts:
     - family: Comfortaa
       fonts:

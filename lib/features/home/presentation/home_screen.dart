@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app.dart';
 import '../../../core/domain/money.dart';
-import '../../onboarding/data/app_database.dart';
+import '../../accounts/application/accounts_providers.dart';
+import '../../accounts/data/accounts_repository.dart';
+import '../../accounts/presentation/accounts_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.name, required this.account});
+class HomeScreen extends ConsumerWidget {
+  const HomeScreen({super.key, required this.name});
   final String name;
-  final Account account;
   void _unavailable(BuildContext context) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -18,7 +20,27 @@ class HomeScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) => ref
+      .watch(accountsProvider)
+      .when(
+        data: (snapshot) => _body(context, snapshot.defaultAccount),
+        loading: () =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
+        error: (_, _) => const Scaffold(
+          body: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Text(
+                  'Дансны мэдээллийг нээж чадсангүй. Дахин нээгээрэй.',
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+  Widget _body(BuildContext context, AccountView current) => Scaffold(
     body: SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -105,7 +127,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        account.name,
+                        current.account.name,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -113,12 +135,29 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        formatMnt(account.openingBalance),
+                        formatMnt(current.balance),
                         key: const Key('homeBalance'),
                         style: const TextStyle(
                           fontSize: 28,
                           height: 1.4,
                           fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          key: const Key('myAccounts'),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => const AccountsScreen(),
+                            ),
+                          ),
+                          icon: const Icon(
+                            Icons.account_balance_wallet_outlined,
+                          ),
+                          label: const Text('Миний данс'),
                         ),
                       ),
                     ],

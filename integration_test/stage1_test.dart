@@ -76,11 +76,12 @@ void main() {
       await next();
       expect(find.text('Бэлэн боллоо, Өнөр! 🎉'), findsOneWidget);
       await next();
-      expect(find.text('−25,000 ₮'), findsOneWidget);
+      expect(find.text('Нийт үлдэгдэл: −25,000 ₮'), findsOneWidget);
       await reopen();
-      expect(find.text('−25,000 ₮'), findsOneWidget);
+      expect(find.text('Нийт үлдэгдэл: −25,000 ₮'), findsOneWidget);
       expect(await db.select(db.accounts).get(), hasLength(1));
-      await tester.tap(find.text('−'));
+      await tester.ensureVisible(find.byKey(const Key('expenseAction')));
+      await tester.tap(find.byKey(const Key('expenseAction')));
       await tester.pumpAndSettle();
       expect(
         find.text('Гүйлгээ бүртгэх боломж хараахан нээгдээгүй байна.'),

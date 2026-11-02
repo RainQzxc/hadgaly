@@ -1,5 +1,7 @@
 # Stage 2 — Миний данс ба найдвартай үлдэгдэл
 
+Latest Home revision supersedes the Home/default-card descriptions below: see STAGE2_HOME_REVIEW.md.
+
 Latest UI refinement and updated verification: see STAGE2_UI_REFINEMENT.md. Current founder data
 was preserved during that UI update. The fresh-install statements below describe the earlier baseline.
 

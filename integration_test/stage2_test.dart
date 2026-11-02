@@ -71,8 +71,9 @@ void main() {
       db = AppDatabase(driftDatabase(name: name));
       repo = AccountsRepository(db);
       await mount();
-      expect(find.text('Миний карт'), findsOneWidget);
-      expect(find.text('800 ₮'), findsOneWidget);
+      expect(find.text('Нийт үлдэгдэл: 1,800 ₮'), findsOneWidget);
+      expect(find.text('+0 ₮'), findsOneWidget);
+      expect(find.text('−0 ₮'), findsOneWidget);
       final snapshot = await repo.snapshot();
       expect(snapshot.defaultId, 2);
       final first = snapshot

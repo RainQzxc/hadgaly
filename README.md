@@ -7,6 +7,9 @@ Stage 1 is explicitly accepted. Stage 2 is ready for founder review, **not accep
 No Stage 3 entry UI, transfers or bank integration is implemented.
 Stage 2 UI now uses Flutter Cupertino components, Comfortaa and Hadgaly's soft green identity;
 see `STAGE2_UI_REFINEMENT.md` for current UI/accessibility/data-preservation results.
+Latest Home layout supersedes the earlier default-account card: see `STAGE2_HOME_REVIEW.md`.
+Home shows a neutral expense donut, zero period totals and all accounts' combined current balance;
+expense/income actions remain unavailable until Stage 3.
 
 ## Fresh-start decision
 

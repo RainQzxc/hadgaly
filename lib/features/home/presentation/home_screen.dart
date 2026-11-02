@@ -1,8 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/presentation/hadgaly_ui.dart';
-import '../../../core/domain/money.dart';
 import '../../accounts/application/accounts_providers.dart';
 import '../../accounts/data/accounts_repository.dart';
 import '../../accounts/presentation/accounts_screen.dart';
@@ -28,116 +29,191 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               InlineError('Дансны мэдээллийг нээж чадсангүй. Дахин нээгээрэй.'),
             ],
           ),
-          data: (snapshot) => _body(snapshot.defaultAccount),
+          data: _body,
         ),
   );
-  Widget _body(AccountView current) => PageContent(
-    children: [
-      Text(
-        'Сайн уу, ${widget.name}',
-        style: const TextStyle(
-          fontSize: 23,
-          height: 1.4,
-          fontWeight: FontWeight.w600,
-          color: ink,
-        ),
-      ),
-      const SizedBox(height: 8),
-      const Text(
-        'Өдөр тутмын мөнгөө хамтдаа цэгцэлье.',
-        style: TextStyle(color: secondaryInk),
-      ),
-      const SizedBox(height: 28),
-      LayoutBuilder(
-        builder: (context, c) {
-          final actions = [
-            _EntryAction(
-              label: 'Орлого',
-              symbol: '+',
-              color: mint,
-              onTap: () => setState(() => showUnavailable = true),
-            ),
-            _EntryAction(
-              label: 'Зарлага',
-              symbol: '−',
-              color: const Color(0xFFF8E1D9),
-              onTap: () => setState(() => showUnavailable = true),
-            ),
-          ];
-          return c.maxWidth < 300 ||
-                  MediaQuery.textScalerOf(context).scale(16) > 22
-              ? Column(
-                  children: [
-                    actions[0],
-                    const SizedBox(height: 14),
-                    actions[1],
-                  ],
-                )
-              : Row(
-                  children: [
-                    Expanded(child: actions[0]),
-                    const SizedBox(width: 16),
-                    Expanded(child: actions[1]),
-                  ],
-                );
-        },
-      ),
-      if (showUnavailable)
-        Padding(
-          padding: const EdgeInsets.only(top: 16),
-          child: Semantics(
-            liveRegion: true,
-            child: const Text(
-              'Гүйлгээ бүртгэх боломж хараахан нээгдээгүй байна.',
-              style: captionStyle,
+
+  Widget _body(AccountsSnapshot snapshot) {
+    // Sum verified current balances, including openings and authoritative anchors.
+    // BigInt avoids overflow across many individually valid account balances.
+    final total = snapshot.accounts.fold<BigInt>(
+      BigInt.zero,
+      (sum, account) => sum + BigInt.from(account.balance),
+    );
+    final digits = total.abs().toString().replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (m) => '${m[1]},',
+    );
+    final balance = '${total.isNegative ? '−' : ''}$digits ₮';
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: math.max(0, constraints.maxHeight - 28),
+                maxWidth: 480,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Сайн уу, ${widget.name}', style: sectionStyle),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Column(
+                      children: [
+                        Center(
+                          child: _EmptyExpenseDonut(
+                            size: math.min(constraints.maxWidth - 40, 340),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        const Text(
+                          'Гүйлгээ бүртгэгдээгүй байна.',
+                          textAlign: TextAlign.center,
+                          style: captionStyle,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Semantics(
+                        label: 'Бүх дансны одоогийн нийт үлдэгдэл: $balance',
+                        child: ExcludeSemantics(
+                          child: Text(
+                            'Нийт үлдэгдэл: $balance',
+                            key: const Key('homeBalance'),
+                            textAlign: TextAlign.center,
+                            style: sectionStyle.copyWith(fontSize: 20),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _EntryAction(
+                              label: 'Зарлага',
+                              symbol: '−',
+                              color: const Color(0xFFF8E1D9),
+                              onTap: _unavailable,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _EntryAction(
+                              label: 'Орлого',
+                              symbol: '+',
+                              color: mint,
+                              onTap: _unavailable,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (showUnavailable)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Semantics(
+                            liveRegion: true,
+                            child: const Text(
+                              'Гүйлгээ бүртгэх боломж хараахан нээгдээгүй байна.',
+                              textAlign: TextAlign.center,
+                              style: captionStyle,
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 8),
+                      CupertinoButton(
+                        key: const Key('myAccounts'),
+                        minimumSize: const Size(48, 56),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        onPressed: () =>
+                            openPage<void>(context, const AccountsScreen()),
+                        child: const Text(
+                          'Миний данс',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      const SizedBox(height: 28),
-      InsetGroup(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        );
+      },
+    );
+  }
+
+  void _unavailable() => setState(() => showUnavailable = true);
+}
+
+/// Stage 2 has no transaction/category persistence. This neutral ring represents
+/// no category data, never invented proportions or income/expense ratios.
+class _EmptyExpenseDonut extends StatelessWidget {
+  const _EmptyExpenseDonut({required this.size});
+  final double size;
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      const Text('Энэ сар', style: captionStyle),
+      const SizedBox(height: 8),
+      Semantics(
+        key: const Key('expenseDonut'),
+        label: 'Энэ сарын зарлагын ангиллын хуваарилалт. Гүйлгээ бүртгэгдээгүй. Орлого: +0 ₮. Зарлага: −0 ₮.',
+        image: true,
+        child: ExcludeSemantics(
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: line, width: 14),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('Үндсэн данс', style: captionStyle),
-                const SizedBox(height: 8),
-                Text(current.account.name, style: sectionStyle),
-                const SizedBox(height: 10),
+                Text('Орлого', style: TextStyle(fontSize: 14, color: green)),
                 Text(
-                  formatMnt(current.balance),
-                  key: const Key('homeBalance'),
-                  style: const TextStyle(
-                    fontSize: 29,
+                  '+0 ₮',
+                  key: Key('periodIncome'),
+                  style: TextStyle(
+                    fontSize: 20,
                     height: 1.35,
                     fontWeight: FontWeight.w700,
-                    color: ink,
+                    color: green,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Зарлага',
+                  style: TextStyle(fontSize: 14, color: errorInk),
+                ),
+                Text(
+                  '−0 ₮',
+                  key: Key('periodExpense'),
+                  style: TextStyle(
+                    fontSize: 20,
+                    height: 1.35,
+                    fontWeight: FontWeight.w700,
+                    color: errorInk,
                   ),
                 ),
               ],
             ),
           ),
-          CupertinoButton(
-            key: const Key('myAccounts'),
-            minimumSize: const Size(48, 56),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            onPressed: () => openPage<void>(context, const AccountsScreen()),
-            child: const Row(
-              children: [
-                Icon(CupertinoIcons.creditcard, size: 21),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Миний данс',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                Icon(CupertinoIcons.chevron_right, size: 16),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     ],
   );
@@ -161,34 +237,23 @@ class _EntryAction extends StatelessWidget {
     onTap: onTap,
     child: ExcludeSemantics(
       child: CupertinoButton(
+        key: Key(label == 'Зарлага' ? 'expenseAction' : 'incomeAction'),
         color: color,
         foregroundColor: ink,
-        borderRadius: BorderRadius.circular(26),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        minimumSize: const Size(48, 132),
+        borderRadius: BorderRadius.circular(22),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 22),
+        minimumSize: const Size(48, 80),
         onPressed: onTap,
         child: SizedBox(
           width: double.infinity,
-          child: Column(
-            children: [
-              Text(
-                symbol,
-                style: const TextStyle(
-                  fontSize: 44,
-                  height: 1.15,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  height: 1.4,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
+          child: Text(
+            '$symbol $label',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 17,
+              height: 1.4,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),

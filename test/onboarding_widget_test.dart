@@ -92,8 +92,9 @@ void main() {
     await tapNext(tester);
     expect(find.text('Бэлэн боллоо, Болд! 🎉'), findsOneWidget);
     await tapNext(tester);
-    expect(find.text('−120 ₮'), findsOneWidget);
-    await tester.tap(find.text('+'));
+    expect(find.text('Нийт үлдэгдэл: −120 ₮'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('incomeAction')));
+    await tester.tap(find.byKey(const Key('incomeAction')));
     await tester.pumpAndSettle();
     expect(
       find.text('Гүйлгээ бүртгэх боломж хараахан нээгдээгүй байна.'),

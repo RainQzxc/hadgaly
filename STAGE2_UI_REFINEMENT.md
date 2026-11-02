@@ -1,5 +1,8 @@
 # Stage 2 UI refinement — founder review
 
+Home layout was subsequently revised by founder directive; STAGE2_HOME_REVIEW.md supersedes this
+document's Home/default-account card description. Other Cupertino refinement evidence remains historical.
+
 2026-11-02, Asia/Ulaanbaatar. Base commit: `8787bcc9526da9b20dd84573b4e1f0534608fb9e`.
 This is UI refinement within Stage 2. Stage 2 remains pending explicit founder acceptance.
 The approved six-stage roadmap and all financial behavior remain unchanged. Stage 3 has not begun.

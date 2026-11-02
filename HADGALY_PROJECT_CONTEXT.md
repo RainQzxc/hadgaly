@@ -3,6 +3,9 @@
 Last Updated: **2026-11-02, Asia/Ulaanbaatar**
 
 Current status: **Stage 1 accepted. Stage 2 implemented and verified for founder review; Stage 2 acceptance pending.**
+Latest Home revision: see `STAGE2_HOME_REVIEW.md`. The founder-approved Home now centers a neutral
+expense-category donut with zero period totals, shows the combined current balance of all accounts,
+and places expense left / income right above My Accounts navigation. No transaction capability was added.
 The founder previously authorized a **fresh local start** after the integration-test incident;
 previous incident data was not recovered. The founder's subsequently entered records were
 **preserved exactly** during the latest Stage 2 Cupertino UI refinement. Financial/application,
@@ -14,7 +17,11 @@ See `STAGE2_UI_REFINEMENT.md` for the latest UI/test/demo evidence, and `STAGE2_
 
 ### Latest authorization and verified resolution
 
-- Latest authorized work is **Stage 2 UI refinement only**, using Flutter Cupertino components and Hadgaly's Comfortaa/green/rounded identity. No third-party UI kit; official cupertino_icons font only. No Stage 3, financial/domain/persistence/schema/migration changes.
+- Latest authorized work is **Stage 2 Home layout revision only**, superseding the previous Home/default-account card layout. Preserve Cupertino/Comfortaa/green styling, existing account-management default selection, financial rules, schema, migrations and user records. No Stage 3 or full Stage 5 implementation.
+- Approved Home: prominent centered expense-category donut; inside it period income + amount and expense − amount; combined **current** account balance above bottom buttons; **− Зарлага left / + Орлого right**, then existing My Accounts navigation/safe area. No Default Account card on Home. My Accounts remains a separate screen with unchanged default behavior.
+- Stage 2 has no transaction/category persistence or existing period selector. Display a neutral empty ring, fixed “Энэ сар”, +0 ₮ / −0 ₮, and concise empty text. No fake category proportions, transaction storage, entry UI or period-navigation infrastructure. Button taps retain honest unavailable feedback.
+- Combined balance sums all verified AccountView current balances, including opening balances/adjustment anchors, using BigInt in presentation; no per-account limit is applied to the aggregate. It is independent of default selection and period totals. No financial-domain/repository changes.
+- Home revision checks: **80 unit/widget tests pass**, format/analyze pass, production Android debug build/update/cold launch pass; sandbox Stage 1/2 flows run only on the verified disposable environment. Production records/schema fingerprint and protected source hashes are unchanged. Details/evidence/limitations: STAGE2_HOME_REVIEW.md.
 - Refined UI uses grouped lists, Cupertino fields/buttons/action sheets, accessible Android navigation, native iOS navigation and reduced-motion-aware transitions. Home +/− remain unavailable with honest inline feedback.
 - Latest checks: **76 unit/widget tests pass**, analyze clean, production Android debug build/update passes, sandbox Stage 1/2 Android flows pass, two synthetic v1→v2 device fixture cases pass. Primary app was updated with adb install -r only; all account/profile/adjustment/audit records and schema match the pre-refinement fingerprint.
 - Main app remains on emulator-5554 with existing user data. Disposable emulator-5556 is used only for synthetic sandbox integration checks and is stopped afterward. See STAGE2_UI_REFINEMENT.md for details and known unrun iOS-device/TalkBack checks.
@@ -385,6 +392,12 @@ Acceptance: opening + operations + anchor semantics reconcile; adjustment exclud
 
 Deliver: + / - remain primary; balances vs period income/expense differentiated; expense donut/basic category summary; helpful empty states; no crowded mockup copy.
 
+Founder-approved layout direction recorded during Stage 2 Home revision: centered expense-category
+donut with selected-period income/expense inside; combined current balance above bottom expense-left /
+income-right actions; My Accounts separate; no default-account card on Home. Stage 2 implements only
+the neutral no-transactions state and verified current account sum. Real period/category reporting is
+deferred to the approved later scope; this note does not start Stage 5 or change the six-stage roadmap.
+
 Acceptance: totals match history, zero income/expense and negative balances clear; no false savings/profit claims; calculation/widget tests and live demo; founder approves hierarchy.
 
 ### Stage 6 — MVP validation and data protection
@@ -511,7 +524,7 @@ For every development task report: implemented work; files changed; tests/comman
 
 1. Read the current directive overrides, STAGE2_REVIEW.md and STAGE2_FINANCIAL_RULES.md. Preserve local changes; never force reset/clean.
 2. Founder reviews Stage 2 interactively using their own freshly entered nickname/accounts/balances. Main app is production flavor on emulator-5554; no further data reset is needed.
-3. Normal run: `flutter run --flavor production -d emulator-5554`. Keep Flutter 3.47.9/Dart 3.13.7 and pubspec.lock; do not reinstall working tools.
+3. Preserve production data: follow README's checked production APK identity + `adb install -r` update and explicit launch commands. No uninstall fallback. Keep Flutter 3.47.9/Dart 3.13.7 and pubspec.lock; do not reinstall working tools.
 4. Device integration tests use only tool/run_android_checks.ps1 with the explicitly named disposable AVD and a verified sandbox APK. Never run test cleanup against the main package/emulator.
 5. Preserved synthetic v1→v2 migration is tested separately. Previous real-user data was not recovered, and real-user-data migration is not verified. Founder-approved fresh installation is not migration evidence.
 6. Address founder review fixes within Stage 2, record the reviewed commit and test/device evidence, and collect explicit Stage 2 acceptance.

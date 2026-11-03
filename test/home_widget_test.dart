@@ -116,10 +116,26 @@ void main() {
         lessThan(t.getTopLeft(navigation).dy),
       );
       expect(t.getBottomRight(navigation).dy, lessThanOrEqualTo(844));
+      // Explicit section rhythm must not grow when the viewport has spare height.
       expect(
-        t.getTopLeft(find.byKey(const Key('module-3'))).dy -
-            t.getBottomRight(navigation).dy,
-        lessThanOrEqualTo(32),
+        t.getTopLeft(find.text('Нийт үлдэгдэл')).dy -
+            t.getBottomRight(find.text('Гүйлгээ бүртгэгдээгүй байна.')).dy,
+        closeTo(24, 0.01),
+      );
+      expect(
+        find.descendant(
+          of: navigation,
+          matching: find.byIcon(CupertinoIcons.chevron_right),
+        ),
+        findsOneWidget,
+      );
+      expect(t.getSize(navigation).height, greaterThanOrEqualTo(48));
+      t.view.physicalSize = const Size(390, 1000);
+      await t.pumpAndSettle();
+      expect(
+        t.getTopLeft(find.text('Нийт үлдэгдэл')).dy -
+            t.getBottomRight(find.text('Гүйлгээ бүртгэгдээгүй байна.')).dy,
+        closeTo(24, 0.01),
       );
       expect(
         find.bySemanticsLabel(

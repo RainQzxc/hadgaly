@@ -3,6 +3,10 @@
 Last Updated: **2026-11-03, Asia/Ulaanbaatar**
 
 Current status: **Stage 1 accepted. Stage 2 implemented and verified for founder review; Stage 2 acceptance pending.**
+CEO #015 supersedes the previous Home height-distribution approach: controlled vertical flow,
+24dp empty-state-to-balance gap, no primary-column spaceBetween/full-height minimum, and a subtle
+My Accounts navigation row with trailing chevron. Only Home presentation/tests/docs changed.
+See STAGE2_HOME_COMPOSITION_REVIEW.md. Navbar, other screens, tokens/fonts and finance remain unchanged.
 Latest founder steering after CEO #013: **Home-first proportions/spacing pass only**. Home review
 comes before propagating the design language to My Accounts/onboarding/shared navigation. See
 STAGE2_HOME_PROPORTIONS_REVIEW.md; broader STAGE2_UX_AUDIT_013.md recommendations remain pending.
@@ -24,8 +28,8 @@ See `STAGE2_UI_REFINEMENT.md` for the latest UI/test/demo evidence, and `STAGE2_
 
 ### Latest authorization and verified resolution
 
-- Latest authorized work is **Home-first refinement following CEO #013 audit and founder steering**: shrink donut about 30%, regularize 8dp spacing, emphasize total amount, make Home buttons 56–64dp. Do not restyle the whole app. Navbar/shared tokens, My Accounts and onboarding wait for Home visual approval. Finance behavior/schema/migrations remain unchanged; Stage 2 remains unapproved.
-- Home now uses a 200–240dp normal-text ring (240dp on the founder's standard device, versus 340dp before), a 10dp stroke, quieter greeting, separate total label/30dp amount, and 64dp icon+label actions. Large text can expand ring/buttons and scroll. Top greeting/chart group stays compact; balance/action group stays above navigation. All-account BigInt sum and zero period totals are unchanged.
+- Latest authorized work is **CEO #015 Home-only composition correction**: remove excess vertical distribution, keep the existing normal 240dp donut/10dp stroke and 64dp actions, refine My Accounts into a subtle chevron row. Do not restyle other screens, tokens/fonts/navbar or future modules. Stage 2 remains unapproved.
+- Home retains its 200–240dp normal-text responsive ring (240dp on the founder's standard device), 10dp stroke, existing period labels, total label/30dp amount, and expense-left/income-right 64dp actions. The primary Column no longer uses spaceBetween or a full-height minimum. A fixed 24dp section gap connects empty state to total, with 8/16dp intra-section rhythm. Large text can expand/scroll. My Accounts row is 14dp/500 with a trailing chevron and ≥48dp touch height. Spare height remains below content instead of splitting the composition. All-account BigInt sum and zero period totals are unchanged.
 - Future product vision: modular organization across **Хийх зүйл / Авах зүйл / Санаа / Санхүү**, Simple Yet Effective. Current MVP implementation and the approved six-stage roadmap remain finance-only. Any future roadmap expansion requires a separate product decision.
 - Typography: official unmodified Google Sans Flex variable font; its cmap lacks Cyrillic and ₮. Official unmodified Noto Sans fallback supplies only missing glyphs, including Ө/Ү/өү and ₮. Both are bundled offline with SIL OFL notices; Google Sans Flex trademark notice retained. Official google/fonts source revision and SHA-256 manifest: assets/fonts/SOURCES.json. No proprietary/unofficial font files.
 - Central tokens: neutral #F5F6F8, midnight #14243E, teal #39B5AA, expense #D66B72; light Cupertino presentation. 60/30/10 is composition guidance, not a pixel quota. Darker teal/error text variants preserve 4.5:1 contrast; main buttons use midnight text on teal/expense fills. See lib/core/presentation/design_tokens.dart.

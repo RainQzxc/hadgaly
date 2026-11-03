@@ -61,13 +61,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
           child: Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: math.max(0, constraints.maxHeight - 32),
-                maxWidth: 480,
-              ),
+              constraints: const BoxConstraints(maxWidth: 480),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -170,13 +167,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         onPressed: () =>
                             openPage<void>(context, const AccountsScreen()),
-                        child: const Text(
-                          'Миний данс',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        child: const Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Миний данс',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: secondaryInk,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(
+                              CupertinoIcons.chevron_right,
+                              size: 16,
+                              color: secondaryInk,
+                            ),
+                          ],
                         ),
                       ),
                     ],

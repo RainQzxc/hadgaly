@@ -1,5 +1,8 @@
 # Stage 2 — Home-first proportions review
 
+CEO #015 subsequently removes this pass's remaining vertical distribution between overview/action groups.
+Current composition: STAGE2_HOME_COMPOSITION_REVIEW.md. Sizes/colors/financial behavior are preserved.
+
 2026-11-03, Asia/Ulaanbaatar. Base: `6ea8e6c2405f211290bb29a74733ccc1a648387d`.
 Founder steering: first refine Home proportions/spacing, approve its language, then consider other screens.
 Stage 2 remains pending explicit acceptance; no Stage 3 work.

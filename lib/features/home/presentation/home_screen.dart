@@ -101,7 +101,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             child: _EntryAction(
                               label: 'Зарлага',
                               symbol: '−',
-                              color: const Color(0xFFF8E1D9),
+                              color: expense,
                               onTap: _unavailable,
                             ),
                           ),
@@ -110,7 +110,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             child: _EntryAction(
                               label: 'Орлого',
                               symbol: '+',
-                              color: mint,
+                              color: teal,
                               onTap: _unavailable,
                             ),
                           ),
@@ -184,7 +184,10 @@ class _EmptyExpenseDonut extends StatelessWidget {
             child: const Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Орлого', style: TextStyle(fontSize: 14, color: green)),
+                Text(
+                  'Орлого',
+                  style: TextStyle(fontSize: 14, color: incomeInk),
+                ),
                 Text(
                   '+0 ₮',
                   key: Key('periodIncome'),
@@ -192,7 +195,7 @@ class _EmptyExpenseDonut extends StatelessWidget {
                     fontSize: 20,
                     height: 1.35,
                     fontWeight: FontWeight.w700,
-                    color: green,
+                    color: incomeInk,
                   ),
                 ),
                 SizedBox(height: 10),

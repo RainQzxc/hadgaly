@@ -1,33 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
-const ink = Color(0xFF243E35);
-const secondaryInk = Color(0xFF40584D);
-const green = Color(0xFF356B50);
-const mint = Color(0xFFE0EEDF);
-const paper = Color(0xFFFAF9F4);
-const line = Color(0xFFDCE4DB);
-const errorInk = Color(0xFF9C342E);
-const headingStyle = TextStyle(
-  fontFamily: 'Comfortaa',
-  fontSize: 28,
-  height: 1.3,
-  fontWeight: FontWeight.w700,
-  color: ink,
-);
-const sectionStyle = TextStyle(
-  fontFamily: 'Comfortaa',
-  fontSize: 17,
-  height: 1.4,
-  fontWeight: FontWeight.w700,
-  color: ink,
-);
-const captionStyle = TextStyle(
-  fontFamily: 'Comfortaa',
-  fontSize: 13,
-  height: 1.5,
-  color: secondaryInk,
-);
+import 'design_tokens.dart';
+export 'design_tokens.dart';
 
 bool reduceMotion(BuildContext context) =>
     MediaQuery.disableAnimationsOf(context) ||
@@ -232,9 +207,9 @@ class HadgalyButton extends StatelessWidget {
   final IconData? icon;
   @override
   Widget build(BuildContext context) => CupertinoButton(
-    color: filled ? green : null,
-    foregroundColor: filled ? CupertinoColors.white : green,
-    disabledColor: const Color(0xFFE1E7DF),
+    color: filled ? primary : null,
+    foregroundColor: filled ? CupertinoColors.white : primary,
+    disabledColor: disabledSurface,
     minimumSize: const Size(48, 56),
     borderRadius: BorderRadius.circular(18),
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -366,20 +341,22 @@ class _HadgalyFieldState extends State<HadgalyField> {
                 color: field.hasError
                     ? errorInk
                     : focus.hasFocus
-                    ? green
-                    : const Color(0xFFB4C3B6),
+                    ? primary
+                    : fieldBorder,
                 width: focus.hasFocus ? 1.5 : 1,
               ),
             ),
             style: const TextStyle(
-              fontFamily: 'Comfortaa',
+              fontFamily: fontFamily,
+              fontFamilyFallback: fontFallback,
               fontSize: 17,
               height: 1.4,
               color: ink,
             ),
             placeholder: widget.placeholder,
             placeholderStyle: const TextStyle(
-              fontFamily: 'Comfortaa',
+              fontFamily: fontFamily,
+              fontFamilyFallback: fontFallback,
               fontSize: 17,
               color: secondaryInk,
             ),

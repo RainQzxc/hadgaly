@@ -1,8 +1,12 @@
 # HADGALY — PROJECT CONTEXT
 
-Last Updated: **2026-11-02, Asia/Ulaanbaatar**
+Last Updated: **2026-11-03, Asia/Ulaanbaatar**
 
 Current status: **Stage 1 accepted. Stage 2 implemented and verified for founder review; Stage 2 acceptance pending.**
+CEO #011 supersedes earlier typography/color/navigation directions: Google Sans Flex + bundled Noto Sans
+for missing Cyrillic/MNT glyphs, Midnight Blue/neutral/teal tokens, four persistent product tabs with
+Finance selected initially. Only finance is functionally active; Tasks/Shopping/Ideas are coming-soon
+UI only. See `STAGE2_DESIGN_NAV_REVIEW.md`. The approved finance six-stage roadmap is unchanged.
 Latest Home revision: see `STAGE2_HOME_REVIEW.md`. The founder-approved Home now centers a neutral
 expense-category donut with zero period totals, shows the combined current balance of all accounts,
 and places expense left / income right above My Accounts navigation. No transaction capability was added.
@@ -13,17 +17,23 @@ repository, schema/migration source hashes are unchanged; schema remains v2.
 See `STAGE2_UI_REFINEMENT.md` for the latest UI/test/demo evidence, and `STAGE2_REVIEW.md`,
 `STAGE2_FINANCIAL_RULES.md`, historical `STAGE2_BLOCKER.md` for prior implementation context.
 
-## Current directive overrides — 2026-11-02
+## Current directive overrides — 2026-11-03
 
 ### Latest authorization and verified resolution
 
-- Latest authorized work is **Stage 2 Home layout revision only**, superseding the previous Home/default-account card layout. Preserve Cupertino/Comfortaa/green styling, existing account-management default selection, financial rules, schema, migrations and user records. No Stage 3 or full Stage 5 implementation.
+- Latest authorized work is **CEO #011 Stage 2 design system and product navigation correction only**. Preserve finance behavior, Home hierarchy, default selection, records/audit/schema/migrations. Do not implement Stage 3 or future module models/persistence; Stage 2 remains unapproved.
+- Future product vision: modular organization across **Хийх зүйл / Авах зүйл / Санаа / Санхүү**, Simple Yet Effective. Current MVP implementation and the approved six-stage roadmap remain finance-only. Any future roadmap expansion requires a separate product decision.
+- Typography: official unmodified Google Sans Flex variable font; its cmap lacks Cyrillic and ₮. Official unmodified Noto Sans fallback supplies only missing glyphs, including Ө/Ү/өү and ₮. Both are bundled offline with SIL OFL notices; Google Sans Flex trademark notice retained. Official google/fonts source revision and SHA-256 manifest: assets/fonts/SOURCES.json. No proprietary/unofficial font files.
+- Central tokens: neutral #F5F6F8, midnight #14243E, teal #39B5AA, expense #D66B72; light Cupertino presentation. 60/30/10 is composition guidance, not a pixel quota. Darker teal/error text variants preserve 4.5:1 contrast; main buttons use midnight text on teal/expense fills. See lib/core/presentation/design_tokens.dart.
+- Four tabs appear after mandatory onboarding; Finance is initially selected on every launch. Other modules show “Тун удахгүй” only. A nested finance navigator keeps the bar on account/detail/form routes and preserves unsaved form state while switching tabs. Android Back on another tab returns to finance; Back within finance pops its local route. Keyboard temporarily hides the bar to retain form space; safe-area padding is owned by the shell. No new persistence.
+- Latest #011 checks: **84 unit/widget tests passed**, real bundled-font/large-text/navigation tests included; format/analyze passed; production and sandbox Android debug builds passed; Stage 1/2 sandbox scenarios and two synthetic v1→v2 cases passed. Actual sandbox APK ID verified before each installation. Native four-tab/navigation/Back review passed. Protected source hashes and current production records/schema fingerprints unchanged.
+- Previous Home revision remains approved design direction, now using the #011 font/tokens inside Finance:
 - Approved Home: prominent centered expense-category donut; inside it period income + amount and expense − amount; combined **current** account balance above bottom buttons; **− Зарлага left / + Орлого right**, then existing My Accounts navigation/safe area. No Default Account card on Home. My Accounts remains a separate screen with unchanged default behavior.
 - Stage 2 has no transaction/category persistence or existing period selector. Display a neutral empty ring, fixed “Энэ сар”, +0 ₮ / −0 ₮, and concise empty text. No fake category proportions, transaction storage, entry UI or period-navigation infrastructure. Button taps retain honest unavailable feedback.
 - Combined balance sums all verified AccountView current balances, including opening balances/adjustment anchors, using BigInt in presentation; no per-account limit is applied to the aggregate. It is independent of default selection and period totals. No financial-domain/repository changes.
 - Home revision checks: **80 unit/widget tests pass**, format/analyze pass, production Android debug build/update/cold launch pass; sandbox Stage 1/2 flows run only on the verified disposable environment. Production records/schema fingerprint and protected source hashes are unchanged. Details/evidence/limitations: STAGE2_HOME_REVIEW.md.
 - Refined UI uses grouped lists, Cupertino fields/buttons/action sheets, accessible Android navigation, native iOS navigation and reduced-motion-aware transitions. Home +/− remain unavailable with honest inline feedback.
-- Latest checks: **76 unit/widget tests pass**, analyze clean, production Android debug build/update passes, sandbox Stage 1/2 Android flows pass, two synthetic v1→v2 device fixture cases pass. Primary app was updated with adb install -r only; all account/profile/adjustment/audit records and schema match the pre-refinement fingerprint.
+- Earlier Cupertino refinement checks: **76 unit/widget tests passed**, analyze clean, production Android debug build/update passed, sandbox Stage 1/2 Android flows passed, two synthetic v1→v2 device fixture cases passed. Primary app was updated with adb install -r only; all account/profile/adjustment/audit records and schema matched the pre-refinement fingerprint.
 - Main app remains on emulator-5554 with existing user data. Disposable emulator-5556 is used only for synthetic sandbox integration checks and is stopped afterward. See STAGE2_UI_REFINEMENT.md for details and known unrun iOS-device/TalkBack checks.
 
 - Founder authorized fresh main-app data; recovery is no longer a prerequisite. No old user data was recovered or reconstructed. Do not describe re-entered balances as recovered history.
@@ -53,7 +63,7 @@ This document is the consolidated source of truth for a new Codex conversation w
 ## 1. Product vision and identity
 
 - Official name: **Hadgaly**, associated with **Хадгалъя**. Earlier spelling “Hadgalay” is obsolete.
-- Offline-first, manual-entry personal finance mobile application, inspired by **Monefy**.
+- Future vision: modular personal organization app across **Tasks, Shopping lists, Ideas/notes, Finance**. Only manual-entry, offline-first finance is functionally active in the approved current stages, inspired by **Monefy**. Other tabs are explicit coming-soon surfaces; no non-finance data models or persistence.
 - Philosophy: **Simple Yet Effective**. Avoid accounting-like complexity and speculative features.
 - Strict priority order: **1. Fast transaction entry; 2. Simple, delightful UX; 3. Correct and reliable financial calculations.** Correctness remains mandatory; speed never authorizes incorrect calculations.
 - Proposed slogan, not approved: “Ухаалгаар зарцуулж, зорилготой хадгалъя.”
@@ -130,7 +140,9 @@ Cash flow must not be presented as accounting profit. Revenue minus spending alo
 
 ## 3. UI personality, accessibility and references
 
-**Confirmed:** Comfortaa typography; highly rounded, framed, minimal components; soft colors; friendly conversational Mongolian. Numeral readability and accessibility must be checked.
+**Current confirmed (#011):** Google Sans Flex typography with Noto Sans only for missing glyphs;
+Midnight Blue #14243E, neutral #F5F6F8, teal #39B5AA and expense #D66B72; rounded, framed,
+restrained Cupertino components; friendly Mongolian. Earlier Comfortaa/green-primary directions are superseded.
 
 **Friendly by design, not noisy by default.** Cute, warm, thoughtful; never cringe, childish, intrusive, repetitive, or distracting.
 
@@ -150,7 +162,7 @@ Six reference PNGs were visually examined in chat: dashboard, expense entry, his
 
 **Their presence on disk/Git is unverified; do not claim they are committed.** Original Monefy screen recording is not in the handoff.
 
-Visual direction: off-white, green/mint primary, coral expense, pastel categories, rounded cards/pills/icons, restrained shadows. Do not copy mockup navigation or central `+` at the expense of the confirmed distinct `+` / `−` home actions.
+Visual direction: light neutral surfaces, midnight typography/primary controls, teal highlights and rose expense accents; rounded components, subtle separators, restrained motion/elevation. Do not invent category proportions or copy a central `+` at the expense of distinct `+` / `−` finance actions. Four product tabs are the current approved navigation; future module functionality requires separate authorization.
 
 Mockup contradictions are examples, not requirements:
 
@@ -184,7 +196,7 @@ Mockup contradictions are examples, not requirements:
 - No sensitive financial logs or automatic upload; no unnecessary contacts/location/SMS permissions.
 - Local backup/restore is Stage 6; encryption, key management, restore conflict handling require design review.
 - Optional PIN/biometrics and encrypted database are proposals, not selected implementations.
-- Respect platform touch targets (approximately 44pt iOS / 48dp Android), contrast, large text, small screens, keyboard, reduced motion. Test Comfortaa numerals and Mongolian glyphs.
+- Respect platform touch targets (approximately 44pt iOS / 48dp Android), contrast, large text, small screens, keyboard, reduced motion. Test the current Google Sans Flex/Noto Sans typography, numerals and Mongolian glyphs.
 - Prior aspirational targets, **not measured guarantees**: startup ~2s, save ~500ms, dashboard <1s, 10k report ~3s, memory <200MB, potential 100k transactions. Select representative devices and actual acceptance budgets before claiming these.
 - Proposed Android 10+/iOS 16+ support is unapproved; target OS versions remain open.
 
@@ -364,7 +376,7 @@ Every stage requires ALL THREE: **stage-specific automated tests pass + working 
 
 ### Stage 1 — Foundation and friendly onboarding
 
-Deliver: approved Flutter architecture foundation; Comfortaa/colors/rounded components; nickname/introduction/first account; first account default; persisted onboarding progress/profile/account; clean home with prominent + and -. Actual financial entry belongs to Stage 3; do not pretend inactive controls are working features.
+Deliver: approved Flutter architecture foundation; approved typography/colors/rounded components (Comfortaa originally, superseded by #011); nickname/introduction/first account; first account default; persisted onboarding progress/profile/account; clean home with prominent + and -. Actual financial entry belongs to Stage 3; do not pretend inactive controls are working features.
 
 Acceptance: first launch/back navigation/invalid or blank input/close-reopen/progress correct; keyboard/small screen/text checked; automated stage tests; interactive Android demo; founder approves copy/design/flow.
 

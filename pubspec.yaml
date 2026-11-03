@@ -24,11 +24,17 @@ flutter:
   default-flavor: production
   uses-material-design: true
   assets:
+    - assets/fonts/GoogleSansFlex-OFL.txt
+    - assets/fonts/GoogleSansFlex-TRADEMARKS.md
+    - assets/fonts/NotoSans-OFL.txt
     - path: test/fixtures/stage1_completed_v1.fixture
       flavors: [sandbox]
     - path: test/fixtures/stage1_partial_v1.fixture
       flavors: [sandbox]
   fonts:
-    - family: Comfortaa
+    - family: Google Sans Flex
       fonts:
-        - asset: assets/fonts/Comfortaa.ttf
+        - asset: assets/fonts/GoogleSansFlex.ttf
+    - family: Noto Sans
+      fonts:
+        - asset: assets/fonts/NotoSans.ttf

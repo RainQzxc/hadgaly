@@ -34,9 +34,10 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
               child: Text(
                 '${snapshot.defaultId == account.account.id ? '✓ ' : ''}${account.account.name}',
                 style: const TextStyle(
-                  fontFamily: 'Comfortaa',
+                  fontFamily: fontFamily,
+                  fontFamilyFallback: fontFallback,
                   fontSize: 17,
-                  color: green,
+                  color: primary,
                 ),
               ),
             ),
@@ -47,8 +48,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
           child: const Text(
             'Болих',
             style: TextStyle(
-              fontFamily: 'Comfortaa',
-              color: green,
+              fontFamily: fontFamily,
+              fontFamilyFallback: fontFallback,
+              color: primary,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -202,7 +204,7 @@ class BalanceCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(22),
     decoration: BoxDecoration(
-      color: mint,
+      color: accentSurface,
       borderRadius: BorderRadius.circular(24),
     ),
     child: Column(
@@ -229,10 +231,11 @@ class BalanceCard extends StatelessWidget {
                     child: const Text(
                       'Солих',
                       style: TextStyle(
-                        fontFamily: 'Comfortaa',
+                        fontFamily: fontFamily,
+                        fontFamilyFallback: fontFallback,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: green,
+                        color: primary,
                       ),
                     ),
                   ),

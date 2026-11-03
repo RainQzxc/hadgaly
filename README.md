@@ -1,12 +1,15 @@
 # Хадгалъя · Hadgaly
 
-Offline-first, manual-entry personal finance. Flutter **3.47.9**, bundled Dart **3.13.7**,
+Modular personal organization vision; **only offline-first, manual-entry finance is active now**.
+Tasks, shopping and ideas tabs are coming-soon UI only; the finance six-stage roadmap is unchanged.
+Flutter **3.47.9**, bundled Dart **3.13.7**,
 Riverpod, SQLite/Drift; feature-first organization. Preserve `pubspec.lock`.
 
 Stage 1 is explicitly accepted. Stage 2 is ready for founder review, **not accepted yet**.
 No Stage 3 entry UI, transfers or bank integration is implemented.
-Stage 2 UI now uses Flutter Cupertino components, Comfortaa and Hadgaly's soft green identity;
-see `STAGE2_UI_REFINEMENT.md` for current UI/accessibility/data-preservation results.
+Latest CEO #011 UI uses Cupertino components, Google Sans Flex + Noto Sans missing-glyph fallback,
+Midnight Blue/neutral/teal tokens and a persistent four-tab shell. Finance initially selected.
+See `STAGE2_DESIGN_NAV_REVIEW.md` for current UI/accessibility/data-preservation results.
 Latest Home layout supersedes the earlier default-account card: see `STAGE2_HOME_REVIEW.md`.
 Home shows a neutral expense donut, zero period totals and all accounts' combined current balance;
 expense/income actions remain unavailable until Stage 3.
@@ -48,12 +51,13 @@ Never wipe the AVD or install a test APK over the main app.
 If the main emulator needs starting, in a separate terminal:
 
 ```powershell
-$env:QT_OPENGL = 'angle'
+$env:QT_OPENGL = 'desktop'
 & "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd Medium_Phone_API_37.0 -no-snapshot-load -no-snapshot-save -gpu swiftshader -feature -Vulkan -cores 4
 ```
 
 The normal renderer previously crashed in NVIDIA `nvoglv64.dll`; basic `-gpu software` later hung.
-The command above passed Android checks. No permanent main-AVD configuration change is required.
+On 2026-11-03 Qt `angle` failed loading software OpenGL; process-local `QT_OPENGL=desktop` with
+guest `-gpu swiftshader` passed. No permanent main-AVD configuration change is required.
 NDK 28.2.13676358 and CMake 3.22.1 are already installed; do not reinstall working tools.
 Hot Reload: `r`; Hot Restart: `R`. Neither replaces cold-start persistence verification.
 
@@ -72,8 +76,8 @@ Create the disposable AVD once (refuses to overwrite an existing AVD):
 Start it in a separate terminal:
 
 ```powershell
-$env:QT_OPENGL = 'angle'
-& "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd Hadgaly_Stage2_Disposable -port 5556 -no-snapshot-load -no-snapshot-save -gpu swiftshader -feature -Vulkan -cores 4
+$env:QT_OPENGL = 'desktop'
+& "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd Hadgaly_Stage2_Disposable -port 5556 -no-window -no-snapshot-load -no-snapshot-save -gpu swiftshader -feature -Vulkan -cores 4
 ```
 
 Then use the guarded runner:
@@ -108,8 +112,10 @@ See `STAGE2_FINANCIAL_RULES.md`, written before financial implementation.
 - Database schema **v2** upgrades v1 additively, atomically. No destructive migration fallback.
   SQLite foreign keys and triggers protect default accounts, immutable observation, audit and deletion rules.
 - Names: trimmed, nonblank, single-line, at most 60 Unicode code points.
-- Comfortaa is bundled offline under SIL OFL, including Mongolian Cyrillic, Ө/Ү and ₮.
-  Source: [Google Fonts](https://github.com/google/fonts/tree/main/ofl/comfortaa).
+- Google Sans Flex and Noto Sans are bundled offline under SIL OFL. Google Sans Flex lacks Cyrillic/₮;
+  Noto Sans supplies only missing glyphs, including Ө/Ү/өү and ₮. Source revision, hashes and licenses:
+  `assets/fonts/SOURCES.json`, `assets/fonts/*-OFL.txt`, `GoogleSansFlex-TRADEMARKS.md`.
+  Optional font QA: `python tool/verify_fonts.py` with fontTools (already available locally).
 - No sensitive financial logs, automatic data upload or automatic Android backup.
   Product backup/restore remains Stage 6 scope.
 

@@ -37,7 +37,16 @@ void main() {
 
     try {
       await mount();
+      // Only finance is active; future modules neither collect nor save data.
+      expect(find.byKey(const Key('homeBalance')), findsOneWidget);
+      for (var i = 0; i < 3; i++) {
+        await tap(find.byKey(Key('module-$i')));
+        expect(find.text('Тун удахгүй'), findsOneWidget);
+        await tap(find.byKey(const Key('module-3')));
+        expect(find.text('Нийт үлдэгдэл: 1,000 ₮'), findsOneWidget);
+      }
       await tap(find.byKey(const Key('myAccounts')));
+      expect(find.byKey(const Key('module-3')), findsOneWidget);
       await tap(find.byKey(const Key('addAccount')));
       await t.enterText(find.byKey(const Key('accountName')), 'Миний карт');
       await t.enterText(find.byKey(const Key('openingBalance')), '-500');

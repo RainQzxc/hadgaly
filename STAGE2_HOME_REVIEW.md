@@ -1,5 +1,8 @@
 # Stage 2 — Home layout review
 
+CEO #011 adds a four-tab shell around Finance and supersedes font/colors, preserving this Home hierarchy.
+See STAGE2_DESIGN_NAV_REVIEW.md for current design/navigation evidence.
+
 2026-11-02, Asia/Ulaanbaatar. Base commit: `11e8513a5d341c73dc81c783208378c67f3b872e`.
 Stage 2 remains pending explicit founder acceptance. No Stage 3 or full Stage 5 work.
 

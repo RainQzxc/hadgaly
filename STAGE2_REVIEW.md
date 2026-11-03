@@ -1,5 +1,8 @@
 # Stage 2 — Миний данс ба найдвартай үлдэгдэл
 
+CEO #011 font/color/product navigation supersedes earlier design descriptions below.
+Latest evidence: STAGE2_DESIGN_NAV_REVIEW.md. Stage 2 is still pending founder acceptance.
+
 Latest Home revision supersedes the Home/default-card descriptions below: see STAGE2_HOME_REVIEW.md.
 
 Latest UI refinement and updated verification: see STAGE2_UI_REFINEMENT.md. Current founder data

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/presentation/hadgaly_ui.dart';
 import '../application/onboarding_controller.dart';
-import '../../home/presentation/home_screen.dart';
+import '../../shell/presentation/product_shell.dart';
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
@@ -20,7 +20,7 @@ class OnboardingScreen extends ConsumerWidget {
       );
     }
     if (state.step == 4 && state.account != null) {
-      return HomeScreen(name: state.nickname);
+      return ProductShell(name: state.nickname);
     }
     return PopScope(
       canPop: !state.busy && (state.step == 0 || state.step == 3),
@@ -48,7 +48,7 @@ class OnboardingScreen extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: mint,
+                  color: accentSurface,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Icon(
@@ -58,7 +58,7 @@ class OnboardingScreen extends ConsumerWidget {
                     2 => CupertinoIcons.creditcard,
                     _ => CupertinoIcons.check_mark,
                   },
-                  color: green,
+                  color: primary,
                   size: 30,
                 ),
               ),

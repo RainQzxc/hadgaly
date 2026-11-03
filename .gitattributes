@@ -8,4 +8,6 @@
 *.ttf binary
 *.png binary
 *.fixture binary
-assets/fonts/OFL.txt -whitespace
+# Preserve upstream notice bytes/hashes, including upstream whitespace.
+assets/fonts/*-OFL.txt -text -whitespace
+assets/fonts/*-TRADEMARKS.md -text -whitespace

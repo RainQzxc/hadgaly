@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 import 'design_tokens.dart';
+import 'brand_wordmark.dart';
 export 'design_tokens.dart';
 
 bool reduceMotion(BuildContext context) =>
@@ -87,7 +88,9 @@ class HadgalyPage extends StatelessWidget {
         leading: leading,
         middle: MediaQuery(
           data: MediaQuery.of(context),
-          child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+          child: title == 'хадгалъя'
+              ? const BrandWordmark()
+              : Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
         ),
         trailing: trailing == null
             ? null
@@ -148,18 +151,20 @@ class _AccessibleNavigationBar extends StatelessWidget
                 Expanded(
                   child: Semantics(
                     header: true,
-                    child: Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 17,
-                        height: 1.2,
-                        fontWeight: FontWeight.w700,
-                        color: ink,
-                      ),
-                    ),
+                    child: title == 'хадгалъя'
+                        ? const BrandWordmark()
+                        : Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              height: 1.2,
+                              fontWeight: FontWeight.w700,
+                              color: ink,
+                            ),
+                          ),
                   ),
                 ),
                 SizedBox(width: trailing == null ? 48 : null, child: trailing),
@@ -270,6 +275,8 @@ class HadgalyField extends StatefulWidget {
     required this.label,
     this.placeholder,
     this.money = false,
+    this.allowNegative = true,
+    this.autofocus = false,
     this.enabled = true,
     this.action = TextInputAction.done,
     this.validator,
@@ -280,7 +287,7 @@ class HadgalyField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final String? placeholder;
-  final bool money, enabled;
+  final bool money, enabled, allowNegative, autofocus;
   final TextInputAction action;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onChanged, onSubmitted;
@@ -333,6 +340,7 @@ class _HadgalyFieldState extends State<HadgalyField> {
             controller: widget.controller,
             focusNode: focus,
             enabled: widget.enabled,
+            autofocus: widget.autofocus,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             decoration: BoxDecoration(
               color: CupertinoColors.white,
@@ -367,7 +375,7 @@ class _HadgalyFieldState extends State<HadgalyField> {
                   )
                 : null,
             keyboardType: widget.money
-                ? const TextInputType.numberWithOptions(signed: true)
+                ? TextInputType.numberWithOptions(signed: widget.allowNegative)
                 : TextInputType.text,
             textCapitalization: widget.money
                 ? TextCapitalization.none

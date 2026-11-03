@@ -1,5 +1,9 @@
 # Stage 2 — Миний данс ба найдвартай үлдэгдэл
 
+**CEO #016, 2026-11-03: founder Stage 2-ийг илэрхий зөвшөөрсөн. COMPLETE.**
+Approved commit: `816af0e67bb92736ae1c887af9a2f5d2ab45dadc`.
+Доорх pending/эхлээгүй төлөвүүд нь тухайн үеийн түүхэн тайлан; одоо Stage 3 зөвшөөрөгдсөн.
+
 CEO #011 font/color/product navigation supersedes earlier design descriptions below.
 Latest evidence: STAGE2_DESIGN_NAV_REVIEW.md. Stage 2 is still pending founder acceptance.
 

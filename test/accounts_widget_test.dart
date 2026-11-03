@@ -71,11 +71,7 @@ void main() {
       expect(find.byType(CupertinoApp), findsOneWidget);
       expect(
         t
-            .getSemantics(
-              find.bySemanticsLabel(
-                'Орлого. Гүйлгээ бүртгэх боломж хараахан нээгдээгүй',
-              ),
-            )
+            .getSemantics(find.bySemanticsLabel('Орлого нэмэх'))
             .getSemanticsData()
             .hasAction(SemanticsAction.tap),
         isTrue,

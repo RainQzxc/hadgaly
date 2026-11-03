@@ -65,7 +65,7 @@ void main() {
     expect(await db.select(db.accounts).get(), isEmpty);
   });
 
-  testWidgets('Full fresh flow, validation, back and unavailable actions', (
+  testWidgets('Full fresh flow, validation, back and entry navigation', (
     tester,
   ) async {
     await mount(tester);
@@ -96,10 +96,7 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('incomeAction')));
     await tester.tap(find.byKey(const Key('incomeAction')));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Гүйлгээ бүртгэх боломж хараахан нээгдээгүй байна.'),
-      findsOneWidget,
-    );
+    expect(find.byKey(const Key('entryAmount')), findsOneWidget);
     expect(await db.select(db.accounts).get(), hasLength(1));
     await tester.pumpWidget(const SizedBox());
     await tester.pumpAndSettle();

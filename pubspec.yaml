@@ -24,12 +24,15 @@ flutter:
   default-flavor: production
   uses-material-design: true
   assets:
+    - assets/brand/hadgaly-wordmark.png
     - assets/fonts/GoogleSansFlex-OFL.txt
     - assets/fonts/GoogleSansFlex-TRADEMARKS.md
     - assets/fonts/NotoSans-OFL.txt
     - path: test/fixtures/stage1_completed_v1.fixture
       flavors: [sandbox]
     - path: test/fixtures/stage1_partial_v1.fixture
+      flavors: [sandbox]
+    - path: test/fixtures/stage2_v2.fixture
       flavors: [sandbox]
   fonts:
     - family: Google Sans Flex

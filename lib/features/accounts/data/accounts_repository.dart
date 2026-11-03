@@ -22,9 +22,14 @@ class AccountView {
 }
 
 class AccountsSnapshot {
-  const AccountsSnapshot(this.accounts, this.defaultId);
+  const AccountsSnapshot(
+    this.accounts,
+    this.defaultId, {
+    this.entries = const [],
+  });
   final List<AccountView> accounts;
   final int? defaultId;
+  final List<CashEntry> entries;
   AccountView get defaultAccount =>
       accounts.firstWhere((a) => a.account.id == defaultId);
   AccountView byId(int id) => accounts.firstWhere((a) => a.account.id == id);
@@ -42,6 +47,7 @@ class AccountsRepository {
       db.accounts,
     )..orderBy([(a) => OrderingTerm.asc(a.id)])).get();
     final adjustments = await db.select(db.balanceAdjustments).get();
+    final cash = await db.select(db.cashEntries).get();
     final edits = await (db.select(
       db.adjustmentEdits,
     )..orderBy([(e) => OrderingTerm.asc(e.id)])).get();
@@ -51,22 +57,29 @@ class AccountsRepository {
           final records = adjustments
               .where((r) => r.accountId == a.id)
               .toList();
-          final ledger = replayLedger(a.openingBalance, records.map(_event));
+          final ledger = replayLedger(a.openingBalance, [
+            ...records.map(_event),
+            ...cash.where((r) => r.accountId == a.id).map(_cashEvent),
+          ]);
           final bySequence = {for (final r in records) r.id: r};
-          final history = ledger.points.reversed.map((point) {
-            final record = bySequence[point.event.sequence]!;
-            return AdjustmentView(
-              record,
-              point,
-              List.unmodifiable(
-                edits.where((e) => e.adjustmentId == record.id),
-              ),
-            );
-          }).toList();
+          final history = ledger.points.reversed
+              .where((p) => p.event.kind == EventKind.adjustment)
+              .map((point) {
+                final record = bySequence[point.event.sequence]!;
+                return AdjustmentView(
+                  record,
+                  point,
+                  List.unmodifiable(
+                    edits.where((e) => e.adjustmentId == record.id),
+                  ),
+                );
+              })
+              .toList();
           return AccountView(a, ledger, List.unmodifiable(history));
         }),
       ),
       profile.defaultAccountId,
+      entries: List.unmodifiable(cash),
     );
   });
 
@@ -78,6 +91,7 @@ class AccountsRepository {
           db.profiles,
           db.balanceAdjustments,
           db.adjustmentEdits,
+          db.cashEntries,
         },
       )
       .watch()
@@ -90,6 +104,27 @@ class AccountsRepository {
     amount: r.target,
     originalDifference: r.originalTarget - r.observedBalanceBefore,
   );
+
+  LedgerEvent _cashEvent(CashEntry r) => LedgerEvent(
+    sequence: r.id,
+    effectiveAt: r.effectiveAt,
+    kind: r.kind == 'income' ? EventKind.income : EventKind.expense,
+    amount: r.amount,
+  );
+
+  Future<LedgerResult> ledgerFor(int accountId) async {
+    final account = await _account(accountId);
+    final anchors = await (db.select(
+      db.balanceAdjustments,
+    )..where((a) => a.accountId.equals(accountId))).get();
+    final entries = await (db.select(
+      db.cashEntries,
+    )..where((e) => e.accountId.equals(accountId))).get();
+    return replayLedger(account.openingBalance, [
+      ...anchors.map(_event),
+      ...entries.map(_cashEvent),
+    ]);
+  }
 
   Future<Account> _account(int id) async {
     final account = await (db.select(
@@ -170,23 +205,21 @@ class AccountsRepository {
         }
         return existing.id;
       }
-      final account = await _account(accountId);
-      final records = await (db.select(
-        db.balanceAdjustments,
-      )..where((a) => a.accountId.equals(accountId))).get();
-      final before = replayLedger(
-        account.openingBalance,
-        records.map(_event),
-      ).balance;
+      final ledger = await ledgerFor(accountId);
+      final before = ledger.balance;
       final createdAt = now();
       var effectiveAt = createdAt;
-      for (final record in records) {
-        if (record.effectiveAt > effectiveAt) effectiveAt = record.effectiveAt;
+      for (final point in ledger.points) {
+        if (point.event.effectiveAt > effectiveAt) {
+          effectiveAt = point.event.effectiveAt;
+        }
       }
+      final sequence = await db.allocateSequence('adjustment');
       return db
           .into(db.balanceAdjustments)
           .insert(
             BalanceAdjustmentsCompanion.insert(
+              id: Value(sequence),
               accountId: accountId,
               target: amount,
               effectiveAt: effectiveAt,
@@ -249,11 +282,7 @@ class AccountsRepository {
         ),
       );
       // Validate replay inside the same transaction. Later anchors stay authoritative.
-      final account = await _account(record.accountId);
-      final records = await (db.select(
-        db.balanceAdjustments,
-      )..where((a) => a.accountId.equals(record.accountId))).get();
-      replayLedger(account.openingBalance, records.map(_event));
+      await ledgerFor(record.accountId);
     });
   }
 }

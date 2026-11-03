@@ -2,7 +2,7 @@
     <application android:allowBackup="false"
         android:label="${applicationLabel}"
         android:name="${applicationName}"
-        android:icon="@drawable/ic_hadgaly">
+        android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -2,7 +2,50 @@
 
 Last Updated: **2026-11-03, Asia/Ulaanbaatar**
 
-Current status: **Stage 1 accepted. Stage 2 implemented and verified for founder review; Stage 2 acceptance pending.**
+Current status: **Stages 1 and 2 explicitly approved. Stage 2 COMPLETE. Stage 3 authorized/in progress; not accepted.**
+CEO #016 founder approval applies to the latest reviewed Stage 2 commit:
+**`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`** (verified Git HEAD before Stage 3 implementation).
+Earlier “Stage 2 pending/unapproved” entries below are historical and superseded by #016.
+
+## CEO #016 — current authorization
+
+- Implement Stage 3 only: one-screen manual income/expense entry, amount → category → account → save,
+  default account, editable current date, optional note, initial/custom categories with name/icon editing
+  and archive, durable atomic posting, duplicate protection and existing authoritative-anchor replay.
+- Preserve approved UI/identity, all existing records/audit/default/onboarding and additive migrations.
+  No Stage 4 history/transaction edit/delete UI, reports, transfers, recurring or non-finance modules.
+- Stage 3 acceptance requires passing tests + live Android demo + explicit founder approval.
+- Founder logo instruction also remains authorized: symbol-only app icon and text logo at the top.
+  Original assets/logo files remain untouched. Their integration is separate from the approved Stage 2 baseline.
+- Financial ordering/date/migration defaults must be recorded in STAGE3_FINANCIAL_RULES.md before implementation.
+
+## Stage 3 implementation handoff — CEO #016
+
+- Additive schema v3 introduces categories, immutable posted cash entries and a global ledger-sequence
+  registry; preserved v2 anchor IDs seed that registry unchanged. v1/v2 upgrade paths preserve original
+  profiles/accounts/anchors/audits. Existing pure financial replay and authoritative targets remain intact.
+- Home +/− now open the correct one-screen entry form. Positive whole MNT only; active category,
+  default/changeable account, editable date, optional note, atomic save and per-form idempotency.
+  Initial/custom categories support name/icon editing and archive without deleting old entries.
+- Current-month Home figures now use real entries and exclude openings/anchors. Combined current
+  balance remains all accounts' replayed balances. Category distribution remains Stage 5; neutral ring
+  never invents proportions. Empty text explicitly refers to this month. No Stage 4 history/edit/delete UI.
+- Dates, range, clock rollback, day-end backdating, append-only entries and audit semantics are recorded
+  in STAGE3_FINANCIAL_RULES.md. Existing balances may be negative; entry magnitude is strictly positive.
+- User logo direction applied: original horizontal wordmark at branded navigation titles; symbol-only
+  Android legacy/adaptive launcher assets. Originals preserved; unrelated assets/logo photos not packaged.
+- Verification/review details and live-demo commands: STAGE3_REVIEW.md. Native tests remain sandbox-only;
+  tool/run_production_demo.ps1 performs a checked, privately preserved install -r update, never reinstall.
+- Verified: 102 unit/widget tests, analyze/format; 7 functional Android cases over 4 guarded targets;
+  320dp/1.8× native Stage 3 repeat; separate real-IME synthetic 123 income / 125 expense / −2 balance
+  and cold restart. This synthetic money never entered the founder package. Versioned screenshots:
+  docs/review/stage3-*.png. No Stage 3 acceptance is implied by these checks.
+- Actual founder database v2→v3 was separately checked: all original row fields and derived balance hashes
+  matched; no synthetic production cash entries. Private backups stay under LOCALAPPDATA/HadgalyDev,
+  outside Git. This does not recover the earlier incident's data; founder fresh-start authorization remains documented.
+- Stage 3 is implemented for review, NOT accepted. Founder acceptance is still required. Do not begin Stage 4.
+
+## Historical Stage 2 UI handoff (superseded status; retained evidence)
 CEO #015 supersedes the previous Home height-distribution approach: controlled vertical flow,
 24dp empty-state-to-balance gap, no primary-column spaceBetween/full-height minimum, and a subtle
 My Accounts navigation row with trailing chevron. Only Home presentation/tests/docs changed.
@@ -543,18 +586,18 @@ For every development task report: implemented work; files changed; tests/comman
 ## 12. Current next actions and authorization boundaries
 
 1. Read the current directive overrides, STAGE2_REVIEW.md and STAGE2_FINANCIAL_RULES.md. Preserve local changes; never force reset/clean.
-2. Founder reviews Stage 2 interactively using their own freshly entered nickname/accounts/balances. Main app is production flavor on emulator-5554; no further data reset is needed.
+2. Stage 2 is accepted at 816af0e67bb92736ae1c887af9a2f5d2ab45dadc. Implement/review Stage 3 under CEO #016; preserve the current founder-entered records on production emulator-5554.
 3. Preserve production data: follow README's checked production APK identity + `adb install -r` update and explicit launch commands. No uninstall fallback. Keep Flutter 3.47.9/Dart 3.13.7 and pubspec.lock; do not reinstall working tools.
 4. Device integration tests use only tool/run_android_checks.ps1 with the explicitly named disposable AVD and a verified sandbox APK. Never run test cleanup against the main package/emulator.
 5. Preserved synthetic v1→v2 migration is tested separately. Previous real-user data was not recovered, and real-user-data migration is not verified. Founder-approved fresh installation is not migration evidence.
-6. Address founder review fixes within Stage 2, record the reviewed commit and test/device evidence, and collect explicit Stage 2 acceptance.
-7. Do not begin Stage 3 without its separate authorization. No transactions, transfers, deletion or speculative features are implied by successful tests/build.
+6. Implement Stage 3 within its approved scope, record the tested commit and test/device evidence, and collect explicit Stage 3 acceptance.
+7. Stage 3 is authorized by #016. Do not begin Stage 4 or add transfers, recurring payments or speculative features.
 8. Any later recovery operation that overwrites existing state requires founder approval. Never reconstruct financial history from guesses or call manually re-entered balances recovered history.
 
 ## INSTRUCTIONS FOR THE NEXT CODEX SESSION
 
-The current authorized scope is Stage 2 only; its implementation is ready for founder review,
-not accepted. Stage 1 is explicitly accepted. The founder approved fresh main-app data after
+The current authorized scope is Stage 3 only. Stages 1 and 2 are explicitly accepted; Stage 2's
+approved commit is 816af0e67bb92736ae1c887af9a2f5d2ab45dadc. The founder approved fresh main-app data after
 an integration-test uninstall incident. Main app and disposable test APKs must remain isolated.
 Read the historical incident record without treating its superseded recovery gate as current.
 Report in Mongolian with actual test results, exact commit/device evidence and limitations.

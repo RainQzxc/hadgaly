@@ -89,7 +89,10 @@ class _ModuleBar extends StatelessWidget {
     child: SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.textScalerOf(context).scale(12) > 18 ? 0 : 4,
+          vertical: 6,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -104,8 +107,11 @@ class _ModuleBar extends StatelessWidget {
                     child: CupertinoButton(
                       key: Key('module-$i'),
                       minimumSize: const Size(48, 64),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 3,
+                      padding: EdgeInsets.symmetric(
+                        horizontal:
+                            MediaQuery.textScalerOf(context).scale(12) > 18
+                            ? 0
+                            : 3,
                         vertical: 6,
                       ),
                       onPressed: () => onSelect(i),

@@ -36,7 +36,7 @@ void main() {
   void emptyTotals() {
     expect(find.text('+0 ₮'), findsOneWidget);
     expect(find.text('−0 ₮'), findsOneWidget);
-    expect(find.text('Гүйлгээ бүртгэгдээгүй байна.'), findsOneWidget);
+    expect(find.text('Энэ сард гүйлгээ бүртгэгдээгүй.'), findsOneWidget);
     expect(find.text('Үндсэн данс'), findsNothing);
     expect(find.text('Хэтэвч'), findsNothing);
   }
@@ -85,7 +85,7 @@ void main() {
   );
 
   testWidgets(
-    'Chart, balance and bottom actions have the approved hierarchy and honest feedback',
+    'Chart, balance and bottom actions have the approved hierarchy and correct entry navigation',
     (t) async {
       final semantics = t.ensureSemantics();
       t.view.physicalSize = const Size(390, 844);
@@ -119,7 +119,7 @@ void main() {
       // Explicit section rhythm must not grow when the viewport has spare height.
       expect(
         t.getTopLeft(find.text('Нийт үлдэгдэл')).dy -
-            t.getBottomRight(find.text('Гүйлгээ бүртгэгдээгүй байна.')).dy,
+            t.getBottomRight(find.text('Энэ сард гүйлгээ бүртгэгдээгүй.')).dy,
         closeTo(24, 0.01),
       );
       expect(
@@ -134,13 +134,11 @@ void main() {
       await t.pumpAndSettle();
       expect(
         t.getTopLeft(find.text('Нийт үлдэгдэл')).dy -
-            t.getBottomRight(find.text('Гүйлгээ бүртгэгдээгүй байна.')).dy,
+            t.getBottomRight(find.text('Энэ сард гүйлгээ бүртгэгдээгүй.')).dy,
         closeTo(24, 0.01),
       );
       expect(
-        find.bySemanticsLabel(
-          RegExp('Энэ сарын зарлагын ангиллын хуваарилалт'),
-        ),
+        find.bySemanticsLabel(RegExp('Энэ сарын орлого:')),
         findsOneWidget,
       );
       expect(
@@ -149,10 +147,7 @@ void main() {
       );
       await t.tap(expense);
       await t.pumpAndSettle();
-      expect(
-        find.text('Гүйлгээ бүртгэх боломж хараахан нээгдээгүй байна.'),
-        findsOneWidget,
-      );
+      expect(find.byKey(const Key('entryAmount')), findsOneWidget);
       expect(await db.select(db.accounts).get(), hasLength(1));
       expect(await db.select(db.balanceAdjustments).get(), isEmpty);
       semantics.dispose();
@@ -189,10 +184,7 @@ void main() {
       await t.ensureVisible(find.byKey(const Key('incomeAction')));
       await t.tap(find.byKey(const Key('incomeAction')));
       await t.pumpAndSettle();
-      expect(
-        find.text('Гүйлгээ бүртгэх боломж хараахан нээгдээгүй байна.'),
-        findsOneWidget,
-      );
+      expect(find.byKey(const Key('entryAmount')), findsOneWidget);
       expect(t.takeException(), isNull);
       t.view.resetViewInsets();
       semantics.dispose();

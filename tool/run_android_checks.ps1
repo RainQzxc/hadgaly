@@ -1,7 +1,7 @@
 param(
     [string]$DeviceId = 'emulator-5556',
-    [ValidateSet('stage1_test','stage2_test','migration_test')]
-    [string[]]$Tests = @('stage1_test','stage2_test','migration_test')
+    [ValidateSet('stage1_test','stage2_test','stage3_test','migration_test')]
+    [string[]]$Tests = @('stage1_test','stage2_test','stage3_test','migration_test')
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path $PSScriptRoot -Parent
@@ -22,6 +22,10 @@ function Confirm-Disposable {
 }
 Confirm-Disposable
 $fixtureHashes = Get-Content -LiteralPath (Join-Path $repo 'test\fixtures\stage1_fixture_sha256.json') -Raw | ConvertFrom-Json
+$v2Hashes = Get-Content -LiteralPath (Join-Path $repo 'test\fixtures\stage2_fixture_sha256.json') -Raw | ConvertFrom-Json
+foreach ($entry in $v2Hashes.PSObject.Properties) {
+    $fixtureHashes | Add-Member -NotePropertyName $entry.Name -NotePropertyValue $entry.Value
+}
 foreach ($entry in $fixtureHashes.PSObject.Properties) {
     $fixture = Join-Path $repo ('test\fixtures\' + $entry.Name)
     if ((Get-FileHash -LiteralPath $fixture -Algorithm SHA256).Hash -ne $entry.Value) {

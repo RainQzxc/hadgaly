@@ -83,10 +83,7 @@ void main() {
       await tester.ensureVisible(find.byKey(const Key('expenseAction')));
       await tester.tap(find.byKey(const Key('expenseAction')));
       await tester.pumpAndSettle();
-      expect(
-        find.text('Гүйлгээ бүртгэх боломж хараахан нээгдээгүй байна.'),
-        findsOneWidget,
-      );
+      expect(find.byKey(const Key('entryAmount')), findsOneWidget);
       expect(tester.takeException(), isNull);
     } finally {
       await tester.pumpWidget(const SizedBox());

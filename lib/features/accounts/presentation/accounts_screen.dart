@@ -23,7 +23,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
       (sheetContext) => CupertinoActionSheet(
         title: const Text('Үндсэн данс', style: sectionStyle),
         message: const Text(
-          'Нүүрэнд харагдах дансаа сонгоорой.',
+          'Шинэ бүртгэлд анх сонгогдох дансаа сонгоорой.',
           style: captionStyle,
         ),
         actions: [

@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import '../../../core/domain/money.dart';
+import '../../transactions/domain/entry_rules.dart';
 
 part 'app_database.g.dart';
 
@@ -53,15 +54,58 @@ class Profiles extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class LedgerSequences extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get kind =>
+      text().check(kind.isIn(['income', 'expense', 'adjustment']))();
+}
+
+@DataClassName('Category')
+class Categories extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get kind => text().check(kind.isIn(['income', 'expense']))();
+  TextColumn get name =>
+      text().check(name.trim().length.isBetweenValues(1, 60))();
+  TextColumn get normalizedName => text()();
+  TextColumn get icon => text().check(icon.isIn(categoryIcons))();
+  BoolColumn get archived => boolean().withDefault(const Constant(false))();
+  TextColumn get creationKey => text().unique()();
+}
+
+@DataClassName('CashEntry')
+class CashEntries extends Table {
+  IntColumn get id => integer().references(LedgerSequences, #id)();
+  IntColumn get accountId => integer().references(Accounts, #id)();
+  IntColumn get categoryId => integer().references(Categories, #id)();
+  TextColumn get kind => text().check(kind.isIn(['income', 'expense']))();
+  IntColumn get amount => integer().check(amount.isBetweenValues(1, maxMnt))();
+  IntColumn get effectiveAt =>
+      integer().check(effectiveAt.isBiggerOrEqualValue(0))();
+  IntColumn get createdAt => integer()();
+  TextColumn get entryDate => text()();
+  TextColumn get note => text().withDefault(const Constant(''))();
+  TextColumn get requestKey => text().unique()();
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(
-  tables: [Accounts, Profiles, BalanceAdjustments, AdjustmentEdits],
+  tables: [
+    Accounts,
+    Profiles,
+    BalanceAdjustments,
+    AdjustmentEdits,
+    LedgerSequences,
+    Categories,
+    CashEntries,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
     : super(executor ?? driftDatabase(name: 'hadgaly'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -77,23 +121,84 @@ class AppDatabase extends _$AppDatabase {
         BEGIN SELECT RAISE(ABORT, 'Onboarding requires a valid account'); END''',
       );
       await _financialGuards();
+      await _stage3Guards();
+      await _seedCategories();
     },
     onUpgrade: (m, from, to) async {
-      if (from == 1) {
-        await transaction(() async {
+      if (from != 1 && from != 2) {
+        throw StateError('Unsupported database migration: $from to $to');
+      }
+      await transaction(() async {
+        if (from == 1) {
           await m.addColumn(accounts, accounts.creationKey);
           await m.createTable(balanceAdjustments);
           await m.createTable(adjustmentEdits);
           await _financialGuards();
-        });
-      } else {
-        throw StateError('Unsupported database migration: $from to $to');
-      }
+        }
+        await m.createTable(ledgerSequences);
+        await m.createTable(categories);
+        await m.createTable(cashEntries);
+        await customStatement(
+          "INSERT INTO ledger_sequences(id,kind) SELECT id,'adjustment' FROM balance_adjustments ORDER BY id",
+        );
+        await _stage3Guards();
+        await _seedCategories();
+      });
     },
     beforeOpen: (_) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
+
+  Future<int> allocateSequence(String kind) =>
+      into(ledgerSequences).insert(LedgerSequencesCompanion.insert(kind: kind));
+
+  Future<void> _seedCategories() async {
+    for (final c in initialCategories) {
+      await into(categories).insert(
+        CategoriesCompanion.insert(
+          kind: c.kind,
+          name: c.name,
+          normalizedName: c.name.toLowerCase(),
+          icon: c.icon,
+          creationKey: 'seed:${c.kind}:${c.icon}',
+        ),
+      );
+    }
+  }
+
+  Future<void> _stage3Guards() async {
+    await customStatement(
+      'CREATE UNIQUE INDEX active_category_name ON categories(kind,normalized_name) WHERE archived=0',
+    );
+    await customStatement(
+      'CREATE INDEX cash_chronology ON cash_entries(account_id,effective_at,id)',
+    );
+    await customStatement(
+      '''CREATE TRIGGER valid_cash_entry BEFORE INSERT ON cash_entries
+      WHEN NOT EXISTS(SELECT 1 FROM categories WHERE id=NEW.category_id AND archived=0 AND kind=NEW.kind)
+        OR NOT EXISTS(SELECT 1 FROM ledger_sequences WHERE id=NEW.id AND kind=NEW.kind)
+      BEGIN SELECT RAISE(ABORT,'Invalid category or event sequence'); END''',
+    );
+    await customStatement('''CREATE TRIGGER valid_anchor_sequence BEFORE INSERT ON balance_adjustments
+      WHEN NOT EXISTS(SELECT 1 FROM ledger_sequences WHERE id=NEW.id AND kind='adjustment')
+      BEGIN SELECT RAISE(ABORT,'Invalid anchor sequence'); END''');
+    await customStatement(
+      '''CREATE TRIGGER immutable_category_kind BEFORE UPDATE ON categories
+      WHEN NEW.id != OLD.id OR NEW.kind != OLD.kind OR NEW.creation_key != OLD.creation_key
+      BEGIN SELECT RAISE(ABORT,'Immutable category identity'); END''',
+    );
+    for (final table in ['ledger_sequences', 'cash_entries']) {
+      for (final action in ['UPDATE', 'DELETE']) {
+        await customStatement(
+          'CREATE TRIGGER immutable_${table}_${action.toLowerCase()} BEFORE $action ON $table BEGIN SELECT RAISE(ABORT,\'Immutable posted event\'); END',
+        );
+      }
+    }
+    await customStatement(
+      "CREATE TRIGGER no_category_delete BEFORE DELETE ON categories BEGIN SELECT RAISE(ABORT,'Archive categories instead'); END",
+    );
+  }
 
   Future<void> _financialGuards() async {
     await customStatement(

@@ -5,14 +5,16 @@ Tasks, shopping and ideas tabs are coming-soon UI only; the finance six-stage ro
 Flutter **3.47.9**, bundled Dart **3.13.7**,
 Riverpod, SQLite/Drift; feature-first organization. Preserve `pubspec.lock`.
 
-Stage 1 is explicitly accepted. Stage 2 is ready for founder review, **not accepted yet**.
-No Stage 3 entry UI, transfers or bank integration is implemented.
+Stages 1 and 2 are explicitly accepted by CEO #016. Approved Stage 2:
+`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`. Stage 3 implementation is authorized/in progress,
+not accepted. No Stage 4, transfers or bank integration is authorized.
 Latest CEO #011 UI uses Cupertino components, Google Sans Flex + Noto Sans missing-glyph fallback,
 Midnight Blue/neutral/teal tokens and a persistent four-tab shell. Finance initially selected.
 See `STAGE2_DESIGN_NAV_REVIEW.md` for current UI/accessibility/data-preservation results.
 Latest Home layout supersedes the earlier default-account card: see `STAGE2_HOME_REVIEW.md`.
-Home shows a neutral expense donut, zero period totals and all accounts' combined current balance;
-expense/income actions remain unavailable until Stage 3.
+Home keeps the neutral ring and combined current account balance. Stage 3 activates one-screen
+income/expense entry and real current-month figures; category distribution/reporting remains Stage 5.
+See STAGE3_REVIEW.md and STAGE3_FINANCIAL_RULES.md for verification, dates and acceptance limits.
 
 ## Fresh-start decision
 
@@ -33,15 +35,9 @@ flutter --version
 flutter pub get
 flutter analyze
 flutter test
-flutter build apk --debug --flavor production
-$adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
-$aapt = "$env:LOCALAPPDATA\Android\Sdk\build-tools\37.0.0\aapt.exe"
-$apk = (Resolve-Path 'build\app\outputs\flutter-apk\app-production-debug.apk').Path
-$identity = (& $aapt dump badging $apk | Select-String '^package:').Line
-if ($identity -notmatch "^package: name='mn.hadgaly.hadgaly'") { throw 'Unexpected production package' }
-& $adb -s emulator-5554 install -r $apk
-if ($LASTEXITCODE -ne 0) { throw 'Update failed; do not uninstall or clear data.' }
-& $adb -s emulator-5554 shell am start -W -n mn.hadgaly.hadgaly/.MainActivity
+.\tool\run_production_demo.ps1
+# Verifies the actual APK ID, preserves private DB/sidecars, updates with install -r,
+# compares original records/balances, then launches. No uninstall/clear fallback.
 ```
 
 This checked install uses Android replace/update mode and preserves the current app database. Do not uninstall or clear data
@@ -77,7 +73,7 @@ Start it in a separate terminal:
 
 ```powershell
 $env:QT_OPENGL = 'desktop'
-& "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd Hadgaly_Stage2_Disposable -port 5556 -no-window -no-snapshot-load -no-snapshot-save -gpu swiftshader -feature -Vulkan -cores 4
+& "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd Hadgaly_Stage2_Disposable -port 5556 -no-window -no-snapshot-load -no-snapshot-save -gpu swiftshader -feature -Vulkan -cores 2 -memory 2048
 ```
 
 Then use the guarded runner:
@@ -107,9 +103,9 @@ See `STAGE2_FINANCIAL_RULES.md`, written before financial implementation.
 - Target edits preserve effective position and append old/new/edit-time audit in the same transaction.
   Original observed difference and recalculated difference are separately preserved/displayed.
 - Later anchors stay authoritative. Adjustments/openings are excluded from income/expense/net cash flow.
-  Transaction add/edit/delete scenarios exist as pure-domain fixtures only, not Stage 3 persistence/UI.
+  Stage 3 persists manual additions. Transaction edit/delete remain Stage 4; their scenarios remain pure-domain fixtures.
 - Random form request keys, unique constraints, revision checks and busy guards prevent duplicate saves.
-- Database schema **v2** upgrades v1 additively, atomically. No destructive migration fallback.
+- Database schema **v3** upgrades v1/v2 additively, atomically. A global event sequence preserves old anchor IDs/order. No destructive migration fallback.
   SQLite foreign keys and triggers protect default accounts, immutable observation, audit and deletion rules.
 - Names: trimmed, nonblank, single-line, at most 60 Unicode code points.
 - Google Sans Flex and Noto Sans are bundled offline under SIL OFL. Google Sans Flex lacks Cyrillic/₮;
@@ -119,13 +115,16 @@ See `STAGE2_FINANCIAL_RULES.md`, written before financial implementation.
 - No sensitive financial logs, automatic data upload or automatic Android backup.
   Product backup/restore remains Stage 6 scope.
 
-## Preserved v1 synthetic fixtures
+## Preserved synthetic migration fixtures
 
 `test/fixtures/stage1_completed_v1.fixture` and `stage1_partial_v1.fixture` are real SQLite **v1**
 files containing synthetic data only. Their SHA-256 manifest is committed. Tests copy them to unique
 device paths, inspect version/records before upgrade, compare all original account/profile fields
-after v2 migration, verify balances/default/onboarding/foreign keys, then close/reopen.
+after migration to the current v3 schema, verify balances/default/onboarding/foreign keys, then close/reopen.
 These assets are packaged **only in sandbox APKs**, not in the production app.
+`stage2_v2.fixture` is a preserved synthetic v2 database with two accounts, default account, two anchors
+and an edited anchor audit. Its separate SHA-256 manifest is checked before device tests. All original
+fields, balances, default/onboarding and stable event IDs are compared after v2→v3 and reopen.
 Fresh-install success is separate evidence and does not validate migration or recover previous data.
 
 ## Source and review
@@ -133,7 +132,7 @@ Fresh-install success is separate evidence and does not validate migration or re
 - `lib/core/domain/money.dart`: exact validation/formatting.
 - `lib/features/accounts/domain/ledger.dart`: pure Dart chronological financial replay.
 - `lib/features/accounts/{data,application,presentation}`: repository, streams, forms, My Accounts/history.
-- `lib/features/onboarding/data`: current Drift schema and v1→v2 migration; generated Dart is committed.
+- `lib/features/onboarding/data`: current Drift schema and additive v1/v2→v3 migrations; generated Dart is committed.
 - `test`, `integration_test`, `test_driver`, `tool`: unit/widget/device checks and safety workflow.
 
 After changing the Drift schema, review/add a migration and regenerate:

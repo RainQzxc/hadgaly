@@ -1,15 +1,120 @@
 # HADGALY — PROJECT CONTEXT
 
-Last Updated: **2026-11-01, Asia/Ulaanbaatar**
+Last Updated: **2026-11-03, Asia/Ulaanbaatar**
 
-Current status: **Environment Preparation incomplete; Stage 1 NOT started.** Flutter installation is blocked by network policy. Only this handoff document is authorized for creation, commit, and push in the closing task. The next agent must verify live state rather than assuming the observations below remain current.
+Current status: **Stages 1 and 2 explicitly approved. Stage 2 COMPLETE. Stage 3 authorized/in progress; not accepted.**
+CEO #016 founder approval applies to the latest reviewed Stage 2 commit:
+**`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`** (verified Git HEAD before Stage 3 implementation).
+Earlier “Stage 2 pending/unapproved” entries below are historical and superseded by #016.
+
+## CEO #016 — current authorization
+
+- Implement Stage 3 only: one-screen manual income/expense entry, amount → category → account → save,
+  default account, editable current date, optional note, initial/custom categories with name/icon editing
+  and archive, durable atomic posting, duplicate protection and existing authoritative-anchor replay.
+- Preserve approved UI/identity, all existing records/audit/default/onboarding and additive migrations.
+  No Stage 4 history/transaction edit/delete UI, reports, transfers, recurring or non-finance modules.
+- Stage 3 acceptance requires passing tests + live Android demo + explicit founder approval.
+- Founder logo instruction also remains authorized: symbol-only app icon and text logo at the top.
+  Original assets/logo files remain untouched. Their integration is separate from the approved Stage 2 baseline.
+- Financial ordering/date/migration defaults must be recorded in STAGE3_FINANCIAL_RULES.md before implementation.
+
+## Stage 3 implementation handoff — CEO #016
+
+- Additive schema v3 introduces categories, immutable posted cash entries and a global ledger-sequence
+  registry; preserved v2 anchor IDs seed that registry unchanged. v1/v2 upgrade paths preserve original
+  profiles/accounts/anchors/audits. Existing pure financial replay and authoritative targets remain intact.
+- Home +/− now open the correct one-screen entry form. Positive whole MNT only; active category,
+  default/changeable account, editable date, optional note, atomic save and per-form idempotency.
+  Initial/custom categories support name/icon editing and archive without deleting old entries.
+- Current-month Home figures now use real entries and exclude openings/anchors. Combined current
+  balance remains all accounts' replayed balances. Category distribution remains Stage 5; neutral ring
+  never invents proportions. Empty text explicitly refers to this month. No Stage 4 history/edit/delete UI.
+- Dates, range, clock rollback, day-end backdating, append-only entries and audit semantics are recorded
+  in STAGE3_FINANCIAL_RULES.md. Existing balances may be negative; entry magnitude is strictly positive.
+- User logo direction applied: original horizontal wordmark at branded navigation titles; symbol-only
+  Android legacy/adaptive launcher assets. Originals preserved; unrelated assets/logo photos not packaged.
+- Verification/review details and live-demo commands: STAGE3_REVIEW.md. Native tests remain sandbox-only;
+  tool/run_production_demo.ps1 performs a checked, privately preserved install -r update, never reinstall.
+- Verified: 102 unit/widget tests, analyze/format; 7 functional Android cases over 4 guarded targets;
+  320dp/1.8× native Stage 3 repeat; separate real-IME synthetic 123 income / 125 expense / −2 balance
+  and cold restart. This synthetic money never entered the founder package. Versioned screenshots:
+  docs/review/stage3-*.png. No Stage 3 acceptance is implied by these checks.
+- Actual founder database v2→v3 was separately checked: all original row fields and derived balance hashes
+  matched; no synthetic production cash entries. Private backups stay under LOCALAPPDATA/HadgalyDev,
+  outside Git. This does not recover the earlier incident's data; founder fresh-start authorization remains documented.
+- Stage 3 is implemented for review, NOT accepted. Founder acceptance is still required. Do not begin Stage 4.
+
+## Historical Stage 2 UI handoff (superseded status; retained evidence)
+CEO #015 supersedes the previous Home height-distribution approach: controlled vertical flow,
+24dp empty-state-to-balance gap, no primary-column spaceBetween/full-height minimum, and a subtle
+My Accounts navigation row with trailing chevron. Only Home presentation/tests/docs changed.
+See STAGE2_HOME_COMPOSITION_REVIEW.md. Navbar, other screens, tokens/fonts and finance remain unchanged.
+Latest founder steering after CEO #013: **Home-first proportions/spacing pass only**. Home review
+comes before propagating the design language to My Accounts/onboarding/shared navigation. See
+STAGE2_HOME_PROPORTIONS_REVIEW.md; broader STAGE2_UX_AUDIT_013.md recommendations remain pending.
+CEO #011 supersedes earlier typography/color/navigation directions: Google Sans Flex + bundled Noto Sans
+for missing Cyrillic/MNT glyphs, Midnight Blue/neutral/teal tokens, four persistent product tabs with
+Finance selected initially. Only finance is functionally active; Tasks/Shopping/Ideas are coming-soon
+UI only. See `STAGE2_DESIGN_NAV_REVIEW.md`. The approved finance six-stage roadmap is unchanged.
+Latest Home revision: see `STAGE2_HOME_REVIEW.md`. The founder-approved Home now centers a neutral
+expense-category donut with zero period totals, shows the combined current balance of all accounts,
+and places expense left / income right above My Accounts navigation. No transaction capability was added.
+The founder previously authorized a **fresh local start** after the integration-test incident;
+previous incident data was not recovered. The founder's subsequently entered records were
+**preserved exactly** during the latest Stage 2 Cupertino UI refinement. Financial/application,
+repository, schema/migration source hashes are unchanged; schema remains v2.
+See `STAGE2_UI_REFINEMENT.md` for the latest UI/test/demo evidence, and `STAGE2_REVIEW.md`,
+`STAGE2_FINANCIAL_RULES.md`, historical `STAGE2_BLOCKER.md` for prior implementation context.
+
+## Current directive overrides — 2026-11-03
+
+### Latest authorization and verified resolution
+
+- Latest authorized work is **CEO #015 Home-only composition correction**: remove excess vertical distribution, keep the existing normal 240dp donut/10dp stroke and 64dp actions, refine My Accounts into a subtle chevron row. Do not restyle other screens, tokens/fonts/navbar or future modules. Stage 2 remains unapproved.
+- Home retains its 200–240dp normal-text responsive ring (240dp on the founder's standard device), 10dp stroke, existing period labels, total label/30dp amount, and expense-left/income-right 64dp actions. The primary Column no longer uses spaceBetween or a full-height minimum. A fixed 24dp section gap connects empty state to total, with 8/16dp intra-section rhythm. Large text can expand/scroll. My Accounts row is 14dp/500 with a trailing chevron and ≥48dp touch height. Spare height remains below content instead of splitting the composition. All-account BigInt sum and zero period totals are unchanged.
+- Future product vision: modular organization across **Хийх зүйл / Авах зүйл / Санаа / Санхүү**, Simple Yet Effective. Current MVP implementation and the approved six-stage roadmap remain finance-only. Any future roadmap expansion requires a separate product decision.
+- Typography: official unmodified Google Sans Flex variable font; its cmap lacks Cyrillic and ₮. Official unmodified Noto Sans fallback supplies only missing glyphs, including Ө/Ү/өү and ₮. Both are bundled offline with SIL OFL notices; Google Sans Flex trademark notice retained. Official google/fonts source revision and SHA-256 manifest: assets/fonts/SOURCES.json. No proprietary/unofficial font files.
+- Central tokens: neutral #F5F6F8, midnight #14243E, teal #39B5AA, expense #D66B72; light Cupertino presentation. 60/30/10 is composition guidance, not a pixel quota. Darker teal/error text variants preserve 4.5:1 contrast; main buttons use midnight text on teal/expense fills. See lib/core/presentation/design_tokens.dart.
+- Four tabs appear after mandatory onboarding; Finance is initially selected on every launch. Other modules show “Тун удахгүй” only. A nested finance navigator keeps the bar on account/detail/form routes and preserves unsaved form state while switching tabs. Android Back on another tab returns to finance; Back within finance pops its local route. Keyboard temporarily hides the bar to retain form space; safe-area padding is owned by the shell. No new persistence.
+- Latest #011 checks: **84 unit/widget tests passed**, real bundled-font/large-text/navigation tests included; format/analyze passed; production and sandbox Android debug builds passed; Stage 1/2 sandbox scenarios and two synthetic v1→v2 cases passed. Actual sandbox APK ID verified before each installation. Native four-tab/navigation/Back review passed. Protected source hashes and current production records/schema fingerprints unchanged.
+- Previous Home revision remains approved design direction, now using the #011 font/tokens inside Finance:
+- Approved Home: prominent centered expense-category donut; inside it period income + amount and expense − amount; combined **current** account balance above bottom buttons; **− Зарлага left / + Орлого right**, then existing My Accounts navigation/safe area. No Default Account card on Home. My Accounts remains a separate screen with unchanged default behavior.
+- Stage 2 has no transaction/category persistence or existing period selector. Display a neutral empty ring, fixed “Энэ сар”, +0 ₮ / −0 ₮, and concise empty text. No fake category proportions, transaction storage, entry UI or period-navigation infrastructure. Button taps retain honest unavailable feedback.
+- Combined balance sums all verified AccountView current balances, including opening balances/adjustment anchors, using BigInt in presentation; no per-account limit is applied to the aggregate. It is independent of default selection and period totals. No financial-domain/repository changes.
+- Home revision checks: **80 unit/widget tests pass**, format/analyze pass, production Android debug build/update/cold launch pass; sandbox Stage 1/2 flows run only on the verified disposable environment. Production records/schema fingerprint and protected source hashes are unchanged. Details/evidence/limitations: STAGE2_HOME_REVIEW.md.
+- Refined UI uses grouped lists, Cupertino fields/buttons/action sheets, accessible Android navigation, native iOS navigation and reduced-motion-aware transitions. Home +/− remain unavailable with honest inline feedback.
+- Earlier Cupertino refinement checks: **76 unit/widget tests passed**, analyze clean, production Android debug build/update passed, sandbox Stage 1/2 Android flows passed, two synthetic v1→v2 device fixture cases passed. Primary app was updated with adb install -r only; all account/profile/adjustment/audit records and schema matched the pre-refinement fingerprint.
+- Main app remains on emulator-5554 with existing user data. Disposable emulator-5556 is used only for synthetic sandbox integration checks and is stopped afterward. See STAGE2_UI_REFINEMENT.md for details and known unrun iOS-device/TalkBack checks.
+
+- Founder authorized fresh main-app data; recovery is no longer a prerequisite. No old user data was recovered or reconstructed. Do not describe re-entered balances as recovered history.
+- Main app: native `production` flavor, actual inspected APK id `mn.hadgaly.hadgaly`. The initial fresh-start state was empty; the founder subsequently entered records. Preserve current data and never reset it to repeat onboarding.
+- Tests: explicit `sandbox` flavor, inspected APK id `mn.hadgaly.hadgaly.sandbox`, only `Hadgaly_Stage2_Disposable` / `emulator-5556`. Use `tool/run_android_checks.ps1`, which verifies device identity, binary applicationId and hash BEFORE installing the exact APK through flutter drive. No direct integration-test command on the founder emulator.
+- `flutter drive` cleanup also uninstalls the test package. Its target is the inspected sandbox APK id; the wrapper verifies no unrelated package changes. The normal app remains installed on emulator-5554.
+- Stage 2 checks: 72 unit/widget tests passed; Android Stage 1 and Stage 2 scenarios passed on the disposable device; both preserved synthetic v1 completed/partial binary fixtures upgraded to v2 with records, balances, default account and onboarding unchanged. This does not establish real-user-data migration or recovery.
+- Amount/audit/ordering rules are in STAGE2_FINANCIAL_RULES.md. Stage 2 is awaiting explicit founder acceptance; do not begin Stage 3.
+
+### Historical incident entries (superseded by fresh-start authorization)
+
+- Latest founder authorization: Stage 1 is accepted; implement Stage 2 only. Earlier Stage 1-pending statements below are historical.
+- Stage 2 approved rules: current-time-only balance anchors; target edits preserve effective time/order; append-only old/new/edit-time audit; no deletion; deterministic ties; original vs recalculated difference remain distinct. See `STAGE2_FINANCIAL_RULES.md`, written before implementation.
+- Stage 2 checks before stop: analyze clean, 72 unit/widget tests pass, debug APK build passes, 2 Android integration tests pass. Integration cleanup then uninstalled the founder's normal emulator package because the intended suffix did not activate. No normal Stage 2 live-demo/migration acceptance claim is valid.
+- Blocking next action: establish whether a pre-incident backup/snapshot exists, or obtain founder confirmation for any data reconstruction. Do not guess financial data. Fix/verify test APK package identity before any further device tests. Changes remain uncommitted on `codex/stage-2-accounts`; no Stage 2 push/review SHA yet.
+
+- #006: Windows local environment inspected; local/remote `main` matched handoff commit `b080b7d9ee3e4ca8bf6890228b9fb1cffbb48d73`.
+- #007: Pin Flutter **3.47.9** / bundled Dart **3.13.7**. SDK: `C:\dev\flutter`. Android AVD: `Medium_Phone_API_37.0`, API 37. NVIDIA `nvoglv64.dll` crashed the normal renderer; cold boot with `-gpu software -no-snapshot-load -no-snapshot-save` brought `emulator-5554` online. No AVD data wipe.
+- First account is **mandatory, cannot be skipped**. Account name must not be blank. Opening balance is required, **zero and negative permitted**. All amounts use integer MNT without fractions.
+- #008: Implement **Stage 1 only**, including foundation, offline Mongolian onboarding, first/default account, restart-safe local persistence, simple Home with honest unavailable +/− feedback, tests and interactive Android demo. Do not start Stage 2.
+- Authorized engineering choice for Stage 1 amounts: **−999,999,999,999 through 999,999,999,999 MNT**, exact integer validation; no rounding/truncation. Names: trimmed, single-line, nonblank, at most 60 Unicode code points.
+- Six-stage roadmap and stage acceptance gates are unchanged. Stage 1 remains unaccepted until tests, Android demo and explicit founder approval. See README and `STAGE1_REVIEW.md` for current verification results.
+- Stage 1 verification: analyze clean, 36 unit/widget tests pass, 1 Android integration test passes, debug APK/build/run pass. Native 320dp keyboard and force-stop/relaunch preserve drafts. Basic software rendering later hung; the verified launch is `-gpu swiftshader -feature -Vulkan -cores 4 -no-snapshot-load -no-snapshot-save`, with process-local `QT_OPENGL=angle`. No data wipe. Required NDK 28.2.13676358 and CMake 3.22.1 were installed through official tooling. Founder acceptance is still pending.
 
 This document is the consolidated source of truth for a new Codex conversation with no prior chat. Later explicit founder decisions supersede this document. Confirmed decisions, proposals, and unresolved items are intentionally separated. The original discovery document and six mockups were reviewed, but are not assumed to exist in this repository.
 
 ## 1. Product vision and identity
 
 - Official name: **Hadgaly**, associated with **Хадгалъя**. Earlier spelling “Hadgalay” is obsolete.
-- Offline-first, manual-entry personal finance mobile application, inspired by **Monefy**.
+- Future vision: modular personal organization app across **Tasks, Shopping lists, Ideas/notes, Finance**. Only manual-entry, offline-first finance is functionally active in the approved current stages, inspired by **Monefy**. Other tabs are explicit coming-soon surfaces; no non-finance data models or persistence.
 - Philosophy: **Simple Yet Effective**. Avoid accounting-like complexity and speculative features.
 - Strict priority order: **1. Fast transaction entry; 2. Simple, delightful UX; 3. Correct and reliable financial calculations.** Correctness remains mandatory; speed never authorizes incorrect calculations.
 - Proposed slogan, not approved: “Ухаалгаар зарцуулж, зорилготой хадгалъя.”
@@ -86,7 +191,9 @@ Cash flow must not be presented as accounting profit. Revenue minus spending alo
 
 ## 3. UI personality, accessibility and references
 
-**Confirmed:** Comfortaa typography; highly rounded, framed, minimal components; soft colors; friendly conversational Mongolian. Numeral readability and accessibility must be checked.
+**Current confirmed (#011):** Google Sans Flex typography with Noto Sans only for missing glyphs;
+Midnight Blue #14243E, neutral #F5F6F8, teal #39B5AA and expense #D66B72; rounded, framed,
+restrained Cupertino components; friendly Mongolian. Earlier Comfortaa/green-primary directions are superseded.
 
 **Friendly by design, not noisy by default.** Cute, warm, thoughtful; never cringe, childish, intrusive, repetitive, or distracting.
 
@@ -106,7 +213,7 @@ Six reference PNGs were visually examined in chat: dashboard, expense entry, his
 
 **Their presence on disk/Git is unverified; do not claim they are committed.** Original Monefy screen recording is not in the handoff.
 
-Visual direction: off-white, green/mint primary, coral expense, pastel categories, rounded cards/pills/icons, restrained shadows. Do not copy mockup navigation or central `+` at the expense of the confirmed distinct `+` / `−` home actions.
+Visual direction: light neutral surfaces, midnight typography/primary controls, teal highlights and rose expense accents; rounded components, subtle separators, restrained motion/elevation. Do not invent category proportions or copy a central `+` at the expense of distinct `+` / `−` finance actions. Four product tabs are the current approved navigation; future module functionality requires separate authorization.
 
 Mockup contradictions are examples, not requirements:
 
@@ -140,7 +247,7 @@ Mockup contradictions are examples, not requirements:
 - No sensitive financial logs or automatic upload; no unnecessary contacts/location/SMS permissions.
 - Local backup/restore is Stage 6; encryption, key management, restore conflict handling require design review.
 - Optional PIN/biometrics and encrypted database are proposals, not selected implementations.
-- Respect platform touch targets (approximately 44pt iOS / 48dp Android), contrast, large text, small screens, keyboard, reduced motion. Test Comfortaa numerals and Mongolian glyphs.
+- Respect platform touch targets (approximately 44pt iOS / 48dp Android), contrast, large text, small screens, keyboard, reduced motion. Test the current Google Sans Flex/Noto Sans typography, numerals and Mongolian glyphs.
 - Prior aspirational targets, **not measured guarantees**: startup ~2s, save ~500ms, dashboard <1s, 10k report ~3s, memory <200MB, potential 100k transactions. Select representative devices and actual acceptance budgets before claiming these.
 - Proposed Android 10+/iOS 16+ support is unapproved; target OS versions remain open.
 
@@ -320,7 +427,7 @@ Every stage requires ALL THREE: **stage-specific automated tests pass + working 
 
 ### Stage 1 — Foundation and friendly onboarding
 
-Deliver: approved Flutter architecture foundation; Comfortaa/colors/rounded components; nickname/introduction/first account; first account default; persisted onboarding progress/profile/account; clean home with prominent + and -. Actual financial entry belongs to Stage 3; do not pretend inactive controls are working features.
+Deliver: approved Flutter architecture foundation; approved typography/colors/rounded components (Comfortaa originally, superseded by #011); nickname/introduction/first account; first account default; persisted onboarding progress/profile/account; clean home with prominent + and -. Actual financial entry belongs to Stage 3; do not pretend inactive controls are working features.
 
 Acceptance: first launch/back navigation/invalid or blank input/close-reopen/progress correct; keyboard/small screen/text checked; automated stage tests; interactive Android demo; founder approves copy/design/flow.
 
@@ -347,6 +454,12 @@ Acceptance: opening + operations + anchor semantics reconcile; adjustment exclud
 ### Stage 5 — Simple home overview
 
 Deliver: + / - remain primary; balances vs period income/expense differentiated; expense donut/basic category summary; helpful empty states; no crowded mockup copy.
+
+Founder-approved layout direction recorded during Stage 2 Home revision: centered expense-category
+donut with selected-period income/expense inside; combined current balance above bottom expense-left /
+income-right actions; My Accounts separate; no default-account card on Home. Stage 2 implements only
+the neutral no-transactions state and verified current account sum. Real period/category reporting is
+deferred to the approved later scope; this note does not start Stage 5 or change the six-stage roadmap.
 
 Acceptance: totals match history, zero income/expense and negative balances clear; no false savings/profit claims; calculation/widget tests and live demo; founder approves hierarchy.
 
@@ -376,7 +489,7 @@ Hadgaly → structured export → user manually uploads to ChatGPT → analysis 
 - Never imply ChatGPT can see banks or unrecorded spending.
 - Exact schema, privacy defaults, context/prompt, rounding/export details remain open.
 
-## 9. Current environment and development status
+## 9. Historical cloud environment status — 2026-11-01 (superseded)
 
 ### Completed
 
@@ -458,8 +571,8 @@ For every development task report: implemented work; files changed; tests/comman
 
 ## 11. Open decisions and risks
 
-- Balance adjustment detailed ordering/backdating/audit semantics (model selected, mechanics not yet approved).
-- Onboarding skip behavior, main account deletion/archive/default fallback, negative/future-dated entries and amount range/precision.
+- Balance adjustment ordering/audit rules are now approved and documented in STAGE2_FINANCIAL_RULES.md; founder reviews Stage 2 implementation against that contract.
+- First account is mandatory; zero/negative integer opening balances are approved. Account deletion/archive/default fallback and future transaction dates remain outside Stage 2 scope.
 - Exact home/navigation and one-screen entry keyboard interactions; minimal friendly feedback.
 - Backup format/encryption/keys/restore confirmation and conflicts; optional PIN/biometrics.
 - Recurrence phase and 29/30/31 rules, missed cycles, schedule edits, local notification permissions/restart limitations.
@@ -470,25 +583,22 @@ For every development task report: implemented work; files changed; tests/comman
 - Real financial databases/notes/exports/credentials must not enter Git. Use synthetic test data.
 - Future export schema/privacy defaults and data completeness warnings.
 
-## 12. Exact next actions and authorization boundaries
+## 12. Current next actions and authorization boundaries
 
-1. Read this document in full and applicable AGENTS.md/runtime instructions. Inspect actual Git root/status/HEAD/origin; do not overwrite user changes. Confirm remote handoff is present.
-2. Recheck environment status/network draft. If latest storage domain addition is pending, explain founder settings/publish action; do not blindly reapply prior changes or publish yourself.
-3. With environment preparation authorization still applicable, resume official stable metadata/checksum-based SDK preparation; no Flutter app initialization. Stop on genuine external blockers, complete independent checks, report facts.
-4. Record exact Flutter/Dart versions and SDK path; verify doctor and test tooling; save tested reproducible setup instructions outside application source/supported draft fields. No speculative dependencies.
-5. Give founder matching Windows version and verify local Android device/emulator setup, then Hot Reload once a project is authorized and exists.
-6. Before **Stage 1 implementation**, obtain explicit founder authorization. Stage 1 has not begun; approved roadmap/environment setup are not blanket implementation consent.
-7. Before Stage 2 adjustment implementation, present chronology/recalculation decisions and automated numeric test cases for review.
-8. Complete one stage, report test results and exact demo commit, collect founder acceptance, then seek/receive next-stage approval. Never assume silence means approval.
+1. Read the current directive overrides, STAGE2_REVIEW.md and STAGE2_FINANCIAL_RULES.md. Preserve local changes; never force reset/clean.
+2. Stage 2 is accepted at 816af0e67bb92736ae1c887af9a2f5d2ab45dadc. Implement/review Stage 3 under CEO #016; preserve the current founder-entered records on production emulator-5554.
+3. Preserve production data: follow README's checked production APK identity + `adb install -r` update and explicit launch commands. No uninstall fallback. Keep Flutter 3.47.9/Dart 3.13.7 and pubspec.lock; do not reinstall working tools.
+4. Device integration tests use only tool/run_android_checks.ps1 with the explicitly named disposable AVD and a verified sandbox APK. Never run test cleanup against the main package/emulator.
+5. Preserved synthetic v1→v2 migration is tested separately. Previous real-user data was not recovered, and real-user-data migration is not verified. Founder-approved fresh installation is not migration evidence.
+6. Implement Stage 3 within its approved scope, record the tested commit and test/device evidence, and collect explicit Stage 3 acceptance.
+7. Stage 3 is authorized by #016. Do not begin Stage 4 or add transfers, recurring payments or speculative features.
+8. Any later recovery operation that overwrites existing state requires founder approval. Never reconstruct financial history from guesses or call manually re-entered balances recovered history.
 
 ## INSTRUCTIONS FOR THE NEXT CODEX SESSION
 
-You have no access to prior chat. Read **HADGALY_PROJECT_CONTEXT.md** first, then local AGENTS.md and managed environment runtime instructions. Treat the document as consolidated product context; distinguish confirmed requirements from proposals and verify all historical runtime claims.
-
-Your immediate objective is to finish **Environment Preparation**, not to build Stage 1. The last blocker is official Flutter storage access returning proxy 403; a domain addition was saved but runtime application/publication is unconfirmed. Inspect current settings and connectivity before changing configuration. Preserve platform HTTPS proxy authentication, TLS and artifact checksum verification. Never ask for a GitHub token merely because token variables are unset.
-
-Do not initialize Flutter, create application files, add project dependencies, implement financial rules or expand roadmap until founder explicitly authorizes Stage 1. The closing task's permission covers this document, commit and push only. Do not silently install tools during documentation handoff. Respect new user instructions overriding prior context.
-
-When implementation is authorized: use approved Flutter/Dart/Riverpod/Drift feature-first stack, independent tested financial domain, integer MNT, manual-only/offline data and clear + / - entry. Preserve balance-at-effective-time adjustments outside income/expense reports. Do not implement unsettled edge cases without review.
-
-Report in Mongolian, plainly and accurately. Show what ran and what did not. Give founder an interactive local Android demo, not screenshot-only acceptance. **Tests + Live Demo + Explicit Founder Approval** are required before every next stage. Do not fabricate CEO approval, tool readiness, remote persistence, test success, or completion.
+The current authorized scope is Stage 3 only. Stages 1 and 2 are explicitly accepted; Stage 2's
+approved commit is 816af0e67bb92736ae1c887af9a2f5d2ab45dadc. The founder approved fresh main-app data after
+an integration-test uninstall incident. Main app and disposable test APKs must remain isolated.
+Read the historical incident record without treating its superseded recovery gate as current.
+Report in Mongolian with actual test results, exact commit/device evidence and limitations.
+Tests + accessible interactive Android demo + explicit founder approval remain mandatory.

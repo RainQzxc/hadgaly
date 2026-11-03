@@ -1,0 +1,26 @@
+{
+  "repository": "https://github.com/google/fonts",
+  "revision": "2fe1e8c6b137fb13041a7cfca6fdcd8a910ea4dc",
+  "files": {
+    "GoogleSansFlex.ttf": {
+      "path": "googlesansflex/GoogleSansFlex[ROND,opsz,slnt,wdth,wght].ttf",
+      "sha256": "a9ac770798857d5e8ac593ced42b22e40a7c08cec98319f92b0eccc2783a77ba"
+    },
+    "GoogleSansFlex-OFL.txt": {
+      "path": "googlesansflex/OFL.txt",
+      "sha256": "fc13d69f63e36d284b6e383d4d1463d8ad404f0aa065e57cf961252d51063137"
+    },
+    "GoogleSansFlex-TRADEMARKS.md": {
+      "path": "googlesansflex/TRADEMARKS.md",
+      "sha256": "5cad381c0828db656f32a787a1eff76db3303c74ec4f94668ae9fc2873ffe42f"
+    },
+    "NotoSans.ttf": {
+      "path": "notosans/NotoSans[wdth,wght].ttf",
+      "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"
+    },
+    "NotoSans-OFL.txt": {
+      "path": "notosans/OFL.txt",
+      "sha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a"
+    }
+  }
+}

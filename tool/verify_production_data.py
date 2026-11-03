@@ -15,6 +15,9 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 
+if not __debug__:
+    raise SystemExit('Safety assertions must remain enabled; do not use optimized Python')
+
 MODE, DIRECTORY = sys.argv[1:]
 if MODE not in ('before', 'after', 'ready'):
     raise SystemExit('Expected before/after/ready and a private evidence directory')
@@ -65,15 +68,24 @@ tables = ['accounts', 'profiles', 'balance_adjustments', 'adjustment_edits']
 records = {table: stable.execute(f'SELECT * FROM {table} ORDER BY id').fetchall() for table in tables}
 fingerprint = hashlib.sha256(json.dumps(records, sort_keys=True).encode()).hexdigest()
 version = stable.execute('PRAGMA user_version').fetchone()[0]
-cash = stable.execute('SELECT * FROM cash_entries ORDER BY id').fetchall() if version == 3 else []
+cash = stable.execute('SELECT * FROM cash_entries ORDER BY id').fetchall() if version >= 3 else []
 cash_hash = hashlib.sha256(json.dumps(cash).encode()).hexdigest()
+cash_events = {}
+if version >= 3:
+    cash_events = {row[0]: row[1:] for row in stable.execute('SELECT id,account_id,effective_at,kind,amount FROM cash_entries')}
+if version >= 4:
+    for entry, account, effective, kind, amount, deleted in stable.execute('SELECT entry_id,account_id,effective_at,kind,amount,deleted FROM entry_revisions ORDER BY revision'):
+        if deleted: cash_events.pop(entry, None)
+        else: cash_events[entry] = (account,effective,kind,amount)
+revision_rows = stable.execute('SELECT * FROM entry_revisions ORDER BY id').fetchall() if version >= 4 else []
+revisions_hash = hashlib.sha256(json.dumps(revision_rows).encode()).hexdigest()
+metadata = {table: stable.execute(f'SELECT * FROM {table} ORDER BY id').fetchall() for table in ['categories','ledger_sequences']} if version >= 3 else None
+metadata_hash = hashlib.sha256(json.dumps(metadata, sort_keys=True).encode()).hexdigest() if metadata is not None else None
 balances = {}
 for account, opening in stable.execute('SELECT id,opening_balance FROM accounts'):
     events = [(time, sequence, 'adjustment', target) for sequence, time, target in
         stable.execute('SELECT id,effective_at,target FROM balance_adjustments WHERE account_id=?', (account,))]
-    if version == 3:
-        events.extend((time, sequence, kind, amount) for sequence, time, kind, amount in
-            stable.execute('SELECT id,effective_at,kind,amount FROM cash_entries WHERE account_id=?', (account,)))
+    events.extend((time,sequence,kind,amount) for sequence,(owner,time,kind,amount) in cash_events.items() if owner==account)
     balance = opening
     for _, _, kind, amount in sorted(events):
         balance = amount if kind == 'adjustment' else balance + (amount if kind == 'income' else -amount)
@@ -81,13 +93,14 @@ for account, opening in stable.execute('SELECT id,opening_balance FROM accounts'
     balances[account] = balance
 evidence = {'schema': version, 'originalRecordsHash': fingerprint,
     'cashRecordsHash': cash_hash,
+    'revisionRecordsHash': revisions_hash, 'categorySequenceHash': metadata_hash,
     'balancesHash': hashlib.sha256(json.dumps(balances, sort_keys=True).encode()).hexdigest(),
     'counts': {table: len(rows) for table, rows in records.items()}}
 if MODE == 'before':
-    assert version in (2, 3)
+    assert version in (2, 3, 4)
 else:
     previous = json.loads((root / 'before' / 'evidence.json').read_text())
-    assert version == 3
+    assert version == 4
     assert fingerprint == previous['originalRecordsHash'], 'Original records changed'
     assert evidence['balancesHash'] == previous['balancesHash'], 'Balances changed'
     assert evidence['counts'] == previous['counts']
@@ -95,7 +108,10 @@ else:
     prior_cash_hash = previous.get('cashRecordsHash')
     if prior_cash_hash is None and previous['schema'] == 2:
         prior_cash_hash = hashlib.sha256(json.dumps([]).encode()).hexdigest()
-    assert cash_hash == prior_cash_hash, 'Cash entries changed during update'
+    assert cash_hash == prior_cash_hash, 'Original cash entries changed during update'
+    assert revisions_hash == previous['revisionRecordsHash'], 'Revision snapshots changed during update'
+    if previous['categorySequenceHash'] is not None:
+        assert metadata_hash == previous['categorySequenceHash'], 'Category/sequence data changed during update'
 (destination / 'evidence.json').write_text(json.dumps(evidence, indent=2))
 stable.close()
 print(f'PASS production {MODE}: schema v{version}; original records protected; private evidence captured')

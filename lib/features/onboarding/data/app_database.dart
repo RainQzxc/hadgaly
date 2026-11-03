@@ -89,6 +89,23 @@ class CashEntries extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class EntryRevisions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get entryId => integer().references(CashEntries, #id)();
+  IntColumn get revision => integer().check(revision.isBiggerThanValue(0))();
+  IntColumn get accountId => integer().references(Accounts, #id)();
+  IntColumn get categoryId => integer().references(Categories, #id)();
+  TextColumn get kind => text().check(kind.isIn(['income', 'expense']))();
+  IntColumn get amount => integer().check(amount.isBetweenValues(1, maxMnt))();
+  IntColumn get effectiveAt =>
+      integer().check(effectiveAt.isBiggerOrEqualValue(0))();
+  TextColumn get entryDate => text()();
+  TextColumn get note => text()();
+  BoolColumn get deleted => boolean().withDefault(const Constant(false))();
+  IntColumn get changedAt => integer()();
+  TextColumn get requestKey => text().unique()();
+}
+
 @DriftDatabase(
   tables: [
     Accounts,
@@ -98,6 +115,7 @@ class CashEntries extends Table {
     LedgerSequences,
     Categories,
     CashEntries,
+    EntryRevisions,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -105,7 +123,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'hadgaly'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -123,9 +141,10 @@ class AppDatabase extends _$AppDatabase {
       await _financialGuards();
       await _stage3Guards();
       await _seedCategories();
+      await _stage4Guards();
     },
     onUpgrade: (m, from, to) async {
-      if (from != 1 && from != 2) {
+      if (from < 1 || from > 3) {
         throw StateError('Unsupported database migration: $from to $to');
       }
       await transaction(() async {
@@ -135,14 +154,18 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(adjustmentEdits);
           await _financialGuards();
         }
-        await m.createTable(ledgerSequences);
-        await m.createTable(categories);
-        await m.createTable(cashEntries);
-        await customStatement(
-          "INSERT INTO ledger_sequences(id,kind) SELECT id,'adjustment' FROM balance_adjustments ORDER BY id",
-        );
-        await _stage3Guards();
-        await _seedCategories();
+        if (from < 3) {
+          await m.createTable(ledgerSequences);
+          await m.createTable(categories);
+          await m.createTable(cashEntries);
+          await customStatement(
+            "INSERT INTO ledger_sequences(id,kind) SELECT id,'adjustment' FROM balance_adjustments ORDER BY id",
+          );
+          await _stage3Guards();
+          await _seedCategories();
+        }
+        await m.createTable(entryRevisions);
+        await _stage4Guards();
       });
     },
     beforeOpen: (_) async {
@@ -152,6 +175,52 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> allocateSequence(String kind) =>
       into(ledgerSequences).insert(LedgerSequencesCompanion.insert(kind: kind));
+
+  Future<void> _stage4Guards() async {
+    await customStatement(
+      'CREATE UNIQUE INDEX entry_revision_number ON entry_revisions(entry_id,revision)',
+    );
+    await customStatement(
+      '''CREATE TRIGGER valid_entry_revision BEFORE INSERT ON entry_revisions
+      WHEN NOT EXISTS(SELECT 1 FROM cash_entries WHERE id=NEW.entry_id)
+      OR NEW.revision != COALESCE((SELECT MAX(revision) FROM entry_revisions WHERE entry_id=NEW.entry_id),0)+1
+      OR COALESCE((SELECT deleted FROM entry_revisions WHERE entry_id=NEW.entry_id ORDER BY revision DESC LIMIT 1),0)=1
+      BEGIN SELECT RAISE(ABORT,'Stale or deleted entry revision'); END''',
+    );
+    await customStatement(
+      '''CREATE TRIGGER valid_revision_category BEFORE INSERT ON entry_revisions
+      WHEN NOT EXISTS(SELECT 1 FROM categories WHERE id=NEW.category_id AND kind=NEW.kind AND
+        (archived=0 OR (NEW.category_id=COALESCE(
+          (SELECT category_id FROM entry_revisions WHERE entry_id=NEW.entry_id ORDER BY revision DESC LIMIT 1),
+          (SELECT category_id FROM cash_entries WHERE id=NEW.entry_id)) AND NEW.kind=COALESCE(
+          (SELECT kind FROM entry_revisions WHERE entry_id=NEW.entry_id ORDER BY revision DESC LIMIT 1),
+          (SELECT kind FROM cash_entries WHERE id=NEW.entry_id)))))
+      BEGIN SELECT RAISE(ABORT,'Invalid revision category'); END''',
+    );
+    final immutableOnDelete =
+        [
+              'account_id',
+              'category_id',
+              'kind',
+              'amount',
+              'effective_at',
+              'entry_date',
+              'note',
+            ]
+            .map(
+              (field) =>
+                  'NEW.$field != COALESCE((SELECT $field FROM entry_revisions WHERE entry_id=NEW.entry_id ORDER BY revision DESC LIMIT 1),(SELECT $field FROM cash_entries WHERE id=NEW.entry_id))',
+            )
+            .join(' OR ');
+    await customStatement(
+      'CREATE TRIGGER valid_entry_tombstone BEFORE INSERT ON entry_revisions WHEN NEW.deleted=1 AND ($immutableOnDelete) BEGIN SELECT RAISE(ABORT,\'Deletion must preserve its snapshot\'); END',
+    );
+    for (final action in ['UPDATE', 'DELETE']) {
+      await customStatement(
+        'CREATE TRIGGER immutable_entry_revision_${action.toLowerCase()} BEFORE $action ON entry_revisions BEGIN SELECT RAISE(ABORT,\'Immutable entry revision\'); END',
+      );
+    }
+  }
 
   Future<void> _seedCategories() async {
     for (final c in initialCategories) {

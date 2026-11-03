@@ -68,6 +68,24 @@ int entryEffectiveAt(DateTime date, DateTime now, int latestEffectiveAt) {
       1;
 }
 
+int editedEntryEffectiveAt({
+  required String previousDate,
+  required int previousTime,
+  required DateTime date,
+  required DateTime now,
+  required int sequence,
+  required int latestOtherTime,
+  required int latestOtherSequence,
+}) {
+  if (dateKey(calendarDay(date)) == previousDate) return previousTime;
+  final time = entryEffectiveAt(date, now, latestOtherTime);
+  return calendarDay(date) == calendarDay(now) &&
+          time == latestOtherTime &&
+          sequence < latestOtherSequence
+      ? time + 1
+      : time;
+}
+
 String validateNote(String raw) {
   final note = raw.trim();
   if (note.runes.length > 500 ||

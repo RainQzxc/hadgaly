@@ -3080,6 +3080,766 @@ class CashEntriesCompanion extends UpdateCompanion<CashEntry> {
   }
 }
 
+class $EntryRevisionsTable extends EntryRevisions
+    with TableInfo<$EntryRevisionsTable, EntryRevision> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EntryRevisionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _entryIdMeta = const VerificationMeta(
+    'entryId',
+  );
+  @override
+  late final GeneratedColumn<int> entryId = GeneratedColumn<int>(
+    'entry_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES cash_entries (id)',
+    ),
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    check: () => ComparableExpr(revision).isBiggerThanValue(0),
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _accountIdMeta = const VerificationMeta(
+    'accountId',
+  );
+  @override
+  late final GeneratedColumn<int> accountId = GeneratedColumn<int>(
+    'account_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES accounts (id)',
+    ),
+  );
+  static const VerificationMeta _categoryIdMeta = const VerificationMeta(
+    'categoryId',
+  );
+  @override
+  late final GeneratedColumn<int> categoryId = GeneratedColumn<int>(
+    'category_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES categories (id)',
+    ),
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    check: () => kind.isIn(['income', 'expense']),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    false,
+    check: () => ComparableExpr(amount).isBetweenValues(1, maxMnt),
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _effectiveAtMeta = const VerificationMeta(
+    'effectiveAt',
+  );
+  @override
+  late final GeneratedColumn<int> effectiveAt = GeneratedColumn<int>(
+    'effective_at',
+    aliasedName,
+    false,
+    check: () => ComparableExpr(effectiveAt).isBiggerOrEqualValue(0),
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entryDateMeta = const VerificationMeta(
+    'entryDate',
+  );
+  @override
+  late final GeneratedColumn<String> entryDate = GeneratedColumn<String>(
+    'entry_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _changedAtMeta = const VerificationMeta(
+    'changedAt',
+  );
+  @override
+  late final GeneratedColumn<int> changedAt = GeneratedColumn<int>(
+    'changed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _requestKeyMeta = const VerificationMeta(
+    'requestKey',
+  );
+  @override
+  late final GeneratedColumn<String> requestKey = GeneratedColumn<String>(
+    'request_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    entryId,
+    revision,
+    accountId,
+    categoryId,
+    kind,
+    amount,
+    effectiveAt,
+    entryDate,
+    note,
+    deleted,
+    changedAt,
+    requestKey,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'entry_revisions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<EntryRevision> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('entry_id')) {
+      context.handle(
+        _entryIdMeta,
+        entryId.isAcceptableOrUnknown(data['entry_id']!, _entryIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entryIdMeta);
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_revisionMeta);
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(
+        _accountIdMeta,
+        accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('category_id')) {
+      context.handle(
+        _categoryIdMeta,
+        categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryIdMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('effective_at')) {
+      context.handle(
+        _effectiveAtMeta,
+        effectiveAt.isAcceptableOrUnknown(
+          data['effective_at']!,
+          _effectiveAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_effectiveAtMeta);
+    }
+    if (data.containsKey('entry_date')) {
+      context.handle(
+        _entryDateMeta,
+        entryDate.isAcceptableOrUnknown(data['entry_date']!, _entryDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entryDateMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_noteMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('changed_at')) {
+      context.handle(
+        _changedAtMeta,
+        changedAt.isAcceptableOrUnknown(data['changed_at']!, _changedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_changedAtMeta);
+    }
+    if (data.containsKey('request_key')) {
+      context.handle(
+        _requestKeyMeta,
+        requestKey.isAcceptableOrUnknown(data['request_key']!, _requestKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_requestKeyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  EntryRevision map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EntryRevision(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      entryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}entry_id'],
+      )!,
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+      accountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}account_id'],
+      )!,
+      categoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}category_id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount'],
+      )!,
+      effectiveAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}effective_at'],
+      )!,
+      entryDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entry_date'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      changedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}changed_at'],
+      )!,
+      requestKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}request_key'],
+      )!,
+    );
+  }
+
+  @override
+  $EntryRevisionsTable createAlias(String alias) {
+    return $EntryRevisionsTable(attachedDatabase, alias);
+  }
+}
+
+class EntryRevision extends DataClass implements Insertable<EntryRevision> {
+  final int id;
+  final int entryId;
+  final int revision;
+  final int accountId;
+  final int categoryId;
+  final String kind;
+  final int amount;
+  final int effectiveAt;
+  final String entryDate;
+  final String note;
+  final bool deleted;
+  final int changedAt;
+  final String requestKey;
+  const EntryRevision({
+    required this.id,
+    required this.entryId,
+    required this.revision,
+    required this.accountId,
+    required this.categoryId,
+    required this.kind,
+    required this.amount,
+    required this.effectiveAt,
+    required this.entryDate,
+    required this.note,
+    required this.deleted,
+    required this.changedAt,
+    required this.requestKey,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['entry_id'] = Variable<int>(entryId);
+    map['revision'] = Variable<int>(revision);
+    map['account_id'] = Variable<int>(accountId);
+    map['category_id'] = Variable<int>(categoryId);
+    map['kind'] = Variable<String>(kind);
+    map['amount'] = Variable<int>(amount);
+    map['effective_at'] = Variable<int>(effectiveAt);
+    map['entry_date'] = Variable<String>(entryDate);
+    map['note'] = Variable<String>(note);
+    map['deleted'] = Variable<bool>(deleted);
+    map['changed_at'] = Variable<int>(changedAt);
+    map['request_key'] = Variable<String>(requestKey);
+    return map;
+  }
+
+  EntryRevisionsCompanion toCompanion(bool nullToAbsent) {
+    return EntryRevisionsCompanion(
+      id: Value(id),
+      entryId: Value(entryId),
+      revision: Value(revision),
+      accountId: Value(accountId),
+      categoryId: Value(categoryId),
+      kind: Value(kind),
+      amount: Value(amount),
+      effectiveAt: Value(effectiveAt),
+      entryDate: Value(entryDate),
+      note: Value(note),
+      deleted: Value(deleted),
+      changedAt: Value(changedAt),
+      requestKey: Value(requestKey),
+    );
+  }
+
+  factory EntryRevision.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EntryRevision(
+      id: serializer.fromJson<int>(json['id']),
+      entryId: serializer.fromJson<int>(json['entryId']),
+      revision: serializer.fromJson<int>(json['revision']),
+      accountId: serializer.fromJson<int>(json['accountId']),
+      categoryId: serializer.fromJson<int>(json['categoryId']),
+      kind: serializer.fromJson<String>(json['kind']),
+      amount: serializer.fromJson<int>(json['amount']),
+      effectiveAt: serializer.fromJson<int>(json['effectiveAt']),
+      entryDate: serializer.fromJson<String>(json['entryDate']),
+      note: serializer.fromJson<String>(json['note']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      changedAt: serializer.fromJson<int>(json['changedAt']),
+      requestKey: serializer.fromJson<String>(json['requestKey']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'entryId': serializer.toJson<int>(entryId),
+      'revision': serializer.toJson<int>(revision),
+      'accountId': serializer.toJson<int>(accountId),
+      'categoryId': serializer.toJson<int>(categoryId),
+      'kind': serializer.toJson<String>(kind),
+      'amount': serializer.toJson<int>(amount),
+      'effectiveAt': serializer.toJson<int>(effectiveAt),
+      'entryDate': serializer.toJson<String>(entryDate),
+      'note': serializer.toJson<String>(note),
+      'deleted': serializer.toJson<bool>(deleted),
+      'changedAt': serializer.toJson<int>(changedAt),
+      'requestKey': serializer.toJson<String>(requestKey),
+    };
+  }
+
+  EntryRevision copyWith({
+    int? id,
+    int? entryId,
+    int? revision,
+    int? accountId,
+    int? categoryId,
+    String? kind,
+    int? amount,
+    int? effectiveAt,
+    String? entryDate,
+    String? note,
+    bool? deleted,
+    int? changedAt,
+    String? requestKey,
+  }) => EntryRevision(
+    id: id ?? this.id,
+    entryId: entryId ?? this.entryId,
+    revision: revision ?? this.revision,
+    accountId: accountId ?? this.accountId,
+    categoryId: categoryId ?? this.categoryId,
+    kind: kind ?? this.kind,
+    amount: amount ?? this.amount,
+    effectiveAt: effectiveAt ?? this.effectiveAt,
+    entryDate: entryDate ?? this.entryDate,
+    note: note ?? this.note,
+    deleted: deleted ?? this.deleted,
+    changedAt: changedAt ?? this.changedAt,
+    requestKey: requestKey ?? this.requestKey,
+  );
+  EntryRevision copyWithCompanion(EntryRevisionsCompanion data) {
+    return EntryRevision(
+      id: data.id.present ? data.id.value : this.id,
+      entryId: data.entryId.present ? data.entryId.value : this.entryId,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      categoryId: data.categoryId.present
+          ? data.categoryId.value
+          : this.categoryId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      effectiveAt: data.effectiveAt.present
+          ? data.effectiveAt.value
+          : this.effectiveAt,
+      entryDate: data.entryDate.present ? data.entryDate.value : this.entryDate,
+      note: data.note.present ? data.note.value : this.note,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      changedAt: data.changedAt.present ? data.changedAt.value : this.changedAt,
+      requestKey: data.requestKey.present
+          ? data.requestKey.value
+          : this.requestKey,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EntryRevision(')
+          ..write('id: $id, ')
+          ..write('entryId: $entryId, ')
+          ..write('revision: $revision, ')
+          ..write('accountId: $accountId, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('kind: $kind, ')
+          ..write('amount: $amount, ')
+          ..write('effectiveAt: $effectiveAt, ')
+          ..write('entryDate: $entryDate, ')
+          ..write('note: $note, ')
+          ..write('deleted: $deleted, ')
+          ..write('changedAt: $changedAt, ')
+          ..write('requestKey: $requestKey')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    entryId,
+    revision,
+    accountId,
+    categoryId,
+    kind,
+    amount,
+    effectiveAt,
+    entryDate,
+    note,
+    deleted,
+    changedAt,
+    requestKey,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EntryRevision &&
+          other.id == this.id &&
+          other.entryId == this.entryId &&
+          other.revision == this.revision &&
+          other.accountId == this.accountId &&
+          other.categoryId == this.categoryId &&
+          other.kind == this.kind &&
+          other.amount == this.amount &&
+          other.effectiveAt == this.effectiveAt &&
+          other.entryDate == this.entryDate &&
+          other.note == this.note &&
+          other.deleted == this.deleted &&
+          other.changedAt == this.changedAt &&
+          other.requestKey == this.requestKey);
+}
+
+class EntryRevisionsCompanion extends UpdateCompanion<EntryRevision> {
+  final Value<int> id;
+  final Value<int> entryId;
+  final Value<int> revision;
+  final Value<int> accountId;
+  final Value<int> categoryId;
+  final Value<String> kind;
+  final Value<int> amount;
+  final Value<int> effectiveAt;
+  final Value<String> entryDate;
+  final Value<String> note;
+  final Value<bool> deleted;
+  final Value<int> changedAt;
+  final Value<String> requestKey;
+  const EntryRevisionsCompanion({
+    this.id = const Value.absent(),
+    this.entryId = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.effectiveAt = const Value.absent(),
+    this.entryDate = const Value.absent(),
+    this.note = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.changedAt = const Value.absent(),
+    this.requestKey = const Value.absent(),
+  });
+  EntryRevisionsCompanion.insert({
+    this.id = const Value.absent(),
+    required int entryId,
+    required int revision,
+    required int accountId,
+    required int categoryId,
+    required String kind,
+    required int amount,
+    required int effectiveAt,
+    required String entryDate,
+    required String note,
+    this.deleted = const Value.absent(),
+    required int changedAt,
+    required String requestKey,
+  }) : entryId = Value(entryId),
+       revision = Value(revision),
+       accountId = Value(accountId),
+       categoryId = Value(categoryId),
+       kind = Value(kind),
+       amount = Value(amount),
+       effectiveAt = Value(effectiveAt),
+       entryDate = Value(entryDate),
+       note = Value(note),
+       changedAt = Value(changedAt),
+       requestKey = Value(requestKey);
+  static Insertable<EntryRevision> custom({
+    Expression<int>? id,
+    Expression<int>? entryId,
+    Expression<int>? revision,
+    Expression<int>? accountId,
+    Expression<int>? categoryId,
+    Expression<String>? kind,
+    Expression<int>? amount,
+    Expression<int>? effectiveAt,
+    Expression<String>? entryDate,
+    Expression<String>? note,
+    Expression<bool>? deleted,
+    Expression<int>? changedAt,
+    Expression<String>? requestKey,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (entryId != null) 'entry_id': entryId,
+      if (revision != null) 'revision': revision,
+      if (accountId != null) 'account_id': accountId,
+      if (categoryId != null) 'category_id': categoryId,
+      if (kind != null) 'kind': kind,
+      if (amount != null) 'amount': amount,
+      if (effectiveAt != null) 'effective_at': effectiveAt,
+      if (entryDate != null) 'entry_date': entryDate,
+      if (note != null) 'note': note,
+      if (deleted != null) 'deleted': deleted,
+      if (changedAt != null) 'changed_at': changedAt,
+      if (requestKey != null) 'request_key': requestKey,
+    });
+  }
+
+  EntryRevisionsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? entryId,
+    Value<int>? revision,
+    Value<int>? accountId,
+    Value<int>? categoryId,
+    Value<String>? kind,
+    Value<int>? amount,
+    Value<int>? effectiveAt,
+    Value<String>? entryDate,
+    Value<String>? note,
+    Value<bool>? deleted,
+    Value<int>? changedAt,
+    Value<String>? requestKey,
+  }) {
+    return EntryRevisionsCompanion(
+      id: id ?? this.id,
+      entryId: entryId ?? this.entryId,
+      revision: revision ?? this.revision,
+      accountId: accountId ?? this.accountId,
+      categoryId: categoryId ?? this.categoryId,
+      kind: kind ?? this.kind,
+      amount: amount ?? this.amount,
+      effectiveAt: effectiveAt ?? this.effectiveAt,
+      entryDate: entryDate ?? this.entryDate,
+      note: note ?? this.note,
+      deleted: deleted ?? this.deleted,
+      changedAt: changedAt ?? this.changedAt,
+      requestKey: requestKey ?? this.requestKey,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (entryId.present) {
+      map['entry_id'] = Variable<int>(entryId.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<int>(accountId.value);
+    }
+    if (categoryId.present) {
+      map['category_id'] = Variable<int>(categoryId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (effectiveAt.present) {
+      map['effective_at'] = Variable<int>(effectiveAt.value);
+    }
+    if (entryDate.present) {
+      map['entry_date'] = Variable<String>(entryDate.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (changedAt.present) {
+      map['changed_at'] = Variable<int>(changedAt.value);
+    }
+    if (requestKey.present) {
+      map['request_key'] = Variable<String>(requestKey.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EntryRevisionsCompanion(')
+          ..write('id: $id, ')
+          ..write('entryId: $entryId, ')
+          ..write('revision: $revision, ')
+          ..write('accountId: $accountId, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('kind: $kind, ')
+          ..write('amount: $amount, ')
+          ..write('effectiveAt: $effectiveAt, ')
+          ..write('entryDate: $entryDate, ')
+          ..write('note: $note, ')
+          ..write('deleted: $deleted, ')
+          ..write('changedAt: $changedAt, ')
+          ..write('requestKey: $requestKey')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3095,6 +3855,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $CategoriesTable categories = $CategoriesTable(this);
   late final $CashEntriesTable cashEntries = $CashEntriesTable(this);
+  late final $EntryRevisionsTable entryRevisions = $EntryRevisionsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3107,6 +3868,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ledgerSequences,
     categories,
     cashEntries,
+    entryRevisions,
   ];
 }
 
@@ -3180,6 +3942,24 @@ final class $$AccountsTableReferences
     ).filter((f) => f.accountId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_cashEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$EntryRevisionsTable, List<EntryRevision>>
+  _entryRevisionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.entryRevisions,
+    aliasName: 'accounts__id__entry_revisions__account_id',
+  );
+
+  $$EntryRevisionsTableProcessedTableManager get entryRevisionsRefs {
+    final manager = $$EntryRevisionsTableTableManager(
+      $_db,
+      $_db.entryRevisions,
+    ).filter((f) => f.accountId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_entryRevisionsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -3281,6 +4061,31 @@ class $$AccountsTableFilterComposer
           }) => $$CashEntriesTableFilterComposer(
             $db: $db,
             $table: $db.cashEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> entryRevisionsRefs(
+    Expression<bool> Function($$EntryRevisionsTableFilterComposer f) f,
+  ) {
+    final $$EntryRevisionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.entryRevisions,
+      getReferencedColumn: (t) => t.accountId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EntryRevisionsTableFilterComposer(
+            $db: $db,
+            $table: $db.entryRevisions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3421,6 +4226,31 @@ class $$AccountsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> entryRevisionsRefs<T extends Object>(
+    Expression<T> Function($$EntryRevisionsTableAnnotationComposer a) f,
+  ) {
+    final $$EntryRevisionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.entryRevisions,
+      getReferencedColumn: (t) => t.accountId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EntryRevisionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.entryRevisions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$AccountsTableTableManager
@@ -3440,6 +4270,7 @@ class $$AccountsTableTableManager
             bool profilesRefs,
             bool balanceAdjustmentsRefs,
             bool cashEntriesRefs,
+            bool entryRevisionsRefs,
           })
         > {
   $$AccountsTableTableManager(_$AppDatabase db, $AccountsTable table)
@@ -3490,6 +4321,7 @@ class $$AccountsTableTableManager
                 profilesRefs = false,
                 balanceAdjustmentsRefs = false,
                 cashEntriesRefs = false,
+                entryRevisionsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -3497,6 +4329,7 @@ class $$AccountsTableTableManager
                     if (profilesRefs) db.profiles,
                     if (balanceAdjustmentsRefs) db.balanceAdjustments,
                     if (cashEntriesRefs) db.cashEntries,
+                    if (entryRevisionsRefs) db.entryRevisions,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -3561,6 +4394,26 @@ class $$AccountsTableTableManager
                           referencedColumn: 'account_id',
                           typedResults: items,
                         ),
+                      if (entryRevisionsRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Account,
+                          $AccountsTable,
+                          EntryRevision,
+                          $EntryRevisionsTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$AccountsTableReferences
+                              ._entryRevisionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$AccountsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).entryRevisionsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'account_id',
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -3585,6 +4438,7 @@ typedef $$AccountsTableProcessedTableManager =
         bool profilesRefs,
         bool balanceAdjustmentsRefs,
         bool cashEntriesRefs,
+        bool entryRevisionsRefs,
       })
     >;
 typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
@@ -5072,6 +5926,24 @@ final class $$CategoriesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$EntryRevisionsTable, List<EntryRevision>>
+  _entryRevisionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.entryRevisions,
+    aliasName: 'categories__id__entry_revisions__category_id',
+  );
+
+  $$EntryRevisionsTableProcessedTableManager get entryRevisionsRefs {
+    final manager = $$EntryRevisionsTableTableManager(
+      $_db,
+      $_db.entryRevisions,
+    ).filter((f) => f.categoryId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_entryRevisionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$CategoriesTableFilterComposer
@@ -5134,6 +6006,31 @@ class $$CategoriesTableFilterComposer
           }) => $$CashEntriesTableFilterComposer(
             $db: $db,
             $table: $db.cashEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> entryRevisionsRefs(
+    Expression<bool> Function($$EntryRevisionsTableFilterComposer f) f,
+  ) {
+    final $$EntryRevisionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.entryRevisions,
+      getReferencedColumn: (t) => t.categoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EntryRevisionsTableFilterComposer(
+            $db: $db,
+            $table: $db.entryRevisions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -5247,6 +6144,31 @@ class $$CategoriesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> entryRevisionsRefs<T extends Object>(
+    Expression<T> Function($$EntryRevisionsTableAnnotationComposer a) f,
+  ) {
+    final $$EntryRevisionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.entryRevisions,
+      getReferencedColumn: (t) => t.categoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EntryRevisionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.entryRevisions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$CategoriesTableTableManager
@@ -5262,7 +6184,10 @@ class $$CategoriesTableTableManager
           $$CategoriesTableUpdateCompanionBuilder,
           (Category, $$CategoriesTableReferences),
           Category,
-          PrefetchHooks Function({bool cashEntriesRefs})
+          PrefetchHooks Function({
+            bool cashEntriesRefs,
+            bool entryRevisionsRefs,
+          })
         > {
   $$CategoriesTableTableManager(_$AppDatabase db, $CategoriesTable table)
     : super(
@@ -5319,37 +6244,61 @@ class $$CategoriesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({cashEntriesRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (cashEntriesRefs) db.cashEntries],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (cashEntriesRefs)
-                    await $_getPrefetchedDataByColumns<
-                      Category,
-                      $CategoriesTable,
-                      CashEntry,
-                      $CashEntriesTable
-                    >(
-                      currentTable: table,
-                      referencedTable: $$CategoriesTableReferences
-                          ._cashEntriesRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$CategoriesTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).cashEntriesRefs,
-                      currentColumn: 'id',
-                      referencedColumn: 'category_id',
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({cashEntriesRefs = false, entryRevisionsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (cashEntriesRefs) db.cashEntries,
+                    if (entryRevisionsRefs) db.entryRevisions,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (cashEntriesRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Category,
+                          $CategoriesTable,
+                          CashEntry,
+                          $CashEntriesTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CategoriesTableReferences
+                              ._cashEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CategoriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).cashEntriesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'category_id',
+                          typedResults: items,
+                        ),
+                      if (entryRevisionsRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Category,
+                          $CategoriesTable,
+                          EntryRevision,
+                          $EntryRevisionsTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CategoriesTableReferences
+                              ._entryRevisionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CategoriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).entryRevisionsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'category_id',
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -5366,7 +6315,7 @@ typedef $$CategoriesTableProcessedTableManager =
       $$CategoriesTableUpdateCompanionBuilder,
       (Category, $$CategoriesTableReferences),
       Category,
-      PrefetchHooks Function({bool cashEntriesRefs})
+      PrefetchHooks Function({bool cashEntriesRefs, bool entryRevisionsRefs})
     >;
 typedef $$CashEntriesTableCreateCompanionBuilder =
     CashEntriesCompanion Function({
@@ -5945,6 +6894,548 @@ typedef $$CashEntriesTableProcessedTableManager =
       CashEntry,
       PrefetchHooks Function({bool id, bool accountId, bool categoryId})
     >;
+typedef $$EntryRevisionsTableCreateCompanionBuilder =
+    EntryRevisionsCompanion Function({
+      Value<int> id,
+      required int entryId,
+      required int revision,
+      required int accountId,
+      required int categoryId,
+      required String kind,
+      required int amount,
+      required int effectiveAt,
+      required String entryDate,
+      required String note,
+      Value<bool> deleted,
+      required int changedAt,
+      required String requestKey,
+    });
+typedef $$EntryRevisionsTableUpdateCompanionBuilder =
+    EntryRevisionsCompanion Function({
+      Value<int> id,
+      Value<int> entryId,
+      Value<int> revision,
+      Value<int> accountId,
+      Value<int> categoryId,
+      Value<String> kind,
+      Value<int> amount,
+      Value<int> effectiveAt,
+      Value<String> entryDate,
+      Value<String> note,
+      Value<bool> deleted,
+      Value<int> changedAt,
+      Value<String> requestKey,
+    });
+
+final class $$EntryRevisionsTableReferences
+    extends BaseReferences<_$AppDatabase, $EntryRevisionsTable, EntryRevision> {
+  $$EntryRevisionsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $AccountsTable _accountIdTable(_$AppDatabase db) =>
+      db.accounts.createAlias('entry_revisions__account_id__accounts__id');
+
+  $$AccountsTableProcessedTableManager get accountId {
+    final $_column = $_itemColumn<int>('account_id')!;
+
+    final manager = $$AccountsTableTableManager(
+      $_db,
+      $_db.accounts,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_accountIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
+      db.categories.createAlias('entry_revisions__category_id__categories__id');
+
+  $$CategoriesTableProcessedTableManager get categoryId {
+    final $_column = $_itemColumn<int>('category_id')!;
+
+    final manager = $$CategoriesTableTableManager(
+      $_db,
+      $_db.categories,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_categoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$EntryRevisionsTableFilterComposer
+    extends Composer<_$AppDatabase, $EntryRevisionsTable> {
+  $$EntryRevisionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get effectiveAt => $composableBuilder(
+    column: $table.effectiveAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entryDate => $composableBuilder(
+    column: $table.entryDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get changedAt => $composableBuilder(
+    column: $table.changedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get requestKey => $composableBuilder(
+    column: $table.requestKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$AccountsTableFilterComposer get accountId {
+    final $$AccountsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.accountId,
+      referencedTable: $db.accounts,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AccountsTableFilterComposer(
+            $db: $db,
+            $table: $db.accounts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CategoriesTableFilterComposer get categoryId {
+    final $$CategoriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableFilterComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$EntryRevisionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $EntryRevisionsTable> {
+  $$EntryRevisionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get effectiveAt => $composableBuilder(
+    column: $table.effectiveAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entryDate => $composableBuilder(
+    column: $table.entryDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get changedAt => $composableBuilder(
+    column: $table.changedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get requestKey => $composableBuilder(
+    column: $table.requestKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$AccountsTableOrderingComposer get accountId {
+    final $$AccountsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.accountId,
+      referencedTable: $db.accounts,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AccountsTableOrderingComposer(
+            $db: $db,
+            $table: $db.accounts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CategoriesTableOrderingComposer get categoryId {
+    final $$CategoriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableOrderingComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$EntryRevisionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $EntryRevisionsTable> {
+  $$EntryRevisionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<int> get effectiveAt => $composableBuilder(
+    column: $table.effectiveAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get entryDate =>
+      $composableBuilder(column: $table.entryDate, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumn<int> get changedAt =>
+      $composableBuilder(column: $table.changedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get requestKey => $composableBuilder(
+    column: $table.requestKey,
+    builder: (column) => column,
+  );
+
+  $$AccountsTableAnnotationComposer get accountId {
+    final $$AccountsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.accountId,
+      referencedTable: $db.accounts,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AccountsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.accounts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CategoriesTableAnnotationComposer get categoryId {
+    final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$EntryRevisionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $EntryRevisionsTable,
+          EntryRevision,
+          $$EntryRevisionsTableFilterComposer,
+          $$EntryRevisionsTableOrderingComposer,
+          $$EntryRevisionsTableAnnotationComposer,
+          $$EntryRevisionsTableCreateCompanionBuilder,
+          $$EntryRevisionsTableUpdateCompanionBuilder,
+          (EntryRevision, $$EntryRevisionsTableReferences),
+          EntryRevision,
+          PrefetchHooks Function({bool accountId, bool categoryId})
+        > {
+  $$EntryRevisionsTableTableManager(
+    _$AppDatabase db,
+    $EntryRevisionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EntryRevisionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EntryRevisionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$EntryRevisionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> entryId = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int> accountId = const Value.absent(),
+                Value<int> categoryId = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<int> effectiveAt = const Value.absent(),
+                Value<String> entryDate = const Value.absent(),
+                Value<String> note = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<int> changedAt = const Value.absent(),
+                Value<String> requestKey = const Value.absent(),
+              }) => EntryRevisionsCompanion(
+                id: id,
+                entryId: entryId,
+                revision: revision,
+                accountId: accountId,
+                categoryId: categoryId,
+                kind: kind,
+                amount: amount,
+                effectiveAt: effectiveAt,
+                entryDate: entryDate,
+                note: note,
+                deleted: deleted,
+                changedAt: changedAt,
+                requestKey: requestKey,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int entryId,
+                required int revision,
+                required int accountId,
+                required int categoryId,
+                required String kind,
+                required int amount,
+                required int effectiveAt,
+                required String entryDate,
+                required String note,
+                Value<bool> deleted = const Value.absent(),
+                required int changedAt,
+                required String requestKey,
+              }) => EntryRevisionsCompanion.insert(
+                id: id,
+                entryId: entryId,
+                revision: revision,
+                accountId: accountId,
+                categoryId: categoryId,
+                kind: kind,
+                amount: amount,
+                effectiveAt: effectiveAt,
+                entryDate: entryDate,
+                note: note,
+                deleted: deleted,
+                changedAt: changedAt,
+                requestKey: requestKey,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$EntryRevisionsTable, EntryRevision>(table),
+                  $$EntryRevisionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({accountId = false, categoryId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (accountId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.accountId,
+                        referencedTable: $$EntryRevisionsTableReferences
+                            ._accountIdTable(db),
+                        referencedColumn: $$EntryRevisionsTableReferences
+                            ._accountIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+                    if (categoryId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.categoryId,
+                        referencedTable: $$EntryRevisionsTableReferences
+                            ._categoryIdTable(db),
+                        referencedColumn: $$EntryRevisionsTableReferences
+                            ._categoryIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$EntryRevisionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $EntryRevisionsTable,
+      EntryRevision,
+      $$EntryRevisionsTableFilterComposer,
+      $$EntryRevisionsTableOrderingComposer,
+      $$EntryRevisionsTableAnnotationComposer,
+      $$EntryRevisionsTableCreateCompanionBuilder,
+      $$EntryRevisionsTableUpdateCompanionBuilder,
+      (EntryRevision, $$EntryRevisionsTableReferences),
+      EntryRevision,
+      PrefetchHooks Function({bool accountId, bool categoryId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5963,4 +7454,6 @@ class $AppDatabaseManager {
       $$CategoriesTableTableManager(_db, _db.categories);
   $$CashEntriesTableTableManager get cashEntries =>
       $$CashEntriesTableTableManager(_db, _db.cashEntries);
+  $$EntryRevisionsTableTableManager get entryRevisions =>
+      $$EntryRevisionsTableTableManager(_db, _db.entryRevisions);
 }

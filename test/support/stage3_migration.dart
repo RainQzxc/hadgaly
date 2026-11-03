@@ -58,7 +58,7 @@ Future<void> verifyStage2Migration(Uint8List bytes) async {
       (await db.customSelect('PRAGMA user_version').getSingle()).read<int>(
         'user_version',
       ),
-      3,
+      4,
     );
     expect(await db.customSelect('PRAGMA foreign_key_check').get(), isEmpty);
     expect(await db.select(db.cashEntries).get(), isEmpty);

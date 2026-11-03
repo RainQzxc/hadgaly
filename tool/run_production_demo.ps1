@@ -20,7 +20,7 @@ if ($Matches[1] -cne $package) { throw 'Unexpected APK ID; refusing installation
 $hash = (Get-FileHash -LiteralPath $apk -Algorithm SHA256).Hash
 & $adb -s emulator-5554 shell am force-stop $package
 if ($LASTEXITCODE -ne 0) { throw 'Could not stop app for consistent private backup' }
-$evidence = Join-Path $env:LOCALAPPDATA ('HadgalyDev\stage3-update-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
+$evidence = Join-Path $env:LOCALAPPDATA ('HadgalyDev\stage4-update-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
 & python tool/verify_production_data.py before $evidence
 if ($LASTEXITCODE -ne 0) { throw 'Private preservation failed; no installation attempted' }
 if ((Get-FileHash -LiteralPath $apk -Algorithm SHA256).Hash -ne $hash) { throw 'Verified APK changed' }

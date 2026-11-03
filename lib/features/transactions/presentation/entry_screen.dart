@@ -5,11 +5,19 @@ import '../../../core/presentation/hadgaly_ui.dart';
 import '../../accounts/application/accounts_providers.dart';
 import '../../accounts/domain/ledger.dart';
 import '../application/transactions_providers.dart';
+import '../../onboarding/data/app_database.dart';
 import '../domain/entry_rules.dart';
 import 'category_screens.dart';
 
 class EntryScreen extends ConsumerStatefulWidget {
-  const EntryScreen({super.key, required this.kind});
+  const EntryScreen({
+    super.key,
+    required this.kind,
+    this.entry,
+    this.revision = 0,
+  });
+  final CashEntry? entry;
+  final int revision;
   final EventKind kind;
   @override
   ConsumerState<EntryScreen> createState() => _EntryScreenState();
@@ -17,10 +25,17 @@ class EntryScreen extends ConsumerStatefulWidget {
 
 class _EntryScreenState extends ConsumerState<EntryScreen> {
   final form = GlobalKey<FormState>();
-  final amount = TextEditingController(), note = TextEditingController();
+  late final amount = TextEditingController(
+    text: widget.entry?.amount.toString() ?? '',
+  );
+  late final note = TextEditingController(text: widget.entry?.note ?? '');
+  late EventKind kind = widget.kind;
   final requestKey = newRequestKey();
-  int? accountId, categoryId;
-  DateTime date = calendarDay(DateTime.now());
+  late int? accountId = widget.entry?.accountId,
+      categoryId = widget.entry?.categoryId;
+  late DateTime date = widget.entry == null
+      ? calendarDay(DateTime.now())
+      : DateTime.parse(widget.entry!.entryDate);
   bool busy = false;
   String? error;
   @override
@@ -42,17 +57,30 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
       error = null;
     });
     try {
-      await ref
-          .read(transactionsRepositoryProvider)
-          .post(
-            kind: widget.kind,
-            amount: amount.text,
-            accountId: chosenAccount,
-            categoryId: categoryId!,
-            date: date,
-            note: note.text,
-            requestKey: requestKey,
-          );
+      final repository = ref.read(transactionsRepositoryProvider);
+      if (widget.entry == null) {
+        await repository.post(
+          kind: kind,
+          amount: amount.text,
+          accountId: chosenAccount,
+          categoryId: categoryId!,
+          date: date,
+          note: note.text,
+          requestKey: requestKey,
+        );
+      } else {
+        await repository.edit(
+          id: widget.entry!.id,
+          expectedRevision: widget.revision,
+          kind: kind,
+          amount: amount.text,
+          accountId: chosenAccount,
+          categoryId: categoryId!,
+          date: date,
+          note: note.text,
+          requestKey: requestKey,
+        );
+      }
       if (mounted) Navigator.pop(context);
     } on FormatException catch (e) {
       if (mounted) setState(() => error = e.message);
@@ -64,6 +92,66 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
       if (mounted) setState(() => busy = false);
     }
   }
+
+  Future<void> remove() async {
+    if (busy) return;
+    FocusScope.of(context).unfocus();
+    setState(() {
+      busy = true;
+      error = null;
+    });
+    try {
+      final confirm = await showActionSheet<bool>(
+        context,
+        (sheetContext) => CupertinoActionSheet(
+          title: const Text(
+            'Гүйлгээг устгах уу?',
+            style: TextStyle(
+              color: ink,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          message: Text(
+            '${widget.entry!.kind == 'income' ? 'Орлого' : 'Зарлага'} ${widget.entry!.amount} ₮ · ${widget.entry!.entryDate}\nДансны үлдэгдэл дахин бодогдоно.',
+            style: captionStyle,
+          ),
+          actions: [
+            CupertinoActionSheetAction(
+              key: const Key('confirmDelete'),
+              isDestructiveAction: true,
+              onPressed: () => Navigator.pop(sheetContext, true),
+              child: const Text('Устгах', style: TextStyle(color: errorInk)),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            key: const Key('cancelDelete'),
+            onPressed: () => Navigator.pop(sheetContext, false),
+            child: const Text('Болих'),
+          ),
+        ),
+      );
+      if (confirm != true || !mounted) return;
+      await ref
+          .read(transactionsRepositoryProvider)
+          .delete(
+            id: widget.entry!.id,
+            expectedRevision: widget.revision,
+            requestKey: deleteKey,
+          );
+      if (mounted) Navigator.pop(context);
+    } on FormatException catch (e) {
+      if (mounted) setState(() => error = e.message);
+    } catch (_) {
+      if (mounted) {
+        setState(() => error = 'Устгаж чадсангүй. Дахин оролдоорой.');
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  final deleteKey = newRequestKey();
 
   Future<void> pickDate() async {
     FocusScope.of(context).unfocus();
@@ -119,7 +207,9 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
     return PopScope(
       canPop: !busy,
       child: HadgalyPage(
-        title: widget.kind == EventKind.income
+        title: widget.entry != null
+            ? 'Гүйлгээ засах'
+            : kind == EventKind.income
             ? 'Орлого нэмэх'
             : 'Зарлага нэмэх',
         backEnabled: !busy,
@@ -134,6 +224,33 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
               key: form,
               child: PageContent(
                 children: [
+                  if (widget.entry != null) ...[
+                    CupertinoSlidingSegmentedControl<EventKind>(
+                      groupValue: kind,
+                      children: const {
+                        EventKind.expense: Padding(
+                          key: Key('entryKind-expense'),
+                          padding: EdgeInsets.all(12),
+                          child: Text('Зарлага'),
+                        ),
+                        EventKind.income: Padding(
+                          key: Key('entryKind-income'),
+                          padding: EdgeInsets.all(12),
+                          child: Text('Орлого'),
+                        ),
+                      },
+                      onValueChanged: (value) {
+                        if (!busy && value != null && value != kind) {
+                          FocusScope.of(context).unfocus();
+                          setState(() {
+                            kind = value;
+                            categoryId = null;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   HadgalyField(
                     fieldKey: const Key('entryAmount'),
                     controller: amount,
@@ -171,7 +288,7 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
                                 FocusScope.of(context).unfocus();
                                 openPage<void>(
                                   context,
-                                  CategoriesScreen(kind: widget.kind),
+                                  CategoriesScreen(kind: kind),
                                 );
                               },
                         child: const Text(
@@ -188,7 +305,11 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
                     data: (all) {
                       final active = all
                           .where(
-                            (c) => c.kind == widget.kind.name && !c.archived,
+                            (c) =>
+                                c.kind == kind.name &&
+                                (!c.archived ||
+                                    (widget.entry?.categoryId == c.id &&
+                                        widget.entry?.kind == kind.name)),
                           )
                           .toList();
                       return active.isEmpty
@@ -240,7 +361,7 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
                                             const SizedBox(width: 8),
                                             Flexible(
                                               child: Text(
-                                                c.name,
+                                                '${c.name}${c.archived ? ' · архив' : ''}',
                                                 style: const TextStyle(
                                                   fontSize: 15,
                                                   color: ink,
@@ -352,6 +473,14 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
                       ),
                     ),
                   ),
+                  if (widget.entry != null)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Text(
+                        'Огноог өөрчлөхгүй бол гүйлгээний анхны дараалал хадгалагдана.',
+                        style: captionStyle,
+                      ),
+                    ),
                   if (error != null) InlineError(error!),
                   const SizedBox(height: 24),
                   HadgalyButton(
@@ -359,6 +488,18 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
                     label: busy ? 'Хадгалж байна…' : 'Хадгалах',
                     onPressed: busy ? null : () => save(chosen.account.id),
                   ),
+                  if (widget.entry != null) ...[
+                    const SizedBox(height: 8),
+                    CupertinoButton(
+                      key: const Key('deleteEntry'),
+                      minimumSize: const Size(48, 48),
+                      onPressed: busy ? null : remove,
+                      child: const Text(
+                        'Гүйлгээ устгах',
+                        style: TextStyle(color: errorInk),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             );

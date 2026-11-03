@@ -34,6 +34,8 @@ flutter:
       flavors: [sandbox]
     - path: test/fixtures/stage2_v2.fixture
       flavors: [sandbox]
+    - path: test/fixtures/stage3_v3.fixture
+      flavors: [sandbox]
   fonts:
     - family: Google Sans Flex
       fonts:

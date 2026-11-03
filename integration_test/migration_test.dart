@@ -8,9 +8,19 @@ import 'package:hadgaly/features/onboarding/data/app_database.dart';
 import 'package:hadgaly/features/accounts/data/accounts_repository.dart';
 
 import '../test/support/stage3_migration.dart';
+import '../test/support/stage4_migration.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  testWidgets(
+    'Preserved v3 fixture upgrades to v4; original fields and revision behavior survive',
+    (tester) async {
+      final bytes = await rootBundle.load('test/fixtures/stage3_v3.fixture');
+      await verifyStage3Migration(
+        bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
+      );
+    },
+  );
   testWidgets(
     'Preserved synthetic v2 fixture upgrades to v3 with audit and balances unchanged',
     (tester) async {
@@ -73,7 +83,7 @@ void main() {
           expect(
             (await db.customSelect('PRAGMA user_version').getSingle())
                 .read<int>('user_version'),
-            3,
+            4,
           );
           expect(
             await db.customSelect('PRAGMA foreign_key_check').get(),

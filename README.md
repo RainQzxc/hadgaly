@@ -5,9 +5,10 @@ Tasks, shopping and ideas tabs are coming-soon UI only; the finance six-stage ro
 Flutter **3.47.9**, bundled Dart **3.13.7**,
 Riverpod, SQLite/Drift; feature-first organization. Preserve `pubspec.lock`.
 
-Stages 1 and 2 are explicitly accepted by CEO #016. Approved Stage 2:
-`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`. Stage 3 implementation is authorized/in progress,
-not accepted. No Stage 4, transfers or bank integration is authorized.
+Stages 1–3 are explicitly accepted. CEO #019 approved all eight Stage 3 criteria after Android review:
+`89b8245674910028eaf3e1d7c05c00cd2c6aff74`. Stage 4 history/editing/integrity is authorized;
+Stage 4 acceptance is pending. No Stage 5, transfers or bank integration is authorized.
+See STAGE4_FINANCIAL_RULES.md and STAGE4_REVIEW.md for current scope and verification.
 Latest CEO #011 UI uses Cupertino components, Google Sans Flex + Noto Sans missing-glyph fallback,
 Midnight Blue/neutral/teal tokens and a persistent four-tab shell. Finance initially selected.
 See `STAGE2_DESIGN_NAV_REVIEW.md` for current UI/accessibility/data-preservation results.
@@ -103,9 +104,9 @@ See `STAGE2_FINANCIAL_RULES.md`, written before financial implementation.
 - Target edits preserve effective position and append old/new/edit-time audit in the same transaction.
   Original observed difference and recalculated difference are separately preserved/displayed.
 - Later anchors stay authoritative. Adjustments/openings are excluded from income/expense/net cash flow.
-  Stage 3 persists manual additions. Transaction edit/delete remain Stage 4; their scenarios remain pure-domain fixtures.
+  Manual additions remain immutable originals. Stage 4 appends edit/delete snapshots; only the latest active revision enters balances/history/flows. Stale/duplicate writes are guarded and both affected accounts replay atomically.
 - Random form request keys, unique constraints, revision checks and busy guards prevent duplicate saves.
-- Database schema **v3** upgrades v1/v2 additively, atomically. A global event sequence preserves old anchor IDs/order. No destructive migration fallback.
+- Database schema **v4** upgrades v1/v2/v3 additively, atomically. A global event sequence preserves old anchor IDs/order. No destructive migration fallback.
   SQLite foreign keys and triggers protect default accounts, immutable observation, audit and deletion rules.
 - Names: trimmed, nonblank, single-line, at most 60 Unicode code points.
 - Google Sans Flex and Noto Sans are bundled offline under SIL OFL. Google Sans Flex lacks Cyrillic/₮;
@@ -120,19 +121,23 @@ See `STAGE2_FINANCIAL_RULES.md`, written before financial implementation.
 `test/fixtures/stage1_completed_v1.fixture` and `stage1_partial_v1.fixture` are real SQLite **v1**
 files containing synthetic data only. Their SHA-256 manifest is committed. Tests copy them to unique
 device paths, inspect version/records before upgrade, compare all original account/profile fields
-after migration to the current v3 schema, verify balances/default/onboarding/foreign keys, then close/reopen.
+after migration to the current v4 schema, verify balances/default/onboarding/foreign keys, then close/reopen.
 These assets are packaged **only in sandbox APKs**, not in the production app.
 `stage2_v2.fixture` is a preserved synthetic v2 database with two accounts, default account, two anchors
 and an edited anchor audit. Its separate SHA-256 manifest is checked before device tests. All original
 fields, balances, default/onboarding and stable event IDs are compared after v2→v3 and reopen.
 Fresh-install success is separate evidence and does not validate migration or recover previous data.
 
+Preserved `stage3_v3.fixture` separately verifies v3→v4 with actual synthetic cash entries, archived
+categories, two accounts/default and adjustment audit. All seven original tables remain identical after
+migration and after overlay edit/delete. New entry revisions are append-only; originals are never erased.
+
 ## Source and review
 
 - `lib/core/domain/money.dart`: exact validation/formatting.
 - `lib/features/accounts/domain/ledger.dart`: pure Dart chronological financial replay.
 - `lib/features/accounts/{data,application,presentation}`: repository, streams, forms, My Accounts/history.
-- `lib/features/onboarding/data`: current Drift schema and additive v1/v2→v3 migrations; generated Dart is committed.
+- `lib/features/onboarding/data`: current Drift schema and additive v1/v2/v3→v4 migrations; generated Dart is committed.
 - `test`, `integration_test`, `test_driver`, `tool`: unit/widget/device checks and safety workflow.
 
 After changing the Drift schema, review/add a migration and regenerate:

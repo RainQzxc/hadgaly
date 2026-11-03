@@ -5,12 +5,153 @@ import '../../accounts/data/accounts_repository.dart';
 import '../../accounts/domain/ledger.dart';
 import '../../onboarding/data/app_database.dart';
 import '../domain/entry_rules.dart';
+import 'resolved_entries.dart';
 
 class TransactionsRepository {
   TransactionsRepository(this.db, {DateTime Function()? clock})
     : now = clock ?? DateTime.now;
   final AppDatabase db;
   final DateTime Function() now;
+
+  Future<EntryState> load(int id) => db.transaction(() async {
+    final found = (await resolveEntries(db)).where((s) => s.entry.id == id);
+    if (found.isEmpty) throw const FormatException('Гүйлгээ олдсонгүй.');
+    return found.single;
+  });
+
+  Future<void> edit({
+    required int id,
+    required int expectedRevision,
+    required EventKind kind,
+    required String amount,
+    required int accountId,
+    required int categoryId,
+    required DateTime date,
+    String note = '',
+    required String requestKey,
+  }) async {
+    final type = entryKind(kind),
+        value = parseEntryAmount(amount),
+        memo = validateNote(note);
+    final selected = dateKey(calendarDay(date));
+    _key(requestKey);
+    await db.transaction(() async {
+      final retry = await (db.select(
+        db.entryRevisions,
+      )..where((r) => r.requestKey.equals(requestKey))).getSingleOrNull();
+      if (retry != null) {
+        if (retry.entryId != id ||
+            retry.revision != expectedRevision + 1 ||
+            retry.deleted ||
+            retry.kind != type ||
+            retry.amount != value ||
+            retry.accountId != accountId ||
+            retry.categoryId != categoryId ||
+            retry.entryDate != selected ||
+            retry.note != memo) {
+          throw StateError('Request key reused');
+        }
+        return;
+      }
+      final current = await load(id), old = current.entry;
+      _editable(current, expectedRevision);
+      final changed = now();
+      if (selected != old.entryDate) validateEntryDate(date, changed);
+      final category = await (db.select(
+        db.categories,
+      )..where((c) => c.id.equals(categoryId))).getSingleOrNull();
+      if (category == null ||
+          category.kind != type ||
+          (category.archived &&
+              (categoryId != old.categoryId || type != old.kind))) {
+        throw const FormatException('Идэвхтэй ангилал сонгоорой.');
+      }
+      final accounts = AccountsRepository(db);
+      final destination = await accounts.ledgerFor(accountId);
+      final other = destination.points
+          .where((p) => p.event.sequence != id)
+          .toList();
+      final effective = editedEntryEffectiveAt(
+        previousDate: old.entryDate,
+        previousTime: old.effectiveAt,
+        date: date,
+        now: changed,
+        sequence: id,
+        latestOtherTime: other.isEmpty ? 0 : other.last.event.effectiveAt,
+        latestOtherSequence: other.isEmpty ? 0 : other.last.event.sequence,
+      );
+      await db
+          .into(db.entryRevisions)
+          .insert(
+            EntryRevisionsCompanion.insert(
+              entryId: id,
+              revision: expectedRevision + 1,
+              accountId: accountId,
+              categoryId: categoryId,
+              kind: type,
+              amount: value,
+              effectiveAt: effective,
+              entryDate: selected,
+              note: memo,
+              changedAt: changed.toUtc().microsecondsSinceEpoch,
+              requestKey: requestKey,
+            ),
+          );
+      await accounts.ledgerFor(old.accountId);
+      if (accountId != old.accountId) await accounts.ledgerFor(accountId);
+    });
+  }
+
+  void _editable(EntryState state, int revision) {
+    if (state.deleted) throw const FormatException('Энэ гүйлгээ устсан байна.');
+    if (state.revision != revision) {
+      throw const FormatException(
+        'Гүйлгээ өөрчлөгдсөн байна. Дахин нээгээрэй.',
+      );
+    }
+  }
+
+  Future<void> delete({
+    required int id,
+    required int expectedRevision,
+    required String requestKey,
+  }) async {
+    _key(requestKey);
+    await db.transaction(() async {
+      final retry = await (db.select(
+        db.entryRevisions,
+      )..where((r) => r.requestKey.equals(requestKey))).getSingleOrNull();
+      if (retry != null) {
+        if (retry.entryId != id ||
+            retry.revision != expectedRevision + 1 ||
+            !retry.deleted) {
+          throw StateError('Request key reused');
+        }
+        return;
+      }
+      final current = await load(id), entry = current.entry;
+      _editable(current, expectedRevision);
+      await db
+          .into(db.entryRevisions)
+          .insert(
+            EntryRevisionsCompanion.insert(
+              entryId: id,
+              revision: expectedRevision + 1,
+              accountId: entry.accountId,
+              categoryId: entry.categoryId,
+              kind: entry.kind,
+              amount: entry.amount,
+              effectiveAt: entry.effectiveAt,
+              entryDate: entry.entryDate,
+              note: entry.note,
+              deleted: const Value(true),
+              changedAt: now().toUtc().microsecondsSinceEpoch,
+              requestKey: requestKey,
+            ),
+          );
+      await AccountsRepository(db).ledgerFor(entry.accountId);
+    });
+  }
 
   void _key(String key) {
     if (key.trim().isEmpty || key.length > 128) {
@@ -21,9 +162,18 @@ class TransactionsRepository {
   Stream<List<Category>> watchCategories() => (db.select(
     db.categories,
   )..orderBy([(c) => OrderingTerm.asc(c.id)])).watch();
-  Stream<List<CashEntry>> watchEntries() => (db.select(
-    db.cashEntries,
-  )..orderBy([(e) => OrderingTerm.asc(e.id)])).watch();
+  Stream<List<CashEntry>> watchEntries() => db
+      .customSelect('SELECT 1', readsFrom: {db.cashEntries, db.entryRevisions})
+      .watch()
+      .asyncMap(
+        (_) => db.transaction(
+          () async =>
+              (await resolveEntries(db))
+                  .where((s) => !s.deleted)
+                  .map((s) => s.entry)
+                  .toList(),
+        ),
+      );
 
   Future<int> saveCategory({
     int? id,

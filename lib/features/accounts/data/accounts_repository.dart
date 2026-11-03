@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../../core/domain/money.dart';
 import '../../onboarding/data/app_database.dart';
 import '../domain/ledger.dart';
+import '../../transactions/data/resolved_entries.dart';
 
 class AdjustmentView {
   const AdjustmentView(this.record, this.point, this.edits);
@@ -47,7 +48,10 @@ class AccountsRepository {
       db.accounts,
     )..orderBy([(a) => OrderingTerm.asc(a.id)])).get();
     final adjustments = await db.select(db.balanceAdjustments).get();
-    final cash = await db.select(db.cashEntries).get();
+    final cash = (await resolveEntries(db))
+        .where((s) => !s.deleted)
+        .map((s) => s.entry)
+        .toList();
     final edits = await (db.select(
       db.adjustmentEdits,
     )..orderBy([(e) => OrderingTerm.asc(e.id)])).get();
@@ -92,6 +96,7 @@ class AccountsRepository {
           db.balanceAdjustments,
           db.adjustmentEdits,
           db.cashEntries,
+          db.entryRevisions,
         },
       )
       .watch()
@@ -117,9 +122,9 @@ class AccountsRepository {
     final anchors = await (db.select(
       db.balanceAdjustments,
     )..where((a) => a.accountId.equals(accountId))).get();
-    final entries = await (db.select(
-      db.cashEntries,
-    )..where((e) => e.accountId.equals(accountId))).get();
+    final entries = (await resolveEntries(db))
+        .where((s) => !s.deleted && s.entry.accountId == accountId)
+        .map((s) => s.entry);
     return replayLedger(account.openingBalance, [
       ...anchors.map(_event),
       ...entries.map(_cashEvent),

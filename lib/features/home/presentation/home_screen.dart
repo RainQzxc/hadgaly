@@ -11,6 +11,7 @@ import '../../accounts/presentation/accounts_screen.dart';
 import '../../accounts/domain/ledger.dart';
 import '../../transactions/domain/entry_rules.dart';
 import '../../transactions/presentation/entry_screen.dart';
+import '../../transactions/presentation/history_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.name});
@@ -210,6 +211,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         ],
                       ),
                       const SizedBox(height: 8),
+                      CupertinoButton(
+                        key: const Key('historyAction'),
+                        minimumSize: const Size(48, 48),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        onPressed: () =>
+                            openPage<void>(context, const HistoryScreen()),
+                        child: const Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Гүйлгээний түүх',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: secondaryInk,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(
+                              CupertinoIcons.chevron_right,
+                              size: 16,
+                              color: secondaryInk,
+                            ),
+                          ],
+                        ),
+                      ),
                       CupertinoButton(
                         key: const Key('myAccounts'),
                         minimumSize: const Size(48, 48),

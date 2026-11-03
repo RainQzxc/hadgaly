@@ -2,12 +2,44 @@
 
 Last Updated: **2026-11-03, Asia/Ulaanbaatar**
 
-Current status: **Stages 1 and 2 explicitly approved. Stage 2 COMPLETE. Stage 3 authorized/in progress; not accepted.**
+Current status: **Stages 1–3 explicitly approved and COMPLETE. Stage 4 authorized/in progress; not accepted.**
 CEO #016 founder approval applies to the latest reviewed Stage 2 commit:
 **`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`** (verified Git HEAD before Stage 3 implementation).
 Earlier “Stage 2 pending/unapproved” entries below are historical and superseded by #016.
 
-## CEO #016 — current authorization
+## CEO #019 — current authorization (supersedes historical restrictions below)
+
+- Founder explicitly approved all eight Stage 3 criteria after interactive Android testing.
+  Stage 3 COMPLETE at **89b8245674910028eaf3e1d7c05c00cd2c6aff74**; verified HEAD before branching.
+- Current branch: codex/stage-4-history. Implement Stage 4 history/date grouping, account/period/type
+  filters, note search, quick transaction editing, confirmed deletion and correct atomic replay.
+- Preserve accounts/default/onboarding, categories, existing posted records and adjustment audits,
+  deterministic ordering and authoritative anchor targets. Stage 4 defaults are recorded in
+  STAGE4_FINANCIAL_RULES.md before implementation. Test only synthetic disposable sandbox data.
+- No Stage 5 reports/dashboard expansion, transfers, recurrence or other modules.
+- Stage 4 requires automated tests, an interactive Android demo and explicit founder approval.
+  Older Stage 3 pending / “do not begin Stage 4” text below is historical and superseded.
+- Existing untracked user downloads in assets/logo remain untouched and will not be executed or committed.
+
+## Verified Stage 4 implementation handoff
+
+- Date-grouped History from Home; combined account/period/type filters and Unicode note search;
+  quick existing-form transaction editing, explicit delete confirmation. Daily/resume refresh keeps
+  time-relative history filters current. Adjustment rows open the existing account audit view.
+- Schema v4 only adds append-only entry revisions. Original seven tables/records remain unchanged.
+  Latest active snapshot feeds history, Home flows and both-account replay; deleted snapshots never
+  contribute cash flow/balance. Stable IDs/anchor targets/original observations/audits are preserved.
+- Verified 123 unit/widget tests; format/analyze; full 9 functional Android cases across 5 APK targets;
+  final Stage4 normal +320dp/1.8× native repeat; separate actual-IME create/edit/confirmed-delete/restart.
+- Synthetic v1/v2/v3 migration fixtures checked separately from actual founder v3→v4 migration.
+  Actual original rows, category/sequence/cash/audit data and derived balances were preserved exactly.
+  Private backups remain outside Git under LOCALAPPDATA/HadgalyDev. Main app updated with install -r only.
+- Public screenshots in docs/review/stage4-*.png contain synthetic data only. Main data/screenshots are
+  not committed. Guarded sandbox APK ID checks and founder-device rejection remain mandatory.
+- Current financial defaults/known limits: STAGE4_FINANCIAL_RULES.md and STAGE4_REVIEW.md.
+  Stage 4 implemented for founder review, NOT accepted. No Stage 5 work is authorized.
+
+## Historical CEO #016 authorization
 
 - Implement Stage 3 only: one-screen manual income/expense entry, amount → category → account → save,
   default account, editable current date, optional note, initial/custom categories with name/icon editing
@@ -585,20 +617,26 @@ For every development task report: implemented work; files changed; tests/comman
 
 ## 12. Current next actions and authorization boundaries
 
-1. Read the current directive overrides, STAGE2_REVIEW.md and STAGE2_FINANCIAL_RULES.md. Preserve local changes; never force reset/clean.
-2. Stage 2 is accepted at 816af0e67bb92736ae1c887af9a2f5d2ab45dadc. Implement/review Stage 3 under CEO #016; preserve the current founder-entered records on production emulator-5554.
-3. Preserve production data: follow README's checked production APK identity + `adb install -r` update and explicit launch commands. No uninstall fallback. Keep Flutter 3.47.9/Dart 3.13.7 and pubspec.lock; do not reinstall working tools.
-4. Device integration tests use only tool/run_android_checks.ps1 with the explicitly named disposable AVD and a verified sandbox APK. Never run test cleanup against the main package/emulator.
-5. Preserved synthetic v1→v2 migration is tested separately. Previous real-user data was not recovered, and real-user-data migration is not verified. Founder-approved fresh installation is not migration evidence.
-6. Implement Stage 3 within its approved scope, record the tested commit and test/device evidence, and collect explicit Stage 3 acceptance.
-7. Stage 3 is authorized by #016. Do not begin Stage 4 or add transfers, recurring payments or speculative features.
-8. Any later recovery operation that overwrites existing state requires founder approval. Never reconstruct financial history from guesses or call manually re-entered balances recovered history.
+1. Stages 1–3 are accepted. Founder explicitly approved all eight Stage 3 criteria at
+   89b8245674910028eaf3e1d7c05c00cd2c6aff74 under CEO #019.
+2. Stage 4 only: history/grouping/filter/note search, transaction edit/confirmed delete, atomic financial
+   replay. STAGE4_FINANCIAL_RULES.md extends Stage 3 rules; STAGE4_REVIEW.md records current verification.
+3. Preserve all original cash/category/profile/account/sequence/anchor/audit data. v4 adds append-only
+   entry revisions; one resolved current state feeds account balances, Home and history. No double counting.
+4. All destructive integration tests use verified sandbox APKs and Hadgaly_Stage2_Disposable only.
+   Never uninstall/clear/wipe founder production. tool/run_production_demo.ps1 privately preserves DB
+   and sidecars, checks actual production APK identity, install -r updates and compares all old records,
+   current balances and rendered UI. No automatic restore/reinstall fallback.
+5. Keep Flutter 3.47.9 / Dart 3.13.7, lockfile and six-stage roadmap. Do not reinstall working tools.
+6. Current data and prior incident are separate: old incident data was not recovered. The founder approved
+   a fresh start previously; subsequently entered real data must be preserved exactly during updates.
+7. Stop at Stage 4 acceptance gate: passing automated tests + interactive Android demo + explicit founder
+   approval. Do not begin Stage 5, transfers, recurrence, advanced reports or non-finance modules.
 
 ## INSTRUCTIONS FOR THE NEXT CODEX SESSION
 
-The current authorized scope is Stage 3 only. Stages 1 and 2 are explicitly accepted; Stage 2's
-approved commit is 816af0e67bb92736ae1c887af9a2f5d2ab45dadc. The founder approved fresh main-app data after
-an integration-test uninstall incident. Main app and disposable test APKs must remain isolated.
-Read the historical incident record without treating its superseded recovery gate as current.
-Report in Mongolian with actual test results, exact commit/device evidence and limitations.
-Tests + accessible interactive Android demo + explicit founder approval remain mandatory.
+Current authorized scope: Stage 4 only. Founder approval of Stage 3 is explicit. Read the Stage 4
+contract/review before acting; older Stage 3 pending/no-Stage4 statements above are historical.
+Preserve untracked user downloads in assets/logo; do not execute or commit unrelated installers/APKs.
+Report in Mongolian with actual command/results, exact tested commit and honest limitations.
+Stage 4 remains pending explicit founder acceptance, regardless of test/build success.

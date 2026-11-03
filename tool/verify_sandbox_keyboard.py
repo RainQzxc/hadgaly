@@ -16,12 +16,15 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 
+if not __debug__:
+    raise SystemExit('Safety assertions must remain enabled; do not use optimized Python')
+
 sdk = Path(os.environ['LOCALAPPDATA']) / 'Android/Sdk'
 adb = str(sdk / 'platform-tools/adb.exe')
 package = 'mn.hadgaly.hadgaly.sandbox'
 device = 'emulator-5556'
 apk = Path(sys.argv[1]).resolve()
-output = Path('build/stage3/real-ime')
+output = Path('build/stage4/real-ime')
 output.mkdir(parents=True, exist_ok=True)
 
 def command(*args):
@@ -97,11 +100,13 @@ def tap(text, scroll=False):
     command('shell', 'input', 'tap', str((x1+x2)//2), str((y1+y2)//2))
     time.sleep(0.5)
 
-def enter(text, value):
-    node = find_node(lambda n: text in label(n) and n.attrib.get('class') == 'android.widget.EditText')
+def enter(text, value, replace=False):
+    node = find_node(lambda n: (text in label(n) or text in n.attrib.get('hint','')) and n.attrib.get('class') == 'android.widget.EditText')
     x1, y1, x2, y2 = bounds(node)
     command('shell', 'input', 'tap', str((x1+x2)//2), str((y1+y2)//2))
     time.sleep(0.6)
+    if replace:
+        command('shell', 'input', 'keyevent', '123', *(['67'] * len(node.attrib.get('text',''))))
     command('shell', 'input', 'text', value)
     # Verify the actual Android input connection value, not a programmatic Flutter controller.
     find_node(lambda n: n.attrib.get('class') == 'android.widget.EditText' and n.attrib.get('text') == value)
@@ -126,6 +131,29 @@ for action, amount, category in [('Орлого нэмэх', '123', 'Цалин'
     tap('Хадгалах', True)
     find_node(lambda n: 'Бүх дансны одоогийн нийт үлдэгдэл' in label(n))
 screenshot('home-real-ime')
+def tap_row(amount):
+    node=find_node(lambda n: amount in label(n) and n.attrib.get('clickable')=='true',True)
+    x1,y1,x2,y2=bounds(node)
+    command('shell','input','tap',str((x1+x2)//2),str((y1+y2)//2))
+    time.sleep(0.5)
+tap('Гүйлгээний түүх',True)
+tap_row('+123 ₮')
+enter('Мөнгөн дүн','200',replace=True)
+screenshot('edited-entry-real-ime')
+tap('Хадгалах',True)
+tap_row('−125 ₮')
+ime = command('shell','dumpsys','input_method').decode(errors='replace')
+if 'mInputShown=true' in ime or 'mIsInputViewShown=true' in ime:
+    command('shell','input','keyevent','4')
+    time.sleep(0.4)
+tap('Гүйлгээ устгах',True)
+screenshot('delete-confirmation')
+tap('Устгах')
+find_node(lambda n: '+200 ₮' in label(n))
+screenshot('history-after-edit-delete')
+command('shell','input','keyevent','4')
+find_node(lambda n: 'Бүх дансны одоогийн нийт үлдэгдэл: 200 ₮' == label(n))
+
 # Force-stop/reopen persistence, then inspect a COPY of the synthetic SQLite file.
 command('shell', 'am', 'force-stop', package)
 files = command('shell', 'run-as', package, 'ls', 'app_flutter').decode().splitlines()
@@ -133,15 +161,17 @@ for name in files:
     if re.fullmatch(r'hadgaly\.sqlite(?:-wal|-shm|-journal)?', name):
         (output / name).write_bytes(command('exec-out', 'run-as', package, 'cat', f'app_flutter/{name}'))
 db = sqlite3.connect(str(output / 'hadgaly.sqlite'))
-assert db.execute('PRAGMA user_version').fetchone()[0] == 3
+assert db.execute('PRAGMA user_version').fetchone()[0] == 4
 assert db.execute('SELECT kind,amount FROM cash_entries ORDER BY id').fetchall() == [('income', 123), ('expense', 125)]
 assert db.execute('SELECT opening_balance FROM accounts').fetchone()[0] == 0
 assert db.execute('SELECT completed,default_account_id FROM profiles').fetchone() == (1, 1)
 assert db.execute('SELECT count(*) FROM balance_adjustments').fetchone()[0] == 0
+assert db.execute('SELECT entry_id,revision,amount,deleted FROM entry_revisions ORDER BY id').fetchall()==[(1,1,200,0),(2,1,125,1)]
+assert db.execute('SELECT count(*) FROM ledger_sequences').fetchone()[0]==2
 assert not db.execute('PRAGMA foreign_key_check').fetchall()
 db.close()
 command('shell', 'am', 'start', '-W', '-n', f'{package}/mn.hadgaly.hadgaly.MainActivity')
-find_node(lambda n: 'Бүх дансны одоогийн нийт үлдэгдэл: −2 ₮' == label(n))
+find_node(lambda n: 'Бүх дансны одоогийн нийт үлдэгдэл: 200 ₮' == label(n))
 screenshot('home-after-restart')
-(output / 'result.txt').write_text(f'PASS real Android IME; synthetic income=123 expense=125 balance=-2; 2 entries; restart persisted. APK SHA256={digest}\n')
-print('PASS real Android keyboard / synthetic entry / SQLite / cold restart; production untouched', flush=True)
+(output / 'result.txt').write_text(f'PASS real Android IME; synthetic originals income=123 expense=125 preserved; revised income=200, expense deleted; balance=200; 2 revisions; restart persisted. APK SHA256={digest}\n')
+print('PASS real Android IME / create-edit-delete / immutable originals / revisions / SQLite / restart; production untouched', flush=True)

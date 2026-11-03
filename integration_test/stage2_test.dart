@@ -43,7 +43,7 @@ void main() {
         await tap(find.byKey(Key('module-$i')));
         expect(find.text('Тун удахгүй'), findsOneWidget);
         await tap(find.byKey(const Key('module-3')));
-        expect(find.text('Нийт үлдэгдэл: 1,000 ₮'), findsOneWidget);
+        expect(find.text('1,000 ₮'), findsOneWidget);
       }
       await tap(find.byKey(const Key('myAccounts')));
       expect(find.byKey(const Key('module-3')), findsOneWidget);
@@ -80,7 +80,7 @@ void main() {
       db = AppDatabase(driftDatabase(name: name));
       repo = AccountsRepository(db);
       await mount();
-      expect(find.text('Нийт үлдэгдэл: 1,800 ₮'), findsOneWidget);
+      expect(find.text('1,800 ₮'), findsOneWidget);
       expect(find.text('+0 ₮'), findsOneWidget);
       expect(find.text('−0 ₮'), findsOneWidget);
       final snapshot = await repo.snapshot();

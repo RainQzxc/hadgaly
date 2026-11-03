@@ -76,9 +76,9 @@ void main() {
       await next();
       expect(find.text('Бэлэн боллоо, Өнөр! 🎉'), findsOneWidget);
       await next();
-      expect(find.text('Нийт үлдэгдэл: −25,000 ₮'), findsOneWidget);
+      expect(find.text('−25,000 ₮'), findsOneWidget);
       await reopen();
-      expect(find.text('Нийт үлдэгдэл: −25,000 ₮'), findsOneWidget);
+      expect(find.text('−25,000 ₮'), findsOneWidget);
       expect(await db.select(db.accounts).get(), hasLength(1));
       await tester.ensureVisible(find.byKey(const Key('expenseAction')));
       await tester.tap(find.byKey(const Key('expenseAction')));

@@ -3,6 +3,9 @@
 Last Updated: **2026-11-03, Asia/Ulaanbaatar**
 
 Current status: **Stage 1 accepted. Stage 2 implemented and verified for founder review; Stage 2 acceptance pending.**
+Latest founder steering after CEO #013: **Home-first proportions/spacing pass only**. Home review
+comes before propagating the design language to My Accounts/onboarding/shared navigation. See
+STAGE2_HOME_PROPORTIONS_REVIEW.md; broader STAGE2_UX_AUDIT_013.md recommendations remain pending.
 CEO #011 supersedes earlier typography/color/navigation directions: Google Sans Flex + bundled Noto Sans
 for missing Cyrillic/MNT glyphs, Midnight Blue/neutral/teal tokens, four persistent product tabs with
 Finance selected initially. Only finance is functionally active; Tasks/Shopping/Ideas are coming-soon
@@ -21,7 +24,8 @@ See `STAGE2_UI_REFINEMENT.md` for the latest UI/test/demo evidence, and `STAGE2_
 
 ### Latest authorization and verified resolution
 
-- Latest authorized work is **CEO #011 Stage 2 design system and product navigation correction only**. Preserve finance behavior, Home hierarchy, default selection, records/audit/schema/migrations. Do not implement Stage 3 or future module models/persistence; Stage 2 remains unapproved.
+- Latest authorized work is **Home-first refinement following CEO #013 audit and founder steering**: shrink donut about 30%, regularize 8dp spacing, emphasize total amount, make Home buttons 56–64dp. Do not restyle the whole app. Navbar/shared tokens, My Accounts and onboarding wait for Home visual approval. Finance behavior/schema/migrations remain unchanged; Stage 2 remains unapproved.
+- Home now uses a 200–240dp normal-text ring (240dp on the founder's standard device, versus 340dp before), a 10dp stroke, quieter greeting, separate total label/30dp amount, and 64dp icon+label actions. Large text can expand ring/buttons and scroll. Top greeting/chart group stays compact; balance/action group stays above navigation. All-account BigInt sum and zero period totals are unchanged.
 - Future product vision: modular organization across **Хийх зүйл / Авах зүйл / Санаа / Санхүү**, Simple Yet Effective. Current MVP implementation and the approved six-stage roadmap remain finance-only. Any future roadmap expansion requires a separate product decision.
 - Typography: official unmodified Google Sans Flex variable font; its cmap lacks Cyrillic and ₮. Official unmodified Noto Sans fallback supplies only missing glyphs, including Ө/Ү/өү and ₮. Both are bundled offline with SIL OFL notices; Google Sans Flex trademark notice retained. Official google/fonts source revision and SHA-256 manifest: assets/fonts/SOURCES.json. No proprietary/unofficial font files.
 - Central tokens: neutral #F5F6F8, midnight #14243E, teal #39B5AA, expense #D66B72; light Cupertino presentation. 60/30/10 is composition guidance, not a pixel quota. Darker teal/error text variants preserve 4.5:1 contrast; main buttons use midnight text on teal/expense fills. See lib/core/presentation/design_tokens.dart.

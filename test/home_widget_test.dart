@@ -47,19 +47,19 @@ void main() {
       final card = await repo.createAccount('Карт', '-500', 'card');
       await repo.createAccount('Хадгаламж', '0', 'savings');
       await mount(t);
-      expect(find.text('Нийт үлдэгдэл: 500 ₮'), findsOneWidget);
+      expect(find.text('500 ₮'), findsOneWidget);
       emptyTotals();
       final first = await repo.adjustBalance(card, '900', 'first');
       await t.pumpAndSettle();
-      expect(find.text('Нийт үлдэгдэл: 1,900 ₮'), findsOneWidget);
+      expect(find.text('1,900 ₮'), findsOneWidget);
       await repo.editAdjustment(first, '950', 0, 'edit');
       await t.pumpAndSettle();
-      expect(find.text('Нийт үлдэгдэл: 1,950 ₮'), findsOneWidget);
+      expect(find.text('1,950 ₮'), findsOneWidget);
       await repo.adjustBalance(card, '-1200', 'later');
       await repo.editAdjustment(first, '800', 1, 'earlier');
       await repo.selectDefault(card);
       await t.pumpAndSettle();
-      expect(find.text('Нийт үлдэгдэл: −200 ₮'), findsOneWidget);
+      expect(find.text('−200 ₮'), findsOneWidget);
       emptyTotals();
       final snapshot = await repo.snapshot();
       expect(snapshot.defaultId, card);
@@ -75,10 +75,10 @@ void main() {
       await repo.adjustBalance(1, '999999999999', 'max');
       final second = await repo.createAccount('Хоёр', '999999999999', 'two');
       await mount(t);
-      expect(find.text('Нийт үлдэгдэл: 1,999,999,999,998 ₮'), findsOneWidget);
+      expect(find.text('1,999,999,999,998 ₮'), findsOneWidget);
       await repo.adjustBalance(second, '-999999999999', 'negative');
       await t.pumpAndSettle();
-      expect(find.text('Нийт үлдэгдэл: 0 ₮'), findsOneWidget);
+      expect(find.text('0 ₮'), findsOneWidget);
       emptyTotals();
       await finish(t);
     },
@@ -98,6 +98,15 @@ void main() {
       final expense = find.byKey(const Key('expenseAction'));
       final income = find.byKey(const Key('incomeAction'));
       final navigation = find.byKey(const Key('myAccounts'));
+      expect(t.getSize(chart).width, lessThanOrEqualTo(240));
+      expect(t.getSize(expense).height, 64);
+      expect(t.getSize(income).height, 64);
+      expect(find.text('Нийт үлдэгдэл'), findsOneWidget);
+      final greeting = find.text('Сайн уу, Өнөр');
+      expect(
+        t.getTopLeft(chart).dy - t.getBottomRight(greeting).dy,
+        lessThanOrEqualTo(56),
+      );
       expect(t.getCenter(chart).dx, closeTo(195, 1));
       expect(t.getBottomRight(chart).dy, lessThan(t.getTopLeft(balance).dy));
       expect(t.getBottomRight(balance).dy, lessThan(t.getTopLeft(expense).dy));
@@ -107,6 +116,11 @@ void main() {
         lessThan(t.getTopLeft(navigation).dy),
       );
       expect(t.getBottomRight(navigation).dy, lessThanOrEqualTo(844));
+      expect(
+        t.getTopLeft(find.byKey(const Key('module-3'))).dy -
+            t.getBottomRight(navigation).dy,
+        lessThanOrEqualTo(32),
+      );
       expect(
         find.bySemanticsLabel(
           RegExp('Энэ сарын зарлагын ангиллын хуваарилалт'),

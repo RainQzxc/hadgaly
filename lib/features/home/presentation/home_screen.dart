@@ -47,53 +47,88 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final balance = '${total.isNegative ? '−' : ''}$digits ₮';
     return LayoutBuilder(
       builder: (context, constraints) {
+        final textGrowth = math.max(
+          0.0,
+          MediaQuery.textScalerOf(context).scale(16) / 16 - 1,
+        );
+        // Short screens use less chrome; larger text grows the ring.
+        final ringSize = math.min(
+          constraints.maxWidth - 40,
+          (constraints.maxHeight - 450).clamp(200, 240) + textGrowth * 40,
+        );
         return SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: math.max(0, constraints.maxHeight - 28),
+                minHeight: math.max(0, constraints.maxHeight - 32),
                 maxWidth: 480,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Сайн уу, ${widget.name}', style: sectionStyle),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Column(
-                      children: [
-                        Center(
-                          child: _EmptyExpenseDonut(
-                            size: math.min(constraints.maxWidth - 40, 340),
-                          ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Сайн уу, ${widget.name}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          height: 1.4,
+                          fontWeight: FontWeight.w500,
+                          color: secondaryInk,
                         ),
-                        const SizedBox(height: 14),
-                        const Text(
-                          'Гүйлгээ бүртгэгдээгүй байна.',
-                          textAlign: TextAlign.center,
-                          style: captionStyle,
+                      ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: _EmptyExpenseDonut(
+                          // Normal size is about 30% below the old 340dp ring.
+                          size: ringSize,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Гүйлгээ бүртгэгдээгүй байна.',
+                        textAlign: TextAlign.center,
+                        style: captionStyle,
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 24),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Semantics(
                         label: 'Бүх дансны одоогийн нийт үлдэгдэл: $balance',
                         child: ExcludeSemantics(
-                          child: Text(
-                            'Нийт үлдэгдэл: $balance',
-                            key: const Key('homeBalance'),
-                            textAlign: TextAlign.center,
-                            style: sectionStyle.copyWith(fontSize: 20),
+                          child: Column(
+                            children: [
+                              const Text(
+                                'Нийт үлдэгдэл',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  height: 1.4,
+                                  color: secondaryInk,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                balance,
+                                key: const Key('homeBalance'),
+                                textAlign: TextAlign.center,
+                                style: sectionStyle.copyWith(
+                                  fontSize: 30,
+                                  height: 1.2,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 16),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -105,7 +140,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               onTap: _unavailable,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 16),
                           Expanded(
                             child: _EntryAction(
                               label: 'Орлого',
@@ -118,7 +153,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                       if (showUnavailable)
                         Padding(
-                          padding: const EdgeInsets.only(top: 12),
+                          padding: const EdgeInsets.only(top: 16),
                           child: Semantics(
                             liveRegion: true,
                             child: const Text(
@@ -131,7 +166,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       const SizedBox(height: 8),
                       CupertinoButton(
                         key: const Key('myAccounts'),
-                        minimumSize: const Size(48, 56),
+                        minimumSize: const Size(48, 48),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         onPressed: () =>
                             openPage<void>(context, const AccountsScreen()),
@@ -140,7 +175,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -178,38 +213,42 @@ class _EmptyExpenseDonut extends StatelessWidget {
             height: size,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: line, width: 14),
+              border: Border.all(color: line, width: 10),
             ),
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: const Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Орлого',
-                  style: TextStyle(fontSize: 14, color: incomeInk),
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.25,
+                    color: incomeInk,
+                  ),
                 ),
                 Text(
                   '+0 ₮',
                   key: Key('periodIncome'),
                   style: TextStyle(
                     fontSize: 20,
-                    height: 1.35,
-                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                    fontWeight: FontWeight.w600,
                     color: incomeInk,
                   ),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 8),
                 Text(
                   'Зарлага',
-                  style: TextStyle(fontSize: 14, color: errorInk),
+                  style: TextStyle(fontSize: 14, height: 1.25, color: errorInk),
                 ),
                 Text(
                   '−0 ₮',
                   key: Key('periodExpense'),
                   style: TextStyle(
                     fontSize: 20,
-                    height: 1.35,
-                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                    fontWeight: FontWeight.w600,
                     color: errorInk,
                   ),
                 ),
@@ -243,20 +282,41 @@ class _EntryAction extends StatelessWidget {
         key: Key(label == 'Зарлага' ? 'expenseAction' : 'incomeAction'),
         color: color,
         foregroundColor: ink,
-        borderRadius: BorderRadius.circular(22),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 22),
-        minimumSize: const Size(48, 80),
+        borderRadius: BorderRadius.circular(18),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        minimumSize: const Size(48, 64),
         onPressed: onTap,
         child: SizedBox(
           width: double.infinity,
-          child: Text(
-            '$symbol $label',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 17,
-              height: 1.4,
-              fontWeight: FontWeight.w700,
-            ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final icon = Icon(
+                symbol == '+' ? CupertinoIcons.add : CupertinoIcons.minus,
+                size: 20,
+              );
+              final text = Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  height: 1.3,
+                  fontWeight: FontWeight.w600,
+                ),
+              );
+              return MediaQuery.textScalerOf(context).scale(16) > 22
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [icon, const SizedBox(height: 4), text],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        icon,
+                        const SizedBox(width: 8),
+                        Flexible(child: text),
+                      ],
+                    );
+            },
           ),
         ),
       ),

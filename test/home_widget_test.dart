@@ -119,7 +119,7 @@ void main() {
       // Explicit section rhythm must not grow when the viewport has spare height.
       expect(
         t.getTopLeft(find.text('Нийт үлдэгдэл')).dy -
-            t.getBottomRight(find.text('Энэ сард гүйлгээ бүртгэгдээгүй.')).dy,
+            t.getBottomRight(find.byKey(const Key('monthlyIncomeRow'))).dy,
         closeTo(24, 0.01),
       );
       expect(
@@ -134,11 +134,13 @@ void main() {
       await t.pumpAndSettle();
       expect(
         t.getTopLeft(find.text('Нийт үлдэгдэл')).dy -
-            t.getBottomRight(find.text('Энэ сард гүйлгээ бүртгэгдээгүй.')).dy,
+            t.getBottomRight(find.byKey(const Key('monthlyIncomeRow'))).dy,
         closeTo(24, 0.01),
       );
       expect(
-        find.bySemanticsLabel(RegExp('Энэ сарын орлого:')),
+        find.bySemanticsLabel(
+          RegExp('Энэ сарын зарлагын ангиллын хуваарилалт'),
+        ),
         findsOneWidget,
       );
       expect(

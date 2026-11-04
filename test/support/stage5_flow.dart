@@ -14,6 +14,46 @@ Future<void> verifyStage5Flow(WidgetTester t, AppDatabase db) async {
   expect(t.widget<Text>(find.byKey(const Key('homeBalance'))).data, '375 ₮');
   expect(find.text('+200 ₮'), findsOneWidget);
   expect(find.text('−75 ₮'), findsOneWidget);
+  final chart = find.byKey(const Key('expenseDonut'));
+  expect(
+    find.descendant(of: chart, matching: find.byKey(const Key('periodIncome'))),
+    findsNothing,
+  );
+  expect(
+    find.descendant(
+      of: chart,
+      matching: find.byKey(const Key('periodExpense')),
+    ),
+    findsOneWidget,
+  );
+  expect(
+    t.widget<Semantics>(chart).properties.label,
+    contains('Нийт зарлага: −75 ₮'),
+  );
+  expect(
+    t.widget<Semantics>(chart).properties.label,
+    isNot(contains('орлого')),
+  );
+  expect(
+    t.widget<Text>(find.byKey(const Key('comparison-current-Орлого'))).data,
+    '200 ₮',
+  );
+  expect(
+    t.widget<Text>(find.byKey(const Key('comparison-current-Зарлага'))).data,
+    '75 ₮',
+  );
+  expect(find.byKey(const Key('overview-default-2')), findsOneWidget);
+  expect(find.byKey(const Key('overview-default-1')), findsNothing);
+  expect(
+    t.widget<Text>(find.byKey(const Key('overview-balance-2'))).data,
+    '−525 ₮',
+  );
+  expect(find.text('Одоо: 200 ₮'), findsNothing);
+  expect(
+    find.text('Энэ сарын орлого − зарлага. Нийт үлдэгдлээс тусдаа.'),
+    findsNothing,
+  );
+
   expect(find.text('Цэвэр: +125 ₮'), findsOneWidget);
   expect(find.text('Хоол · архив'), findsOneWidget);
   expect(find.text('50 ₮ · 66.7%'), findsOneWidget);

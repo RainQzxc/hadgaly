@@ -1,3 +1,5 @@
+> CEO #021 presentation refinement supersedes the UI described below. See STAGE5_UX_REFINEMENT_021.md for current UI/checks. Financial calculations remain unchanged; Stage 5 is still pending founder acceptance.
+
 # Stage 5 — Finance Dashboard & Insights
 
 2026-11-04 · CEO #020 · `codex/stage-5-dashboard`.

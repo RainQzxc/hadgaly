@@ -7,6 +7,26 @@ CEO #016 founder approval applies to the latest reviewed Stage 2 commit:
 **`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`** (verified Git HEAD before Stage 3 implementation).
 Earlier “Stage 2 pending/unapproved” entries below are historical and superseded by #016.
 
+## CEO #021 — latest Stage 5 presentation refinement
+
+- Stage 5 remains NOT approved. Refine Home presentation only; no Stage 6.
+- Donut segments AND center now describe expense-category distribution/total expense.
+  Income is outside the ring. The explicit category caption belongs to the ring,
+  before the separate income row. Month caption uses the same captured reporting month.
+- Normal ring is 176–200dp/10dp stroke; larger text may expand it vertically. Current total
+  balance remains the main amount, followed by existing 64dp expense-left/income-right actions.
+- Compact comparisons emphasize current amounts; previous amount and signed change remain,
+  with zero-baseline percentage still omitted. Removed repetitive explanatory paragraphs.
+- Category/account rows align names and values horizontally on regular screens; narrow/large
+  text uses vertical rows. Default account remains explicitly identified; no management duplication.
+- Only Home presentation changes. Authoritative dashboard/domain/data/models/schema/migrations,
+  category aggregations, revisions/audits, brand tokens/fonts, other screens/navigation untouched.
+- Verified137 unit/widget, format/analyze; Android Stage5+Stage4+migrations6 functional
+  cases and final normal/320dp1.8× Stage5 reruns PASS. Actual v4→v4 production preservation
+  matched all records/revisions/audits/default/balances; main5554 open, disposable5556 stopped.
+- Latest verification, data-safety evidence and screenshots: STAGE5_UX_REFINEMENT_021.md.
+  STAGE5_REVIEW.md and older in-ring income/expense instructions describe the earlier baseline.
+
 ## CEO #020 — current authorization
 
 - Founder explicitly confirmed “stage 4 batlagdsan” on 2026-11-04.

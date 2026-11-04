@@ -5,12 +5,66 @@ import 'package:hadgaly/features/onboarding/data/app_database.dart';
 import 'package:hadgaly/features/accounts/data/accounts_repository.dart';
 import 'package:hadgaly/features/accounts/domain/ledger.dart';
 import 'package:hadgaly/features/transactions/data/transactions_repository.dart';
+import 'package:hadgaly/features/home/presentation/dashboard_details.dart';
 
 import 'support/stage3_flow.dart';
 import 'support/stage5_data.dart';
 import 'support/stage5_flow.dart';
 
 void main() {
+  testWidgets(
+    'Income-only month keeps the expense chart empty and zero baseline honest',
+    (t) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      await db.loadProfile();
+      await db.createFirstAccount('Тест', 'Хэтэвч', '0');
+      await db.completeOnboarding();
+      final income = (await db.select(db.categories).get()).firstWhere(
+        (c) => c.kind == 'income',
+      );
+      await TransactionsRepository(db).post(
+        kind: EventKind.income,
+        amount: '200',
+        accountId: 1,
+        categoryId: income.id,
+        date: DateTime.now(),
+        requestKey: 'income-only',
+      );
+      await mountStage3(t, db);
+      final chart = find.byKey(const Key('expenseDonut'));
+      expect(
+        t.widget<Text>(find.byKey(const Key('periodExpense'))).data,
+        '−0 ₮',
+      );
+      expect(
+        t.widget<Text>(find.byKey(const Key('periodIncome'))).data,
+        '+200 ₮',
+      );
+      expect(
+        find.descendant(
+          of: chart,
+          matching: find.byKey(const Key('periodIncome')),
+        ),
+        findsNothing,
+      );
+      final paint = t.widget<CustomPaint>(
+        find.descendant(of: chart, matching: find.byType(CustomPaint)),
+      );
+      expect((paint.painter! as ExpenseRing).shares, isEmpty);
+      expect(find.text('Энэ сард зарлага бүртгэгдээгүй.'), findsOneWidget);
+      expect(
+        t.widget<Text>(find.byKey(const Key('comparison-Орлого'))).data,
+        'Өссөн · +200 ₮',
+      );
+      expect(
+        t.widget<Text>(find.byKey(const Key('comparison-Зарлага'))).data,
+        'Өөрчлөлтгүй · 0 ₮',
+      );
+      await t.pumpWidget(const SizedBox());
+      await t.pumpAndSettle();
+    },
+  );
   testWidgets(
     'Large exact amounts and long metadata remain readable at 320dp 1.8x',
     (t) async {

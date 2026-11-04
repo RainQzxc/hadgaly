@@ -55,6 +55,10 @@ void main() {
         await t.pump(const Duration(milliseconds: 100));
         await t.pumpAndSettle();
         await binding.takeScreenshot('stage5-synthetic-details');
+        await t.ensureVisible(find.byKey(const Key('overview-account-2')));
+        await t.pump(const Duration(milliseconds: 100));
+        await t.pumpAndSettle();
+        await binding.takeScreenshot('stage5-synthetic-accounts');
       } finally {
         await t.pumpWidget(const SizedBox());
         await t.pumpAndSettle();

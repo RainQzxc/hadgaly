@@ -92,7 +92,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         // Short screens use less chrome; larger text grows the ring.
         final ringSize = math.min(
           constraints.maxWidth - 40,
-          (constraints.maxHeight - 450).clamp(200, 240) + textGrowth * 40,
+          (constraints.maxHeight - 450).clamp(176, 200) + textGrowth * 40,
         );
         return SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -123,16 +123,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           size: ringSize,
                           totals: flows,
                           shares: report.categories,
+                          month: month,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        flows.income == BigInt.zero &&
-                                flows.expense == BigInt.zero
-                            ? 'Энэ сард гүйлгээ бүртгэгдээгүй.'
-                            : 'Зарлагын ангиллын хуваарилалт',
-                        textAlign: TextAlign.center,
-                        style: captionStyle,
                       ),
                     ],
                   ),
@@ -272,89 +264,95 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 }
 
-/// The ring represents expense categories only, never income/expense ratios.
-/// Large text expands the ring vertically to preserve readable exact figures.
+/// Both segments and center describe expense categories for the same month.
+/// Income remains outside the chart; large text can grow/scroll without clipping.
 class _PeriodDonut extends StatelessWidget {
   const _PeriodDonut({
     required this.size,
     required this.totals,
     required this.shares,
+    required this.month,
   });
   final List<CategoryShare> shares;
   final double size;
   final FlowTotals totals;
+  final DateTime month;
   @override
   Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       Text(
-        '${DateTime.now().year} оны ${DateTime.now().month}-р сар',
+        '${month.year} оны ${month.month}-р сар',
         style: captionStyle,
+        textAlign: TextAlign.center,
       ),
       const SizedBox(height: 8),
-      Semantics(
-        key: const Key('expenseDonut'),
-        label:
-            'Энэ сарын орлого: +${formatFlow(totals.income)}. Зарлага: −${formatFlow(totals.expense)}. Зарлагын ангиллын задаргаа доор байна.',
-        image: true,
-        child: ExcludeSemantics(
-          child: CustomPaint(
-            painter: ExpenseRing(shares),
-            child: Container(
-              width: size,
-              constraints: BoxConstraints(minHeight: size),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                // Circular at normal size. Long amounts / enlarged text may grow
-                // vertically into a rounded ring rather than clipping real money.
-                borderRadius: BorderRadius.circular(size / 2),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Орлого',
-                    style: TextStyle(
-                      fontSize: 14,
-                      height: 1.25,
-                      color: incomeInk,
+      Center(
+        child: Semantics(
+          key: const Key('expenseDonut'),
+          label:
+              'Энэ сарын зарлагын ангиллын хуваарилалт. Нийт зарлага: −${formatFlow(totals.expense)}.${shares.isEmpty ? ' Зарлага бүртгэгдээгүй.' : ' Ангилал тус бүрийн дүн, хувь доор байна.'}',
+          image: true,
+          child: ExcludeSemantics(
+            child: CustomPaint(
+              painter: ExpenseRing(shares),
+              child: Container(
+                width: size,
+                constraints: BoxConstraints(minHeight: size),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Сарын зарлага',
+                      textAlign: TextAlign.center,
+                      style: captionStyle,
                     ),
-                  ),
-                  Text(
-                    '+${formatFlow(totals.income)}',
-                    textAlign: TextAlign.center,
-                    key: const Key('periodIncome'),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      height: 1.2,
-                      fontWeight: FontWeight.w600,
-                      color: incomeInk,
+                    const SizedBox(height: 8),
+                    Text(
+                      '−${formatFlow(totals.expense)}',
+                      key: const Key('periodExpense'),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        height: 1.2,
+                        fontWeight: FontWeight.w600,
+                        color: ink,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Зарлага',
-                    style: TextStyle(
-                      fontSize: 14,
-                      height: 1.25,
-                      color: errorInk,
-                    ),
-                  ),
-                  Text(
-                    '−${formatFlow(totals.expense)}',
-                    textAlign: TextAlign.center,
-                    key: const Key('periodExpense'),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      height: 1.2,
-                      fontWeight: FontWeight.w600,
-                      color: errorInk,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        totals.expense > BigInt.zero
+            ? 'Зарлага · ангиллаар'
+            : totals.income == BigInt.zero
+            ? 'Энэ сард гүйлгээ бүртгэгдээгүй.'
+            : 'Зарлага бүртгэгдээгүй.',
+        textAlign: TextAlign.center,
+        style: captionStyle,
+      ),
+      const SizedBox(height: 16),
+      DashboardValueRow(
+        key: const Key('monthlyIncomeRow'),
+        leading: const Text(
+          'Сарын орлого',
+          style: TextStyle(fontSize: 14, color: secondaryInk),
+        ),
+        value: Text(
+          '+${formatFlow(totals.income)}',
+          key: const Key('periodIncome'),
+          style: const TextStyle(
+            fontSize: 20,
+            height: 1.3,
+            fontWeight: FontWeight.w600,
+            color: incomeInk,
           ),
         ),
       ),

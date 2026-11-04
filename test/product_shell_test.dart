@@ -64,7 +64,10 @@ void main() {
       expect(theme.textTheme.textStyle.fontFamily, fontFamily);
       expect(theme.textTheme.textStyle.fontFamilyFallback, fontFallback);
       expect(find.text('Сайн уу, Өнөр Үүлэн'), findsOneWidget);
-      expect(find.text('−1,200 ₮'), findsOneWidget);
+      expect(
+        t.widget<Text>(find.byKey(const Key('homeBalance'))).data,
+        '−1,200 ₮',
+      );
       for (final font in ['GoogleSansFlex', 'NotoSans']) {
         expect(
           await rootBundle.loadString('assets/fonts/$font-OFL.txt'),
@@ -106,7 +109,10 @@ void main() {
         expect(find.byKey(const Key('module-3')), findsOneWidget);
       }
       await tap(t, 'module-3');
-      expect(find.text('−1,200 ₮'), findsOneWidget);
+      expect(
+        t.widget<Text>(find.byKey(const Key('homeBalance'))).data,
+        '−1,200 ₮',
+      );
       expect(await db.select(db.accounts).get(), hasLength(1));
       expect(await db.select(db.balanceAdjustments).get(), isEmpty);
       expect(await db.select(db.adjustmentEdits).get(), isEmpty);

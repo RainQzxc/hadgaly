@@ -1,13 +1,43 @@
 # HADGALY — PROJECT CONTEXT
 
-Last Updated: **2026-11-03, Asia/Ulaanbaatar**
+Last Updated: **2026-11-04, Asia/Ulaanbaatar**
 
-Current status: **Stages 1–3 explicitly approved and COMPLETE. Stage 4 authorized/in progress; not accepted.**
+Current status: **Stages 1–4 explicitly approved and COMPLETE. Stage 5 implemented/verified for founder review; not accepted.**
 CEO #016 founder approval applies to the latest reviewed Stage 2 commit:
 **`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`** (verified Git HEAD before Stage 3 implementation).
 Earlier “Stage 2 pending/unapproved” entries below are historical and superseded by #016.
 
-## CEO #019 — current authorization (supersedes historical restrictions below)
+## CEO #020 — current authorization
+
+- Founder explicitly confirmed “stage 4 batlagdsan” on 2026-11-04.
+  Approved Stage 4 baseline: **de5ea5d5054b146ae65ad055decc9c2792b0122d**.
+- Current branch: codex/stage-5-dashboard. Finance Home overview, expense categories,
+  current/previous calendar month comparison and compact account summary only.
+- STAGE5_FINANCIAL_RULES.md is written before aggregation implementation. Preserve
+  all financial rules, records, migrations, revisions and audits. Sandbox tests only.
+- Stage 5 requires tests, native interactive demo and explicit founder approval.
+  No Stage 6. Older Stage 4 pending/no-Stage5 text below is historical and superseded.
+
+## Verified Stage 5 implementation handoff
+
+- Pure read-only Dashboard aggregation reuses coherent AccountsSnapshot/resolved active cash,
+  current replayed balances and current/archived category metadata. Schema remains v4;
+  financial write APIs, migrations, ledger/anchor/revision rules and dependencies unchanged.
+- Home preserves ring → total current balance → expense-left/income-right quick entry,
+  History/Accounts access. Adds real expense category shares/list, monthly net, prior calendar
+  month comparisons and compact account/default summary. Existing four tabs/brand/fonts remain.
+- Category totals exactly reconcile to current expense; all money/differences BigInt. Percent
+  rounding uses integer tenths (largest remainder for categories); zero comparison baseline
+  gets no percent. Stored local date keys, never UTC event dates, select calendar months.
+- Verified 136 unit/widget cases; full native 10 functional cases/6 targets, plus Stage5 normal
+  and320dp/1.8× reruns; separate actual Android IME create/edit/delete/report/restart smoke.
+  Screenshots are synthetic only. STAGE5_REVIEW.md records evidence, limitations, code audit.
+- Actual founder v4→v4 update preserved every original row/revision/audit/default and balance;
+  private evidence under LOCALAPPDATA/HadgalyDev/stage5-update-20261104-172923, not Git.
+  Main emulator5554 remains open. Disposable5556 stopped; no user data reset/uninstall/wipe.
+- Stage5 implemented for founder review, NOT accepted. Do not begin Stage6.
+
+## Historical CEO #019 — Stage 4 authorization (now accepted)
 
 - Founder explicitly approved all eight Stage 3 criteria after interactive Android testing.
   Stage 3 COMPLETE at **89b8245674910028eaf3e1d7c05c00cd2c6aff74**; verified HEAD before branching.
@@ -617,26 +647,28 @@ For every development task report: implemented work; files changed; tests/comman
 
 ## 12. Current next actions and authorization boundaries
 
-1. Stages 1–3 are accepted. Founder explicitly approved all eight Stage 3 criteria at
-   89b8245674910028eaf3e1d7c05c00cd2c6aff74 under CEO #019.
-2. Stage 4 only: history/grouping/filter/note search, transaction edit/confirmed delete, atomic financial
-   replay. STAGE4_FINANCIAL_RULES.md extends Stage 3 rules; STAGE4_REVIEW.md records current verification.
-3. Preserve all original cash/category/profile/account/sequence/anchor/audit data. v4 adds append-only
-   entry revisions; one resolved current state feeds account balances, Home and history. No double counting.
-4. All destructive integration tests use verified sandbox APKs and Hadgaly_Stage2_Disposable only.
-   Never uninstall/clear/wipe founder production. tool/run_production_demo.ps1 privately preserves DB
-   and sidecars, checks actual production APK identity, install -r updates and compares all old records,
-   current balances and rendered UI. No automatic restore/reinstall fallback.
-5. Keep Flutter 3.47.9 / Dart 3.13.7, lockfile and six-stage roadmap. Do not reinstall working tools.
-6. Current data and prior incident are separate: old incident data was not recovered. The founder approved
-   a fresh start previously; subsequently entered real data must be preserved exactly during updates.
-7. Stop at Stage 4 acceptance gate: passing automated tests + interactive Android demo + explicit founder
-   approval. Do not begin Stage 5, transfers, recurrence, advanced reports or non-finance modules.
+1. Stages 1–4 are accepted. Founder explicitly approved Stage 4 on 2026-11-04 at
+   de5ea5d5054b146ae65ad055decc9c2792b0122d under CEO #020.
+2. Stage 5 only: current all-account balance, monthly income/expense/net, real expense
+   category shares, prior-calendar-month comparisons and compact account summary.
+   STAGE5_FINANCIAL_RULES.md extends the existing rules without changing ledger semantics.
+3. Reuse the coherent AccountsSnapshot/latest non-deleted revisions, stored local dates
+   and current category taxonomy, including archived references. All sums use BigInt.
+   Schema remains v4. Preserve all accounts/profiles/cash/revisions/sequences/anchors/audits.
+4. Synthetic integration tests use verified sandbox APKs and Hadgaly_Stage2_Disposable only.
+   Never uninstall/clear/wipe founder production. The production demo runner preserves
+   private DB/sidecars first, checks actual APK identity, install -r updates and compares
+   all records/current balances plus actual rendered UI. No automatic restore fallback.
+5. Keep Flutter 3.47.9 / Dart 3.13.7, fonts/tokens/lockfile and six-stage roadmap unchanged.
+6. Prior incident data was not recovered. The approved fresh start and subsequently
+   entered founder data are separate; preserve that current real data exactly.
+7. Stop at Stage 5 review: tests + interactive Android + explicit founder approval.
+   No Stage 6, recurrence, transfers, budgets, advanced reports or non-finance modules.
 
 ## INSTRUCTIONS FOR THE NEXT CODEX SESSION
 
-Current authorized scope: Stage 4 only. Founder approval of Stage 3 is explicit. Read the Stage 4
-contract/review before acting; older Stage 3 pending/no-Stage4 statements above are historical.
-Preserve untracked user downloads in assets/logo; do not execute or commit unrelated installers/APKs.
-Report in Mongolian with actual command/results, exact tested commit and honest limitations.
-Stage 4 remains pending explicit founder acceptance, regardless of test/build success.
+Current authorization is Stage 5 only. Stage 4 approval is explicit. Read the Stage 5
+rules/review before acting; historical Stage 4 pending/no-Stage5 text is superseded.
+Preserve unrelated untracked downloads in assets/logo; do not execute or commit them.
+Report in Mongolian, exact tested commit/results and honest verification limitations.
+Stage 5 remains pending founder acceptance regardless of tests/build success.

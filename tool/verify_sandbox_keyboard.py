@@ -24,7 +24,7 @@ adb = str(sdk / 'platform-tools/adb.exe')
 package = 'mn.hadgaly.hadgaly.sandbox'
 device = 'emulator-5556'
 apk = Path(sys.argv[1]).resolve()
-output = Path('build/stage4/real-ime')
+output = Path('build/stage5/real-ime')
 output.mkdir(parents=True, exist_ok=True)
 
 def command(*args):
@@ -131,6 +131,13 @@ for action, amount, category in [('Орлого нэмэх', '123', 'Цалин'
     tap('Хадгалах', True)
     find_node(lambda n: 'Бүх дансны одоогийн нийт үлдэгдэл' in label(n))
 screenshot('home-real-ime')
+# Stage 5 reporting reads the same entries; never seed or edit SQLite for a demo.
+find_node(lambda n: label(n) == 'Цэвэр: −2 ₮', True)
+find_node(lambda n: label(n) == '125 ₮ · 100.0%', True)
+screenshot('dashboard-details-real-ime')
+command('shell', 'am', 'force-stop', package)
+command('shell', 'am', 'start', '-W', '-n', f'{package}/mn.hadgaly.hadgaly.MainActivity')
+find_node(lambda n: label(n) == 'Бүх дансны одоогийн нийт үлдэгдэл: −2 ₮')
 def tap_row(amount):
     node=find_node(lambda n: amount in label(n) and n.attrib.get('clickable')=='true',True)
     x1,y1,x2,y2=bounds(node)

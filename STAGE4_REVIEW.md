@@ -1,3 +1,5 @@
+> Founder approved Stage 4 on 2026-11-04 at de5ea5d5054b146ae65ad055decc9c2792b0122d under CEO #020. Pending wording below is historical.
+
 # Stage 4 — Transaction History, Editing & Financial Integrity
 
 2026-11-03 · CEO #019 · branch `codex/stage-4-history`.

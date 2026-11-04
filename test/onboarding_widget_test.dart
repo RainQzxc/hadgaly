@@ -92,7 +92,10 @@ void main() {
     await tapNext(tester);
     expect(find.text('Бэлэн боллоо, Болд! 🎉'), findsOneWidget);
     await tapNext(tester);
-    expect(find.text('−120 ₮'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(const Key('homeBalance'))).data,
+      '−120 ₮',
+    );
     await tester.ensureVisible(find.byKey(const Key('incomeAction')));
     await tester.tap(find.byKey(const Key('incomeAction')));
     await tester.pumpAndSettle();

@@ -5,16 +5,18 @@ Tasks, shopping and ideas tabs are coming-soon UI only; the finance six-stage ro
 Flutter **3.47.9**, bundled Dart **3.13.7**,
 Riverpod, SQLite/Drift; feature-first organization. Preserve `pubspec.lock`.
 
-Stages 1–3 are explicitly accepted. CEO #019 approved all eight Stage 3 criteria after Android review:
-`89b8245674910028eaf3e1d7c05c00cd2c6aff74`. Stage 4 history/editing/integrity is authorized;
-Stage 4 acceptance is pending. No Stage 5, transfers or bank integration is authorized.
-See STAGE4_FINANCIAL_RULES.md and STAGE4_REVIEW.md for current scope and verification.
+Stages 1–4 are explicitly accepted. Founder approved Stage 4 on 2026-11-04 at
+`de5ea5d5054b146ae65ad055decc9c2792b0122d` under CEO #020.
+Stage 5 Finance Dashboard & Insights is authorized, pending founder acceptance.
+See STAGE5_FINANCIAL_RULES.md and STAGE5_REVIEW.md for current scope/verification.
+No Stage 6, transfers, bank integration or other-module functionality.
 Latest CEO #011 UI uses Cupertino components, Google Sans Flex + Noto Sans missing-glyph fallback,
 Midnight Blue/neutral/teal tokens and a persistent four-tab shell. Finance initially selected.
 See `STAGE2_DESIGN_NAV_REVIEW.md` for current UI/accessibility/data-preservation results.
 Latest Home layout supersedes the earlier default-account card: see `STAGE2_HOME_REVIEW.md`.
-Home keeps the neutral ring and combined current account balance. Stage 3 activates one-screen
-income/expense entry and real current-month figures; category distribution/reporting remains Stage 5.
+Home now shows real expense-category shares, current-month flows, combined current balance,
+month-on-month comparisons and compact account balances. Empty spending keeps a neutral ring.
+Existing quick entry, history and account management remain accessible. No schema change: v4.
 See STAGE3_REVIEW.md and STAGE3_FINANCIAL_RULES.md for verification, dates and acceptance limits.
 
 ## Fresh-start decision

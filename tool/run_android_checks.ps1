@@ -1,7 +1,7 @@
 param(
     [string]$DeviceId = 'emulator-5556',
-    [ValidateSet('stage1_test','stage2_test','stage3_test','stage4_test','migration_test')]
-    [string[]]$Tests = @('stage1_test','stage2_test','stage3_test','stage4_test','migration_test')
+    [ValidateSet('stage1_test','stage2_test','stage3_test','stage4_test','stage5_test','migration_test')]
+    [string[]]$Tests = @('stage1_test','stage2_test','stage3_test','stage4_test','stage5_test','migration_test')
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path $PSScriptRoot -Parent

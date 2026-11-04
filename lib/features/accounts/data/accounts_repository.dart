@@ -27,10 +27,12 @@ class AccountsSnapshot {
     this.accounts,
     this.defaultId, {
     this.entries = const [],
+    this.categories = const [],
   });
   final List<AccountView> accounts;
   final int? defaultId;
   final List<CashEntry> entries;
+  final List<Category> categories;
   AccountView get defaultAccount =>
       accounts.firstWhere((a) => a.account.id == defaultId);
   AccountView byId(int id) => accounts.firstWhere((a) => a.account.id == id);
@@ -84,6 +86,7 @@ class AccountsRepository {
       ),
       profile.defaultAccountId,
       entries: List.unmodifiable(cash),
+      categories: List.unmodifiable(await db.select(db.categories).get()),
     );
   });
 
@@ -97,6 +100,7 @@ class AccountsRepository {
           db.adjustmentEdits,
           db.cashEntries,
           db.entryRevisions,
+          db.categories,
         },
       )
       .watch()

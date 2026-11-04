@@ -9,7 +9,9 @@ import 'package:hadgaly/features/onboarding/data/app_database.dart';
 import 'package:hadgaly/features/accounts/data/accounts_repository.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() => binding.testTextInput.register());
+  tearDown(() => binding.testTextInput.unregister());
   testWidgets('Android Stage 2 accounts/default/anchors/audit/restart', (
     t,
   ) async {
@@ -43,7 +45,10 @@ void main() {
         await tap(find.byKey(Key('module-$i')));
         expect(find.text('Тун удахгүй'), findsOneWidget);
         await tap(find.byKey(const Key('module-3')));
-        expect(find.text('1,000 ₮'), findsOneWidget);
+        expect(
+          t.widget<Text>(find.byKey(const Key('homeBalance'))).data,
+          '1,000 ₮',
+        );
       }
       await tap(find.byKey(const Key('myAccounts')));
       expect(find.byKey(const Key('module-3')), findsOneWidget);

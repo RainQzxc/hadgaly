@@ -37,8 +37,8 @@ void main() {
     expect(find.text('+0 ₮'), findsOneWidget);
     expect(find.text('−0 ₮'), findsOneWidget);
     expect(find.text('Энэ сард гүйлгээ бүртгэгдээгүй.'), findsOneWidget);
-    expect(find.text('Үндсэн данс'), findsNothing);
-    expect(find.text('Хэтэвч'), findsNothing);
+    expect(find.text('Үндсэн данс'), findsOneWidget);
+    expect(find.text('Хэтэвч'), findsOneWidget);
   }
 
   testWidgets(
@@ -78,7 +78,7 @@ void main() {
       expect(find.text('1,999,999,999,998 ₮'), findsOneWidget);
       await repo.adjustBalance(second, '-999999999999', 'negative');
       await t.pumpAndSettle();
-      expect(find.text('0 ₮'), findsOneWidget);
+      expect(t.widget<Text>(find.byKey(const Key('homeBalance'))).data, '0 ₮');
       emptyTotals();
       await finish(t);
     },

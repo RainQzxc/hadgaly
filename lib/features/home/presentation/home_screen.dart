@@ -9,7 +9,10 @@ import '../../accounts/application/accounts_providers.dart';
 import '../../accounts/data/accounts_repository.dart';
 import '../../accounts/presentation/accounts_screen.dart';
 import '../../accounts/domain/ledger.dart';
+import '../data/dashboard_report.dart';
 import '../../transactions/domain/entry_rules.dart';
+import '../domain/dashboard.dart';
+import 'dashboard_details.dart';
 import '../../transactions/presentation/entry_screen.dart';
 import '../../transactions/presentation/history_screen.dart';
 
@@ -76,27 +79,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   );
 
   Widget _body(AccountsSnapshot snapshot) {
-    final flows = monthFlows(
-      snapshot.entries.map(
-        (e) => PeriodAmount(
-          e.kind == 'income' ? EventKind.income : EventKind.expense,
-          e.amount,
-          e.entryDate,
-        ),
-      ),
-      DateTime.now(),
-    );
-    // Sum verified current balances, including openings and authoritative anchors.
-    // BigInt avoids overflow across many individually valid account balances.
-    final total = snapshot.accounts.fold<BigInt>(
-      BigInt.zero,
-      (sum, account) => sum + BigInt.from(account.balance),
-    );
-    final digits = total.abs().toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (m) => '${m[1]},',
-    );
-    final balance = '${total.isNegative ? '−' : ''}$digits ₮';
+    final month = DateTime.now();
+    final report = dashboardReport(snapshot, month);
+    final flows = report.current;
+    final balance = signedMoney(report.balance).replaceFirst('+', '');
     return LayoutBuilder(
       builder: (context, constraints) {
         final textGrowth = math.max(
@@ -136,6 +122,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           // Normal size is about 30% below the old 340dp ring.
                           size: ringSize,
                           totals: flows,
+                          shares: report.categories,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -143,7 +130,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         flows.income == BigInt.zero &&
                                 flows.expense == BigInt.zero
                             ? 'Энэ сард гүйлгээ бүртгэгдээгүй.'
-                            : 'Энэ сарын орлого, зарлага',
+                            : 'Зарлагын ангиллын хуваарилалт',
                         textAlign: TextAlign.center,
                         style: captionStyle,
                       ),
@@ -265,6 +252,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           ],
                         ),
                       ),
+                      DashboardDetails(
+                        report: report,
+                        categories: snapshot.categories,
+                        month: month,
+                      ),
+                      const Text('Дансны тойм', style: sectionStyle),
+                      const SizedBox(height: 8),
+                      AccountSummary(snapshot: snapshot),
                     ],
                   ),
                 ],
@@ -277,74 +272,88 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 }
 
-/// Period figures are real; category distribution remains Stage 5. The ring is
-/// deliberately neutral, never invented category proportions or cash-flow ratios.
+/// The ring represents expense categories only, never income/expense ratios.
+/// Large text expands the ring vertically to preserve readable exact figures.
 class _PeriodDonut extends StatelessWidget {
-  const _PeriodDonut({required this.size, required this.totals});
+  const _PeriodDonut({
+    required this.size,
+    required this.totals,
+    required this.shares,
+  });
+  final List<CategoryShare> shares;
   final double size;
   final FlowTotals totals;
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      const Text('Энэ сар', style: captionStyle),
+      Text(
+        '${DateTime.now().year} оны ${DateTime.now().month}-р сар',
+        style: captionStyle,
+      ),
       const SizedBox(height: 8),
       Semantics(
         key: const Key('expenseDonut'),
         label:
-            'Энэ сарын орлого: +${formatFlow(totals.income)}. Зарлага: −${formatFlow(totals.expense)}. Ангиллын хуваарилалт хараахан нээгдээгүй.',
+            'Энэ сарын орлого: +${formatFlow(totals.income)}. Зарлага: −${formatFlow(totals.expense)}. Зарлагын ангиллын задаргаа доор байна.',
         image: true,
         child: ExcludeSemantics(
-          child: Container(
-            width: size,
-            constraints: BoxConstraints(minHeight: size),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              // Circular at normal size. Long amounts / enlarged text may grow
-              // vertically into a rounded ring rather than clipping real money.
-              borderRadius: BorderRadius.circular(size / 2),
-              border: Border.all(color: line, width: 10),
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Орлого',
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.25,
-                    color: incomeInk,
+          child: CustomPaint(
+            painter: ExpenseRing(shares),
+            child: Container(
+              width: size,
+              constraints: BoxConstraints(minHeight: size),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                // Circular at normal size. Long amounts / enlarged text may grow
+                // vertically into a rounded ring rather than clipping real money.
+                borderRadius: BorderRadius.circular(size / 2),
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Орлого',
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.25,
+                      color: incomeInk,
+                    ),
                   ),
-                ),
-                Text(
-                  '+${formatFlow(totals.income)}',
-                  textAlign: TextAlign.center,
-                  key: const Key('periodIncome'),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    height: 1.2,
-                    fontWeight: FontWeight.w600,
-                    color: incomeInk,
+                  Text(
+                    '+${formatFlow(totals.income)}',
+                    textAlign: TextAlign.center,
+                    key: const Key('periodIncome'),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      height: 1.2,
+                      fontWeight: FontWeight.w600,
+                      color: incomeInk,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Зарлага',
-                  style: TextStyle(fontSize: 14, height: 1.25, color: errorInk),
-                ),
-                Text(
-                  '−${formatFlow(totals.expense)}',
-                  textAlign: TextAlign.center,
-                  key: const Key('periodExpense'),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    height: 1.2,
-                    fontWeight: FontWeight.w600,
-                    color: errorInk,
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Зарлага',
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.25,
+                      color: errorInk,
+                    ),
                   ),
-                ),
-              ],
+                  Text(
+                    '−${formatFlow(totals.expense)}',
+                    textAlign: TextAlign.center,
+                    key: const Key('periodExpense'),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      height: 1.2,
+                      fontWeight: FontWeight.w600,
+                      color: errorInk,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -39,7 +39,10 @@ void main() {
       await mountStage3(t, db);
       expect(find.text('+0 ₮'), findsOneWidget);
       expect(find.text('−0 ₮'), findsOneWidget);
-      expect(find.text('900 ₮'), findsOneWidget);
+      expect(
+        t.widget<Text>(find.byKey(const Key('homeBalance'))).data,
+        '900 ₮',
+      );
       expect(find.text('Энэ сард гүйлгээ бүртгэгдээгүй.'), findsOneWidget);
       await entries.post(
         kind: EventKind.expense,
@@ -49,10 +52,26 @@ void main() {
         date: now,
         requestKey: 'current-month',
       );
-      await waitStage3(t, find.text('850 ₮'));
+      await waitStage3(
+        t,
+        find.byWidgetPredicate(
+          (w) =>
+              w is Text &&
+              w.key == const Key('homeBalance') &&
+              w.data == '850 ₮',
+        ),
+      );
       expect(find.text('−50 ₮'), findsOneWidget);
       await accounts.editAdjustment(anchor, '950', 0, 'anchor-edit');
-      await waitStage3(t, find.text('900 ₮'));
+      await waitStage3(
+        t,
+        find.byWidgetPredicate(
+          (w) =>
+              w is Text &&
+              w.key == const Key('homeBalance') &&
+              w.data == '900 ₮',
+        ),
+      );
       expect(find.text('+0 ₮'), findsOneWidget);
       expect(find.text('−50 ₮'), findsOneWidget);
       await t.pumpWidget(const SizedBox());

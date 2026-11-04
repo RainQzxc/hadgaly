@@ -8,7 +8,9 @@ import 'package:hadgaly/features/onboarding/application/onboarding_controller.da
 import 'package:hadgaly/features/onboarding/data/app_database.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() => binding.testTextInput.register());
+  tearDown(() => binding.testTextInput.unregister());
   testWidgets('Android onboarding, partial draft, SQLite reopen and home', (
     tester,
   ) async {
@@ -76,9 +78,15 @@ void main() {
       await next();
       expect(find.text('Бэлэн боллоо, Өнөр! 🎉'), findsOneWidget);
       await next();
-      expect(find.text('−25,000 ₮'), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('homeBalance'))).data,
+        '−25,000 ₮',
+      );
       await reopen();
-      expect(find.text('−25,000 ₮'), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('homeBalance'))).data,
+        '−25,000 ₮',
+      );
       expect(await db.select(db.accounts).get(), hasLength(1));
       await tester.ensureVisible(find.byKey(const Key('expenseAction')));
       await tester.tap(find.byKey(const Key('expenseAction')));

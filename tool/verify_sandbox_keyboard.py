@@ -24,8 +24,8 @@ adb = str(sdk / 'platform-tools/adb.exe')
 package = 'mn.hadgaly.hadgaly.sandbox'
 device = 'emulator-5556'
 apk = Path(sys.argv[1]).resolve()
-output = Path('build/stage5/real-ime')
-output.mkdir(parents=True, exist_ok=True)
+output = Path('build/stage5/report-ime') / time.strftime('%Y%m%d-%H%M%S')
+output.mkdir(parents=True, exist_ok=False)
 
 def command(*args):
     return subprocess.run([adb, '-s', device, *args], capture_output=True, check=True).stdout
@@ -48,7 +48,7 @@ digest = hashlib.sha256(apk.read_bytes()).hexdigest()
 frozen = output / 'verified-sandbox.apk'
 frozen.write_bytes(apk.read_bytes())
 assert hashlib.sha256(frozen.read_bytes()).hexdigest() == digest
-print(f'VERIFIED BEFORE INSTALL: {actual}; {device}; SHA256={digest}', flush=True)
+print(f'VERIFIED BEFORE INSTALL: {actual}; {device}; SHA256={digest}; evidence={output}', flush=True)
 if installed:
     # A failed smoke-test setup may resume only the exact APK and EMPTY profile.
     # Never clear/recreate existing records to obtain a passing test.
@@ -90,7 +90,9 @@ def find_node(predicate, scroll=False):
             if x2 > x1 and y2 > y1:
                 return node
         if scroll and attempt > 0:
-            command('shell', 'input', 'swipe', '540', '1800', '540', '650', '250')
+            sizes = re.findall(r'(\d+)x(\d+)', command('shell', 'wm', 'size').decode())
+            width, height = map(int, sizes[-1])
+            command('shell', 'input', 'swipe', str(width//2), str(height*3//4), str(width//2), str(height//3), '250')
         time.sleep(0.3)
     raise AssertionError('Expected synthetic UI control missing; see last-ui.xml')
 
@@ -131,13 +133,44 @@ for action, amount, category in [('Орлого нэмэх', '123', 'Цалин'
     tap('Хадгалах', True)
     find_node(lambda n: 'Бүх дансны одоогийн нийт үлдэгдэл' in label(n))
 screenshot('home-real-ime')
-# Stage 5 reporting reads the same entries; never seed or edit SQLite for a demo.
-find_node(lambda n: label(n) == 'Цэвэр: −2 ₮', True)
-find_node(lambda n: label(n) == '125 ₮ · 100.0%', True)
-screenshot('dashboard-details-real-ime')
-command('shell', 'am', 'force-stop', package)
-command('shell', 'am', 'start', '-W', '-n', f'{package}/mn.hadgaly.hadgaly.MainActivity')
-find_node(lambda n: label(n) == 'Бүх дансны одоогийн нийт үлдэгдэл: −2 ₮')
+
+# Real OS screenshots of the same synthetic records on both screen sizes.
+# No Flutter surface conversion, database seeding or financial mutation for images.
+def restart_home():
+    command('shell', 'am', 'force-stop', package)
+    command('shell', 'am', 'start', '-W', '-n', f'{package}/mn.hadgaly.hadgaly.MainActivity')
+    find_node(lambda n: label(n).startswith('Энэ сарын зарлагын ангиллын хуваарилалт.'))
+
+def capture_report(suffix):
+    restart_home()
+    screenshot(f'report-home{suffix}')
+    tap('Санхүүгийн тайлан', True)
+    find_node(lambda n: label(n) == 'Цэвэр: −2 ₮', True)
+    screenshot(f'report-screen{suffix}')
+    find_node(lambda n: label(n) == '125 ₮ · 100.0%', True)
+    screenshot(f'report-breakdown{suffix}')
+    find_node(lambda n: label(n) == 'Үндсэн данс', True)
+    screenshot(f'report-accounts{suffix}')
+    command('shell', 'input', 'keyevent', '4')
+    find_node(lambda n: label(n) == 'Санхүүгийн тайлан' and n.attrib.get('clickable') == 'true', True)
+
+capture_report('')
+if '--report-screenshots' in sys.argv[2:]:
+    # Only run on the already verified disposable AVD with standard metrics.
+    assert 'Override' not in command('shell', 'wm', 'size').decode()
+    assert 'Override' not in command('shell', 'wm', 'density').decode()
+    original_scale = command('shell', 'settings', 'get', 'system', 'font_scale').decode().strip()
+    try:
+        command('shell', 'wm', 'size', '640x1136')
+        command('shell', 'wm', 'density', '320')
+        command('shell', 'settings', 'put', 'system', 'font_scale', '1.8')
+        capture_report('-large-text')
+    finally:
+        command('shell', 'settings', 'put', 'system', 'font_scale', original_scale)
+        command('shell', 'wm', 'size', 'reset')
+        command('shell', 'wm', 'density', 'reset')
+restart_home()
+
 def tap_row(amount):
     node=find_node(lambda n: amount in label(n) and n.attrib.get('clickable')=='true',True)
     x1,y1,x2,y2=bounds(node)

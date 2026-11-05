@@ -1,11 +1,31 @@
 # HADGALY — PROJECT CONTEXT
 
-Last Updated: **2026-11-04, Asia/Ulaanbaatar**
+Last Updated: **2026-11-05, Asia/Ulaanbaatar**
 
 Current status: **Stages 1–4 explicitly approved and COMPLETE. Stage 5 implemented/verified for founder review; not accepted.**
 CEO #016 founder approval applies to the latest reviewed Stage 2 commit:
 **`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`** (verified Git HEAD before Stage 3 implementation).
 Earlier “Stage 2 pending/unapproved” entries below are historical and superseded by #016.
+
+## CEO #022 — latest Stage 5 navigation decision
+
+- Stage 5 remains NOT approved; Stage 6 not started. Presentation/navigation only.
+- Finance Home retains brand/greeting, expense-category donut + monthly income, total
+  current balance, expense/income actions and History/My Accounts navigation.
+- New “Санхүүгийн тайлан” row (subtle chart icon/chevron) opens a dedicated Cupertino
+  route with Back inside Finance. Monthly net, category breakdown list, previous-month
+  comparison and account overview move OFF Home and into this route.
+- Both routes consume one derived Riverpod presentation provider around the EXISTING
+  dashboardReport aggregation. No new financial formulas or duplicate calculation pipeline.
+  Existing midnight/resume UI clock moves into the shared presentation provider.
+- Existing DashboardDetails/AccountSummary widgets are reused unchanged in Reports.
+  No new financial/persistence model, schema/migration/dependency or other-module feature.
+- Verified138 unit/widget cases; guarded Android Stage5/Stage4/migrations6 functional
+  cases; final normal/320dp1.8× Stage5 repeats PASS. Real Android IME + real ADB Home/Report
+  screenshots at both sizes, OS Back and restart passed. Main v4→v4 data hashes matched;
+  actual main read-only report/back navigation and persistent four tabs verified.
+- Latest verification/screenshots/safety evidence: STAGE5_REPORT_NAVIGATION_022.md.
+  Older Home detail-section descriptions below are historical and superseded.
 
 ## CEO #021 — latest Stage 5 presentation refinement
 

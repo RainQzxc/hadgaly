@@ -10,6 +10,8 @@ import '../test/support/stage3_flow.dart';
 import '../test/support/stage5_data.dart';
 import '../test/support/stage5_flow.dart';
 
+import 'package:hadgaly/features/home/presentation/report_screen.dart';
+
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => binding.testTextInput.register());
@@ -44,21 +46,28 @@ void main() {
           t.widget<Text>(find.byKey(const Key('homeBalance'))).data,
           '385 ₮',
         );
-        // Convert the Android surface only after all interactive checks/reopen.
-        // Do not remount an app or inject gestures across an image-surface swap.
-        await binding.convertFlutterSurfaceToImage();
-        await t.pump(const Duration(milliseconds: 100));
+        // Capture real Android screenshots in the guarded ADB/IME helper, not
+        // through an image-surface conversion inside an interactive test.
+        await tapStage3(t, 'reportAction');
+        expect(find.byType(ReportScreen), findsOneWidget);
+        expect(
+          t.widget<Text>(find.byKey(const Key('monthlyNet'))).data,
+          'Цэвэр: +135 ₮',
+        );
+        expect(
+          t
+              .widget<Text>(find.byKey(const Key('comparison-current-Орлого')))
+              .data,
+          '210 ₮',
+        );
+        expect(find.text('50 ₮ · 66.7%'), findsOneWidget);
+        expect(find.text('25 ₮ · 33.3%'), findsOneWidget);
+        await t.binding.handlePopRoute();
         await t.pumpAndSettle();
-        await binding.takeScreenshot('stage5-synthetic-home');
-        await binding.takeScreenshot('stage5-synthetic-reopened');
-        await t.ensureVisible(find.byKey(const Key('monthlyNet')));
-        await t.pump(const Duration(milliseconds: 100));
-        await t.pumpAndSettle();
-        await binding.takeScreenshot('stage5-synthetic-details');
-        await t.ensureVisible(find.byKey(const Key('overview-account-2')));
-        await t.pump(const Duration(milliseconds: 100));
-        await t.pumpAndSettle();
-        await binding.takeScreenshot('stage5-synthetic-accounts');
+        expect(
+          t.widget<Text>(find.byKey(const Key('homeBalance'))).data,
+          '385 ₮',
+        );
       } finally {
         await t.pumpWidget(const SizedBox());
         await t.pumpAndSettle();

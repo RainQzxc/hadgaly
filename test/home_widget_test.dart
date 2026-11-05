@@ -37,8 +37,8 @@ void main() {
     expect(find.text('+0 ₮'), findsOneWidget);
     expect(find.text('−0 ₮'), findsOneWidget);
     expect(find.text('Энэ сард гүйлгээ бүртгэгдээгүй.'), findsOneWidget);
-    expect(find.text('Үндсэн данс'), findsOneWidget);
-    expect(find.text('Хэтэвч'), findsOneWidget);
+    expect(find.text('Үндсэн данс'), findsNothing);
+    expect(find.text('Хэтэвч'), findsNothing);
   }
 
   testWidgets(

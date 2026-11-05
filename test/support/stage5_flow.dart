@@ -8,6 +8,9 @@ import 'stage3_flow.dart';
 
 import 'package:hadgaly/features/home/presentation/dashboard_details.dart';
 import 'package:hadgaly/core/presentation/design_tokens.dart';
+import 'package:hadgaly/features/home/presentation/report_screen.dart';
+import 'package:hadgaly/features/home/presentation/dashboard_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> verifyStage5Flow(WidgetTester t, AppDatabase db) async {
   await mountStage3(t, db);
@@ -33,6 +36,21 @@ Future<void> verifyStage5Flow(WidgetTester t, AppDatabase db) async {
   expect(
     t.widget<Semantics>(chart).properties.label,
     isNot(contains('орлого')),
+  );
+  expect(find.byType(DashboardDetails), findsNothing);
+  expect(find.byType(AccountSummary), findsNothing);
+  expect(find.byKey(const Key('monthlyNet')), findsNothing);
+  expect(find.byKey(const Key('reportAction')), findsOneWidget);
+  final container = ProviderScope.containerOf(
+    t.element(find.byKey(const Key('reportAction'))),
+  );
+  final homeReport = container.read(dashboardProvider).requireValue.report;
+  await tapStage3(t, 'reportAction');
+  await waitStage3(t, find.byType(ReportScreen));
+  expect(find.byKey(const Key('module-3')), findsOneWidget);
+  expect(
+    container.read(dashboardProvider).requireValue.report,
+    same(homeReport),
   );
   expect(
     t.widget<Text>(find.byKey(const Key('comparison-current-Орлого'))).data,
@@ -88,6 +106,9 @@ Future<void> verifyStage5Flow(WidgetTester t, AppDatabase db) async {
     );
     expect(style.fontSize, greaterThanOrEqualTo(13));
   }
+  await tapStage3(t, 'back');
+  expect(find.byKey(const Key('homeBalance')), findsOneWidget);
+  expect(find.byType(DashboardDetails), findsNothing);
   // Full layout bounds, not clipped semantics at a scroll boundary. A partially
   // visible sibling keeps its original tap area; Android clips its semantic rect.
   for (final key in [
@@ -95,6 +116,7 @@ Future<void> verifyStage5Flow(WidgetTester t, AppDatabase db) async {
     'incomeAction',
     'historyAction',
     'myAccounts',
+    'reportAction',
   ]) {
     await readyStage3(t, key);
     final target = find.byKey(Key(key));
@@ -156,5 +178,15 @@ Future<void> verifyStage5Flow(WidgetTester t, AppDatabase db) async {
   await t.binding.handlePopRoute();
   await t.pumpAndSettle();
   expect(find.byKey(const Key('homeBalance')), findsOneWidget);
+  await tapStage3(t, 'reportAction');
+  expect(find.byType(ReportScreen), findsOneWidget);
+  expect(
+    t.widget<Text>(find.byKey(const Key('monthlyNet'))).data,
+    'Цэвэр: +135 ₮',
+  );
+  await t.binding.handlePopRoute();
+  await t.pumpAndSettle();
+  expect(find.byKey(const Key('reportAction')), findsOneWidget);
+  expect(find.byType(DashboardDetails), findsNothing);
   expect(t.takeException(), isNull);
 }

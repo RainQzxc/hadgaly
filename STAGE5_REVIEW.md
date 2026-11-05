@@ -1,3 +1,5 @@
+> CEO #022 moves detail sections off Home into the dedicated Report screen. Current navigation/checks: STAGE5_REPORT_NAVIGATION_022.md. Older UI descriptions below are historical; financial rules unchanged; Stage 5 remains unapproved.
+
 > CEO #021 presentation refinement supersedes the UI described below. See STAGE5_UX_REFINEMENT_021.md for current UI/checks. Financial calculations remain unchanged; Stage 5 is still pending founder acceptance.
 
 # Stage 5 — Finance Dashboard & Insights

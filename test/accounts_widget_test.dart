@@ -222,7 +222,7 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(find.byKey(const Key('back')));
       await t.pumpAndSettle();
-      expect(find.text('Миний карт'), findsOneWidget);
+      expect(find.text('Миний карт'), findsNothing);
       expect(find.text('1,080 ₮'), findsOneWidget);
       expect(find.byKey(const Key('addAccount')), findsNothing);
       await finish(t);

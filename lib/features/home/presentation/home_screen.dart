@@ -1,72 +1,27 @@
 import 'dart:math' as math;
-import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/presentation/hadgaly_ui.dart';
-import '../../accounts/application/accounts_providers.dart';
-import '../../accounts/data/accounts_repository.dart';
 import '../../accounts/presentation/accounts_screen.dart';
 import '../../accounts/domain/ledger.dart';
-import '../data/dashboard_report.dart';
 import '../../transactions/domain/entry_rules.dart';
 import '../domain/dashboard.dart';
 import 'dashboard_details.dart';
+import 'dashboard_provider.dart';
+import 'report_screen.dart';
 import '../../transactions/presentation/entry_screen.dart';
 import '../../transactions/presentation/history_screen.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key, required this.name});
   final String name;
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen>
-    with WidgetsBindingObserver {
-  Timer? dayTimer;
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    scheduleDay();
-  }
-
-  void scheduleDay() {
-    dayTimer?.cancel();
-    final now = DateTime.now();
-    dayTimer = Timer(
-      DateTime(now.year, now.month, now.day + 1).difference(now),
-      () {
-        if (mounted) {
-          setState(() {});
-          scheduleDay();
-        }
-      },
-    );
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      setState(() {});
-      scheduleDay();
-    }
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    dayTimer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => HadgalyPage(
+  Widget build(BuildContext context, WidgetRef ref) => HadgalyPage(
     title: 'хадгалъя',
     child: ref
-        .watch(accountsProvider)
+        .watch(dashboardProvider)
         .when(
           loading: () => const LoadingContent(),
           error: (_, _) => const PageContent(
@@ -74,13 +29,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               InlineError('Дансны мэдээллийг нээж чадсангүй. Дахин нээгээрэй.'),
             ],
           ),
-          data: _body,
+          data: (view) => _body(context, view),
         ),
   );
 
-  Widget _body(AccountsSnapshot snapshot) {
-    final month = DateTime.now();
-    final report = dashboardReport(snapshot, month);
+  Widget _body(BuildContext context, DashboardView view) {
+    final month = view.month;
+    final report = view.report;
     final flows = report.current;
     final balance = signedMoney(report.balance).replaceFirst('+', '');
     return LayoutBuilder(
@@ -108,7 +63,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'Сайн уу, ${widget.name}',
+                        'Сайн уу, $name',
                         style: const TextStyle(
                           fontSize: 16,
                           height: 1.4,
@@ -244,14 +199,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           ],
                         ),
                       ),
-                      DashboardDetails(
-                        report: report,
-                        categories: snapshot.categories,
-                        month: month,
+                      CupertinoButton(
+                        key: const Key('reportAction'),
+                        minimumSize: const Size(48, 48),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        onPressed: () =>
+                            openPage<void>(context, const ReportScreen()),
+                        child: const Row(
+                          children: [
+                            Icon(
+                              CupertinoIcons.chart_bar,
+                              size: 18,
+                              color: secondaryInk,
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Санхүүгийн тайлан',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: secondaryInk,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(
+                              CupertinoIcons.chevron_right,
+                              size: 16,
+                              color: secondaryInk,
+                            ),
+                          ],
+                        ),
                       ),
-                      const Text('Дансны тойм', style: sectionStyle),
-                      const SizedBox(height: 8),
-                      AccountSummary(snapshot: snapshot),
                     ],
                   ),
                 ],
@@ -291,7 +271,7 @@ class _PeriodDonut extends StatelessWidget {
         child: Semantics(
           key: const Key('expenseDonut'),
           label:
-              'Энэ сарын зарлагын ангиллын хуваарилалт. Нийт зарлага: −${formatFlow(totals.expense)}.${shares.isEmpty ? ' Зарлага бүртгэгдээгүй.' : ' Ангилал тус бүрийн дүн, хувь доор байна.'}',
+              'Энэ сарын зарлагын ангиллын хуваарилалт. Нийт зарлага: −${formatFlow(totals.expense)}.${shares.isEmpty ? ' Зарлага бүртгэгдээгүй.' : ' Ангилал тус бүрийн дүн, хувь тайланд байна.'}',
           image: true,
           child: ExcludeSemantics(
             child: CustomPaint(

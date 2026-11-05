@@ -6,12 +6,72 @@ import 'package:hadgaly/features/accounts/data/accounts_repository.dart';
 import 'package:hadgaly/features/accounts/domain/ledger.dart';
 import 'package:hadgaly/features/transactions/data/transactions_repository.dart';
 import 'package:hadgaly/features/home/presentation/dashboard_details.dart';
+import 'package:hadgaly/features/home/presentation/report_screen.dart';
 
 import 'support/stage3_flow.dart';
 import 'support/stage5_data.dart';
 import 'support/stage5_flow.dart';
 
 void main() {
+  testWidgets(
+    'Report reacts to existing edits/default/anchors; system Back returns to compact Home',
+    (t) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final now = DateTime.now(), ids = await seedStage5(db, DateTime.now());
+      await mountStage3(t, db);
+      expect(find.byType(DashboardDetails), findsNothing);
+      expect(find.byType(AccountSummary), findsNothing);
+      await tapStage3(t, 'reportAction');
+      expect(find.byType(ReportScreen), findsOneWidget);
+      final accounts = AccountsRepository(db);
+      await accounts.selectDefault(1);
+      await accounts.adjustBalance(ids.card, '-600', 'report-anchor');
+      await TransactionsRepository(db, clock: () => now).edit(
+        id: ids.currentIncome,
+        expectedRevision: 0,
+        kind: EventKind.income,
+        amount: '250',
+        accountId: 1,
+        categoryId: ids.income,
+        date: now,
+        requestKey: 'report-edit',
+      );
+      await waitStage3(t, find.text('Цэвэр: +175 ₮'));
+      expect(
+        t.widget<Text>(find.byKey(const Key('comparison-current-Орлого'))).data,
+        '250 ₮',
+      );
+      expect(
+        t
+            .widget<Text>(find.byKey(const Key('comparison-current-Зарлага')))
+            .data,
+        '75 ₮',
+      );
+      expect(
+        t.widget<Text>(find.byKey(Key('overview-balance-${ids.card}'))).data,
+        '−600 ₮',
+      );
+      expect(find.byKey(const Key('overview-default-1')), findsOneWidget);
+      expect(find.byKey(Key('overview-default-${ids.card}')), findsNothing);
+      expect(find.text('50 ₮ · 66.7%'), findsOneWidget);
+      expect(find.text('25 ₮ · 33.3%'), findsOneWidget);
+      await t.binding.handlePopRoute();
+      await t.pumpAndSettle();
+      expect(
+        t.widget<Text>(find.byKey(const Key('homeBalance'))).data,
+        '300 ₮',
+      );
+      expect(
+        t.widget<Text>(find.byKey(const Key('periodIncome'))).data,
+        '+250 ₮',
+      );
+      expect(find.byType(DashboardDetails), findsNothing);
+      expect(find.byType(AccountSummary), findsNothing);
+      await t.pumpWidget(const SizedBox());
+      await t.pumpAndSettle();
+    },
+  );
   testWidgets(
     'Income-only month keeps the expense chart empty and zero baseline honest',
     (t) async {
@@ -52,6 +112,7 @@ void main() {
         find.descendant(of: chart, matching: find.byType(CustomPaint)),
       );
       expect((paint.painter! as ExpenseRing).shares, isEmpty);
+      await tapStage3(t, 'reportAction');
       expect(find.text('Энэ сард зарлага бүртгэгдээгүй.'), findsOneWidget);
       expect(
         t.widget<Text>(find.byKey(const Key('comparison-Орлого'))).data,
@@ -113,6 +174,7 @@ void main() {
         t.widget<Text>(find.byKey(const Key('homeBalance'))).data,
         '375 ₮',
       );
+      await tapStage3(t, 'reportAction');
       for (final key in [
         'categoryShare-${ids.cart}',
         'comparison-Орлого',
@@ -151,6 +213,7 @@ void main() {
         addTearDown(t.platformDispatcher.clearTextScaleFactorTestValue);
         await seedStage5(db, DateTime.now());
         await verifyStage5Flow(t, db);
+        await tapStage3(t, 'reportAction');
         await expectLater(t, meetsGuideline(textContrastGuideline));
         await t.pumpWidget(const SizedBox());
         await t.pumpAndSettle();

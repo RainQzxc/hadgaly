@@ -8,14 +8,15 @@ Riverpod, SQLite/Drift; feature-first organization. Preserve `pubspec.lock`.
 Stages 1–4 are explicitly accepted. Founder approved Stage 4 on 2026-11-04 at
 `de5ea5d5054b146ae65ad055decc9c2792b0122d` under CEO #020.
 Stage 5 Finance Dashboard & Insights is authorized, pending founder acceptance.
-See STAGE5_FINANCIAL_RULES.md and STAGE5_REVIEW.md for current scope/verification.
+See STAGE5_FINANCIAL_RULES.md and STAGE5_REPORT_NAVIGATION_022.md for current scope/verification.
 No Stage 6, transfers, bank integration or other-module functionality.
 Latest CEO #011 UI uses Cupertino components, Google Sans Flex + Noto Sans missing-glyph fallback,
 Midnight Blue/neutral/teal tokens and a persistent four-tab shell. Finance initially selected.
 See `STAGE2_DESIGN_NAV_REVIEW.md` for current UI/accessibility/data-preservation results.
 Latest Home layout supersedes the earlier default-account card: see `STAGE2_HOME_REVIEW.md`.
-Home now shows real expense-category shares, current-month flows, combined current balance,
-month-on-month comparisons and compact account balances. Empty spending keeps a neutral ring.
+Home keeps the expense-category donut/current-month income, combined current balance and quick actions.
+“Санхүүгийн тайлан” opens monthly net, category breakdown, comparisons and account overview on a
+separate Finance route; one shared presentation provider reuses existing aggregation. Empty spending keeps a neutral ring.
 Existing quick entry, history and account management remain accessible. No schema change: v4.
 See STAGE3_REVIEW.md and STAGE3_FINANCIAL_RULES.md for verification, dates and acceptance limits.
 

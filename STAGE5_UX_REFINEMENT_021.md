@@ -1,3 +1,5 @@
+> CEO #022 moves detail sections off Home into the dedicated Report screen. Current navigation/checks: STAGE5_REPORT_NAVIGATION_022.md. Older UI descriptions below are historical; financial rules unchanged; Stage 5 remains unapproved.
+
 # Stage 5 — CEO #021 UI refinement
 
 2026-11-04 · `codex/stage-5-dashboard` · baseline9e2af7146f85643e9fe8ce06d530f7c95df6291c.

@@ -2,7 +2,7 @@
 
 Last Updated: **2026-11-06, Asia/Ulaanbaatar**
 
-Current status: **Stages 1–5 explicitly approved and complete. Stage 6 is authorized and pending founder acceptance.**
+Current status: **Stages 1–6 are founder-approved and complete.**
 CEO #016 founder approval applies to the latest reviewed Stage 2 commit:
 **`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`** (verified Git HEAD before Stage 3 implementation).
 Earlier “Stage 2 pending/unapproved” entries below are historical and superseded by #016.
@@ -14,7 +14,8 @@ Earlier “Stage 2 pending/unapproved” entries below are historical and supers
 - Stage 6 branch: codex/stage-6-safety. Offline backup, verified restore and release checks.
   Preserve the approved accounting contracts and SQLite v4 migrations.
 - See STAGE6_BACKUP_CONTRACT.md for backup format and recovery protocol.
-  Stage 6 and public release require separate founder acceptance.
+  Founder accepted Stage 6 at `4e7077f14caa4305b7c6a48352b8bd29f8b260b2`.
+  Public release remains a separate decision.
 - Stage 5 pending and Stage 6 prohibition notes below are historical.
 
 ## CEO #024 — current product navigation
@@ -714,7 +715,7 @@ For every development task report: implemented work; files changed; tests/comman
 
 ## 12. Current next actions and authorization boundaries
 
-- Review Stage 6 backup, restore and release evidence with the founder.
+- Use the Stage 6 release checklist for any future public release decision.
 - Run destructive tests only on the guarded sandbox AVD with synthetic data.
 - Preserve the founder app and private data. Keep backups and credentials out of Git.
 - The six-stage finance roadmap ends at the Stage 6 acceptance gate.

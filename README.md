@@ -5,9 +5,9 @@ Tasks, shopping and ideas are coming-soon UI only; the finance six-stage roadmap
 Flutter **3.47.9**, bundled Dart **3.13.7**,
 Riverpod, SQLite/Drift; feature-first organization. Preserve `pubspec.lock`.
 
-Stages 1–5 are explicitly accepted. CEO #027 records Stage 5 founder approval
+Stages 1–6 are founder-approved. CEO #027 records Stage 5 founder approval
 at `b271438d2f7b5efe7009e9385a3ddcbff19448d0`.
-Stage 6 backup, restore and release verification await founder acceptance.
+The founder accepted Stage 6 at `4e7077f14caa4305b7c6a48352b8bd29f8b260b2`.
 The Stage 6 contract and review describe the portable backup format, Android
 demo and release prerequisites. [Backup contract](STAGE6_BACKUP_CONTRACT.md)
 [Stage 6 review](STAGE6_REVIEW.md)

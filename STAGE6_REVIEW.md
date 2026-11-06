@@ -1,7 +1,8 @@
 # Stage 6 review
 
 CEO #027 approved Stage 5 at b271438d2f7b5efe7009e9385a3ddcbff19448d0.
-Stage 6 is on codex/stage-6-safety and awaits explicit founder acceptance.
+The founder accepted Stage 6 at `4e7077f14caa4305b7c6a48352b8bd29f8b260b2`
+on `codex/stage-6-safety`. Public release remains a separate decision.
 
 ## Review on Android
 

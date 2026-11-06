@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/presentation/hadgaly_ui.dart';
 import '../application/onboarding_controller.dart';
+import '../../backup/presentation/settings_screen.dart';
 import '../../shell/presentation/product_shell.dart';
 
 class OnboardingScreen extends ConsumerWidget {
@@ -42,6 +43,16 @@ class OnboardingScreen extends ConsumerWidget {
         child: PageContent(
           scrollKey: ValueKey('step-${state.step}'),
           children: [
+            if (state.step == 0)
+              Align(
+                alignment: Alignment.centerRight,
+                child: NavigationIconButton(
+                  label: 'Тохиргоо',
+                  icon: CupertinoIcons.gear,
+                  onPressed: () =>
+                      openPage<void>(context, const SettingsScreen()),
+                ),
+              ),
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerLeft,

@@ -5,12 +5,12 @@ Tasks, shopping and ideas are coming-soon UI only; the finance six-stage roadmap
 Flutter **3.47.9**, bundled Dart **3.13.7**,
 Riverpod, SQLite/Drift; feature-first organization. Preserve `pubspec.lock`.
 
-Stages 1–4 are explicitly accepted. Founder approved Stage 4 on 2026-11-04 at
-`de5ea5d5054b146ae65ad055decc9c2792b0122d` under CEO #020.
-Stage 5 Finance Dashboard & Insights is authorized, pending founder acceptance.
-See STAGE5_FINANCIAL_RULES.md, STAGE5_REPORT_NAVIGATION_022.md and STAGE5_DRAWER_024.md
-for current scope, screenshots and verification.
-No Stage 6, transfers, bank integration or other-module functionality.
+Stages 1–5 are explicitly accepted. CEO #027 records Stage 5 founder approval
+at `b271438d2f7b5efe7009e9385a3ddcbff19448d0`.
+Stage 6 backup, restore and release verification await founder acceptance.
+The Stage 6 contract and review describe the portable backup format, Android
+demo and release prerequisites. [Backup contract](STAGE6_BACKUP_CONTRACT.md)
+[Stage 6 review](STAGE6_REVIEW.md)
 The UI uses Cupertino components, Google Sans Flex + Noto Sans missing-glyph fallback,
 and Midnight Blue/neutral/teal tokens. CEO #024 replaces the bottom tabs with a right-side
 drawer accessed from the upper-right hamburger. Finance is initially selected.

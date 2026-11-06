@@ -1,4 +1,4 @@
-import 'dart:ui' show Tristate;
+import 'dart:ui' show SemanticsAction, Tristate;
 
 import 'package:drift/native.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hadgaly/app.dart';
 import 'package:hadgaly/core/presentation/design_tokens.dart';
+import 'package:hadgaly/core/presentation/hadgaly_ui.dart'
+    show AccessibleDialogAction;
 import 'package:hadgaly/features/onboarding/application/onboarding_controller.dart';
 import 'package:hadgaly/features/onboarding/data/app_database.dart';
 
@@ -30,6 +32,41 @@ void main() {
     await db.completeOnboarding();
   });
   tearDown(() => db.close());
+
+  testWidgets('Restore dialog actions expose a semantic tap at 1.8×', (
+    t,
+  ) async {
+    t.view.physicalSize = const Size(320, 568);
+    t.view.devicePixelRatio = 1;
+    t.platformDispatcher.textScaleFactorTestValue = 1.8;
+    addTearDown(t.view.resetPhysicalSize);
+    addTearDown(t.view.resetDevicePixelRatio);
+    addTearDown(t.platformDispatcher.clearTextScaleFactorTestValue);
+    final semantics = t.ensureSemantics();
+    var confirmed = false;
+    await t.pumpWidget(
+      CupertinoApp(
+        home: CupertinoAlertDialog(
+          title: const Text('Нөөцөөс сэргээх үү?'),
+          actions: [
+            AccessibleDialogAction(
+              label: 'Сэргээх',
+              onPressed: () => confirmed = true,
+            ),
+          ],
+        ),
+      ),
+    );
+    final action = find.bySemanticsLabel('Сэргээх');
+    expect(
+      t.getSemantics(action).getSemanticsData().hasAction(SemanticsAction.tap),
+      isTrue,
+    );
+    await t.tap(action);
+    expect(confirmed, isTrue);
+    semantics.dispose();
+  });
+
   Future<void> mount(WidgetTester t) async {
     await t.pumpWidget(
       ProviderScope(
@@ -102,13 +139,13 @@ void main() {
       expect(find.byKey(const Key('module-3')), findsNothing);
       await tap(t, 'openModuleMenu');
       expect(find.byKey(const Key('moduleDrawer')), findsOneWidget);
-      expect(find.text('Тохиргоо'), findsNothing);
+      expect(find.byKey(const Key('openSettings')), findsOneWidget);
       expect(
         find.descendant(
           of: find.byKey(const Key('moduleDrawer')),
           matching: find.byType(CupertinoButton),
         ),
-        findsNWidgets(5), // Exactly four modules and the close button.
+        findsNWidgets(6), // Four modules, Settings and close.
       );
       expect(
         t
@@ -247,6 +284,15 @@ void main() {
         await tap(t, 'module-$i');
       }
       await tap(t, 'myAccounts');
+      await tap(t, 'openModuleMenu');
+      await tap(t, 'openSettings');
+      expect(find.text('Тохиргоо'), findsOneWidget);
+      await t.ensureVisible(find.byKey(const Key('importBackup')));
+      expect(t.takeException(), isNull);
+      await expectLater(t, meetsGuideline(labeledTapTargetGuideline));
+      await t.binding.handlePopRoute();
+      await t.pumpAndSettle();
+      expect(find.byKey(const Key('addAccount')), findsOneWidget);
       await tap(t, 'addAccount');
       t.view.viewInsets = const FakeViewPadding(bottom: 240);
       await t.pumpAndSettle();

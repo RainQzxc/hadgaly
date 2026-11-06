@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../../core/presentation/hadgaly_ui.dart';
+import '../../backup/presentation/settings_screen.dart';
 import '../../home/presentation/home_screen.dart';
 
 const moduleLabels = ['Хийх зүйл', 'Авах зүйл', 'Санаа', 'Санхүү'];
@@ -54,7 +55,12 @@ class _ProductShellState extends State<ProductShell> {
           child: child,
         ),
       );
-      if (mounted && module != null) select(module);
+      if (!mounted || module == null) return;
+      if (module == moduleLabels.length) {
+        await openPage<void>(context, const SettingsScreen());
+      } else {
+        select(module);
+      }
     } finally {
       _menuOpen = false;
     }
@@ -173,6 +179,30 @@ class _ModuleDrawerState extends State<_ModuleDrawer> {
                               onPressed: () => close(i),
                             ),
                           ],
+                          const SizedBox(height: 16),
+                          const ColoredBox(
+                            color: line,
+                            child: SizedBox(height: 1),
+                          ),
+                          const SizedBox(height: 8),
+                          CupertinoButton(
+                            key: const Key('openSettings'),
+                            minimumSize: const Size(48, 56),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            onPressed: () => close(moduleLabels.length),
+                            child: const Row(
+                              children: [
+                                Icon(CupertinoIcons.gear, color: ink, size: 22),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Тохиргоо',
+                                    style: TextStyle(color: ink),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),

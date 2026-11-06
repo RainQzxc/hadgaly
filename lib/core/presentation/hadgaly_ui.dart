@@ -37,6 +37,34 @@ Future<T?> showActionSheet<T>(BuildContext context, WidgetBuilder builder) =>
       _MotionAwarePopup<T>(builder: builder, reduced: reduceMotion(context)),
     );
 
+/// The Cupertino action's large-text layout omits its semantic tap action.
+class AccessibleDialogAction extends StatelessWidget {
+  const AccessibleDialogAction({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.destructive = false,
+  });
+
+  final String label;
+  final VoidCallback onPressed;
+  final bool destructive;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    excludeSemantics: true,
+    button: true,
+    label: label,
+    onTap: onPressed,
+    child: CupertinoDialogAction(
+      onPressed: onPressed,
+      isDestructiveAction: destructive,
+      child: Text(label),
+    ),
+  );
+}
+
 /// Supplies the shell's menu action to its pages, including nested routes.
 class PageMenu extends InheritedWidget {
   const PageMenu({super.key, required this.onOpen, required super.child});

@@ -7,12 +7,13 @@ export 'core/presentation/hadgaly_ui.dart'
     show ink, secondaryInk, primary, accentSurface, paper;
 
 class HadgalyApp extends StatelessWidget {
-  const HadgalyApp({super.key});
+  const HadgalyApp({super.key, this.home = const OnboardingScreen()});
+  final Widget home;
   @override
-  Widget build(BuildContext context) => const CupertinoApp(
+  Widget build(BuildContext context) => CupertinoApp(
     title: 'Хадгалъя',
     debugShowCheckedModeBanner: false,
-    theme: CupertinoThemeData(
+    theme: const CupertinoThemeData(
       brightness: Brightness.light,
       primaryColor: primary,
       primaryContrastingColor: CupertinoColors.white,
@@ -49,6 +50,6 @@ class HadgalyApp extends StatelessWidget {
         ),
       ),
     ),
-    home: OnboardingScreen(),
+    home: home,
   );
 }

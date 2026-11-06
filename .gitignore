@@ -54,3 +54,4 @@ app.*.map.json
 *.sqlite3-*
 *.db
 *.db-*
+*.hadgaly

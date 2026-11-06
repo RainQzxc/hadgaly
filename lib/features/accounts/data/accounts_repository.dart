@@ -44,7 +44,10 @@ class AccountsRepository {
   final AppDatabase db;
   final int Function() now;
 
-  Future<AccountsSnapshot> snapshot() => db.transaction(() async {
+  Future<AccountsSnapshot> snapshot() => db.transaction(readSnapshot);
+
+  /// Use a transaction on live data. An isolated, immutable backup needs no lock.
+  Future<AccountsSnapshot> readSnapshot() async {
     final profile = await db.select(db.profiles).getSingle();
     final accounts = await (db.select(
       db.accounts,
@@ -88,7 +91,7 @@ class AccountsRepository {
       entries: List.unmodifiable(cash),
       categories: List.unmodifiable(await db.select(db.categories).get()),
     );
-  });
+  }
 
   Stream<AccountsSnapshot> watch() => db
       .customSelect(

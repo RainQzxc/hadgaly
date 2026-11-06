@@ -2,10 +2,20 @@
 
 Last Updated: **2026-11-06, Asia/Ulaanbaatar**
 
-Current status: **Stages 1–4 explicitly approved and COMPLETE. Stage 5 implemented/verified for founder review; not accepted.**
+Current status: **Stages 1–5 explicitly approved and complete. Stage 6 is authorized and pending founder acceptance.**
 CEO #016 founder approval applies to the latest reviewed Stage 2 commit:
 **`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`** (verified Git HEAD before Stage 3 implementation).
 Earlier “Stage 2 pending/unapproved” entries below are historical and superseded by #016.
+
+## CEO #027 — Stage 6 authorization
+
+- Founder explicitly approved Stage 5 at b271438d2f7b5efe7009e9385a3ddcbff19448d0,
+  including compact Finance Home, dedicated Reports and the four-module right drawer.
+- Stage 6 branch: codex/stage-6-safety. Offline backup, verified restore and release checks.
+  Preserve the approved accounting contracts and SQLite v4 migrations.
+- See STAGE6_BACKUP_CONTRACT.md for backup format and recovery protocol.
+  Stage 6 and public release require separate founder acceptance.
+- Stage 5 pending and Stage 6 prohibition notes below are historical.
 
 ## CEO #024 — current product navigation
 
@@ -704,28 +714,8 @@ For every development task report: implemented work; files changed; tests/comman
 
 ## 12. Current next actions and authorization boundaries
 
-1. Stages 1–4 are accepted. Founder explicitly approved Stage 4 on 2026-11-04 at
-   de5ea5d5054b146ae65ad055decc9c2792b0122d under CEO #020.
-2. Stage 5 only: current all-account balance, monthly income/expense/net, real expense
-   category shares, prior-calendar-month comparisons and compact account summary.
-   STAGE5_FINANCIAL_RULES.md extends the existing rules without changing ledger semantics.
-3. Reuse the coherent AccountsSnapshot/latest non-deleted revisions, stored local dates
-   and current category taxonomy, including archived references. All sums use BigInt.
-   Schema remains v4. Preserve all accounts/profiles/cash/revisions/sequences/anchors/audits.
-4. Synthetic integration tests use verified sandbox APKs and Hadgaly_Stage2_Disposable only.
-   Never uninstall/clear/wipe founder production. The production demo runner preserves
-   private DB/sidecars first, checks actual APK identity, install -r updates and compares
-   all records/current balances plus actual rendered UI. No automatic restore fallback.
-5. Keep Flutter 3.47.9 / Dart 3.13.7, fonts/tokens/lockfile and six-stage roadmap unchanged.
-6. Prior incident data was not recovered. The approved fresh start and subsequently
-   entered founder data are separate; preserve that current real data exactly.
-7. Stop at Stage 5 review: tests + interactive Android + explicit founder approval.
-   No Stage 6, recurrence, transfers, budgets, advanced reports or non-finance modules.
-
-## INSTRUCTIONS FOR THE NEXT CODEX SESSION
-
-Current authorization is Stage 5 only. Stage 4 approval is explicit. Read the Stage 5
-rules/review before acting; historical Stage 4 pending/no-Stage5 text is superseded.
-Preserve unrelated untracked downloads in assets/logo; do not execute or commit them.
-Report in Mongolian, exact tested commit/results and honest verification limitations.
-Stage 5 remains pending founder acceptance regardless of tests/build success.
+- Review Stage 6 backup, restore and release evidence with the founder.
+- Run destructive tests only on the guarded sandbox AVD with synthetic data.
+- Preserve the founder app and private data. Keep backups and credentials out of Git.
+- The six-stage finance roadmap ends at the Stage 6 acceptance gate.
+- Preserve unrelated untracked downloads in assets/logo.

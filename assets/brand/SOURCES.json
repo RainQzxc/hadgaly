@@ -1,0 +1,6 @@
+{
+  "source": "../logo/810d3772-6ef2-40c3-af89-e8b40db5c186.png",
+  "sha256": "3bbb3082263056e62a71f303fca289f43268b8937c1eb792d0ce0b277612b7db",
+  "origin": "Founder-supplied original; authorized symbol-only launcher icon and horizontal wordmark. No third-party logo or font file.",
+  "packaging": "tool/generate_brand_assets.ps1; crop and high-quality resize only. Originals unchanged; unrelated user images excluded from app assets."
+}

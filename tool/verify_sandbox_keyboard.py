@@ -24,7 +24,8 @@ adb = str(sdk / 'platform-tools/adb.exe')
 package = 'mn.hadgaly.hadgaly.sandbox'
 device = 'emulator-5556'
 apk = Path(sys.argv[1]).resolve()
-output = Path('build/stage5/report-ime') / time.strftime('%Y%m%d-%H%M%S')
+drawer_check = '--drawer-screenshots' in sys.argv[2:]
+output = Path('build/stage5', 'drawer-ime' if drawer_check else 'report-ime') / time.strftime('%Y%m%d-%H%M%S')
 output.mkdir(parents=True, exist_ok=False)
 
 def command(*args):
@@ -154,8 +155,81 @@ def capture_report(suffix):
     command('shell', 'input', 'keyevent', '4')
     find_node(lambda n: label(n) == 'Санхүүгийн тайлан' and n.attrib.get('clickable') == 'true', True)
 
-capture_report('')
-if '--report-screenshots' in sys.argv[2:]:
+def capture_drawer(suffix):
+    def menu_closed():
+        # The modal excludes the underlying toolbar from Android's UI tree.
+        find_node(lambda n: label(n) == 'Цэс нээх' and n.attrib.get('clickable') == 'true')
+
+    restart_home()
+    menu_closed()
+    screenshot(f'drawer-closed{suffix}')
+    tap('Цэс нээх')
+    modules = ('Хийх зүйл', 'Авах зүйл', 'Санаа', 'Санхүү')
+    finance = find_node(lambda n: label(n) == 'Санхүү' and n.attrib.get('selected') == 'true')
+    visible_labels = {label(n) for n in snapshot().iter('node')}
+    assert set(modules) | {'Цэс', 'Цэс хаах'} <= visible_labels
+    assert 'Тохиргоо' not in visible_labels
+    screenshot(f'drawer-open{suffix}')
+
+    sizes = re.findall(r'(\d+)x(\d+)', command('shell', 'wm', 'size').decode())
+    width, height = map(int, sizes[-1])
+    x1, _, x2, _ = bounds(finance)
+    # The scrim must consume this tap and leave Finance selected.
+    command('shell', 'input', 'tap', str(x1//3), str(height//2))
+    menu_closed()
+    tap('Цэс нээх')
+    close = find_node(lambda n: label(n) == 'Цэс хаах'
+                      and bounds(n)[0] >= x1)
+    a, b, c, d = bounds(close)
+    command('shell', 'input', 'tap', str((a+c)//2), str((b+d)//2))
+    menu_closed()
+    tap('Цэс нээх')
+    command('shell', 'input', 'swipe', str((x1+x2)//2), str(height*2//3),
+            str(width-32), str(height*2//3), '250')
+    menu_closed()
+
+    tap('Санхүүгийн тайлан', True)
+    find_node(lambda n: label(n) == 'Цэвэр: −2 ₮', True)
+    tap('Цэс нээх')
+    command('shell', 'input', 'keyevent', '4')
+    menu_closed()
+    find_node(lambda n: label(n) == 'Цэвэр: −2 ₮', True)
+    for name in modules[:3]:
+        tap('Цэс нээх')
+        tap(name)
+        find_node(lambda n: label(n) == 'Тун удахгүй')
+    tap('Цэс нээх')
+    tap('Санхүү')
+    find_node(lambda n: label(n) == 'Цэвэр: −2 ₮', True)
+    command('shell', 'input', 'keyevent', '4')
+    menu_closed()
+    # The underlying Home intentionally retains its scroll position at the report
+    # row, so the donut may be above the viewport on a small display.
+    balance = 'Бүх дансны одоогийн нийт үлдэгдэл: −2 ₮'
+    find_node(lambda n: label(n) == balance)
+
+    # Open the drawer while a real keyboard and unsaved transaction form are active.
+    tap('Орлого нэмэх', True)
+    field = find_node(lambda n: 'Мөнгөн дүн' in label(n)
+                      and n.attrib.get('class') == 'android.widget.EditText')
+    a, b, c, d = bounds(field)
+    command('shell', 'input', 'tap', str((a+c)//2), str((b+d)//2))
+    time.sleep(0.5)
+    command('shell', 'input', 'text', '42')
+    tap('Цэс нээх')
+    tap('Санаа')
+    tap('Цэс нээх')
+    tap('Санхүү')
+    find_node(lambda n: n.attrib.get('class') == 'android.widget.EditText'
+              and n.attrib.get('text') == '42')
+    tap('Буцах')
+    find_node(lambda n: label(n) == balance)
+    print(f'PASS: Android drawer{suffix}: four modules, outside/close/swipe/Back, report and IME draft retained', flush=True)
+
+
+capture = capture_drawer if drawer_check else capture_report
+capture('')
+if drawer_check or '--report-screenshots' in sys.argv[2:]:
     # Only run on the already verified disposable AVD with standard metrics.
     assert 'Override' not in command('shell', 'wm', 'size').decode()
     assert 'Override' not in command('shell', 'wm', 'density').decode()
@@ -164,7 +238,7 @@ if '--report-screenshots' in sys.argv[2:]:
         command('shell', 'wm', 'size', '640x1136')
         command('shell', 'wm', 'density', '320')
         command('shell', 'settings', 'put', 'system', 'font_scale', '1.8')
-        capture_report('-large-text')
+        capture('-large-text')
     finally:
         command('shell', 'settings', 'put', 'system', 'font_scale', original_scale)
         command('shell', 'wm', 'size', 'reset')

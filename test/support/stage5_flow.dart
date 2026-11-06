@@ -47,7 +47,12 @@ Future<void> verifyStage5Flow(WidgetTester t, AppDatabase db) async {
   final homeReport = container.read(dashboardProvider).requireValue.report;
   await tapStage3(t, 'reportAction');
   await waitStage3(t, find.byType(ReportScreen));
-  expect(find.byKey(const Key('module-3')), findsOneWidget);
+  await tapStage3(t, 'openModuleMenu');
+  expect(find.byKey(const Key('moduleDrawer')), findsOneWidget);
+  await t.binding.handlePopRoute();
+  await t.pumpAndSettle();
+  expect(find.byKey(const Key('moduleDrawer')), findsNothing);
+  expect(find.byType(ReportScreen), findsOneWidget);
   expect(
     container.read(dashboardProvider).requireValue.report,
     same(homeReport),
@@ -172,6 +177,7 @@ Future<void> verifyStage5Flow(WidgetTester t, AppDatabase db) async {
   await t.binding.handlePopRoute();
   await t.pumpAndSettle();
   for (var i = 0; i < 3; i++) {
+    await tapStage3(t, 'openModuleMenu');
     await tapStage3(t, 'module-$i');
     expect(find.text('Тун удахгүй'), findsOneWidget);
   }

@@ -37,6 +37,47 @@ Future<T?> showActionSheet<T>(BuildContext context, WidgetBuilder builder) =>
       _MotionAwarePopup<T>(builder: builder, reduced: reduceMotion(context)),
     );
 
+/// Supplies the shell's menu action to its pages, including nested routes.
+class PageMenu extends InheritedWidget {
+  const PageMenu({super.key, required this.onOpen, required super.child});
+  final VoidCallback onOpen;
+
+  static VoidCallback? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<PageMenu>()?.onOpen;
+
+  @override
+  bool updateShouldNotify(PageMenu oldWidget) => onOpen != oldWidget.onOpen;
+}
+
+class NavigationIconButton extends StatelessWidget {
+  const NavigationIconButton({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    label: label,
+    button: true,
+    onTap: onPressed,
+    child: ExcludeSemantics(
+      child: CupertinoButton(
+        minimumSize: const Size.square(48),
+        padding: EdgeInsets.zero,
+        onPressed: onPressed,
+        child: Icon(icon, size: 24),
+      ),
+    ),
+  );
+}
+
 /// Cupertino structure with an Android toolbar sized for 48dp targets and scaled text.
 class HadgalyPage extends StatelessWidget {
   const HadgalyPage({
@@ -81,6 +122,21 @@ class HadgalyPage extends StatelessWidget {
             ),
           )
         : const SizedBox(width: 48);
+    final openMenu = PageMenu.maybeOf(context);
+    final pageTrailing = openMenu == null
+        ? trailing
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ?trailing,
+              NavigationIconButton(
+                key: const Key('openModuleMenu'),
+                label: 'Цэс нээх',
+                icon: CupertinoIcons.line_horizontal_3,
+                onPressed: openMenu,
+              ),
+            ],
+          );
     final ObstructingPreferredSizeWidget bar;
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       bar = CupertinoNavigationBar(
@@ -92,9 +148,9 @@ class HadgalyPage extends StatelessWidget {
               ? const BrandWordmark()
               : Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
         ),
-        trailing: trailing == null
+        trailing: pageTrailing == null
             ? null
-            : MediaQuery(data: MediaQuery.of(context), child: trailing!),
+            : MediaQuery(data: MediaQuery.of(context), child: pageTrailing),
         backgroundColor: paper,
         border: const Border(bottom: BorderSide(color: line, width: 0.5)),
         transitionBetweenRoutes: false,
@@ -104,7 +160,7 @@ class HadgalyPage extends StatelessWidget {
         textScaler: MediaQuery.textScalerOf(context),
         title: title,
         leading: leading,
-        trailing: trailing,
+        trailing: pageTrailing,
       );
     }
     return CupertinoPageScaffold(

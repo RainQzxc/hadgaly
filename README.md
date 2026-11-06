@@ -1,17 +1,19 @@
 # Хадгалъя · Hadgaly
 
 Modular personal organization vision; **only offline-first, manual-entry finance is active now**.
-Tasks, shopping and ideas tabs are coming-soon UI only; the finance six-stage roadmap is unchanged.
+Tasks, shopping and ideas are coming-soon UI only; the finance six-stage roadmap is unchanged.
 Flutter **3.47.9**, bundled Dart **3.13.7**,
 Riverpod, SQLite/Drift; feature-first organization. Preserve `pubspec.lock`.
 
 Stages 1–4 are explicitly accepted. Founder approved Stage 4 on 2026-11-04 at
 `de5ea5d5054b146ae65ad055decc9c2792b0122d` under CEO #020.
 Stage 5 Finance Dashboard & Insights is authorized, pending founder acceptance.
-See STAGE5_FINANCIAL_RULES.md and STAGE5_REPORT_NAVIGATION_022.md for current scope/verification.
+See STAGE5_FINANCIAL_RULES.md, STAGE5_REPORT_NAVIGATION_022.md and STAGE5_DRAWER_024.md
+for current scope, screenshots and verification.
 No Stage 6, transfers, bank integration or other-module functionality.
-Latest CEO #011 UI uses Cupertino components, Google Sans Flex + Noto Sans missing-glyph fallback,
-Midnight Blue/neutral/teal tokens and a persistent four-tab shell. Finance initially selected.
+The UI uses Cupertino components, Google Sans Flex + Noto Sans missing-glyph fallback,
+and Midnight Blue/neutral/teal tokens. CEO #024 replaces the bottom tabs with a right-side
+drawer accessed from the upper-right hamburger. Finance is initially selected.
 See `STAGE2_DESIGN_NAV_REVIEW.md` for current UI/accessibility/data-preservation results.
 Latest Home layout supersedes the earlier default-account card: see `STAGE2_HOME_REVIEW.md`.
 Home keeps the expense-category donut/current-month income, combined current balance and quick actions.

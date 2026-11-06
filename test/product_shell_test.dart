@@ -47,6 +47,11 @@ void main() {
     await t.pumpAndSettle();
   }
 
+  Future<void> chooseModule(WidgetTester t, int module) async {
+    await tap(t, 'openModuleMenu');
+    await tap(t, 'module-$module');
+  }
+
   Future<void> finish(WidgetTester t) async {
     await t.pumpWidget(const SizedBox());
     await t.pumpAndSettle();
@@ -94,6 +99,17 @@ void main() {
     (t) async {
       final semantics = t.ensureSemantics();
       await mount(t);
+      expect(find.byKey(const Key('module-3')), findsNothing);
+      await tap(t, 'openModuleMenu');
+      expect(find.byKey(const Key('moduleDrawer')), findsOneWidget);
+      expect(find.text('Тохиргоо'), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('moduleDrawer')),
+          matching: find.byType(CupertinoButton),
+        ),
+        findsNWidgets(5), // Exactly four modules and the close button.
+      );
       expect(
         t
             .getSemantics(find.bySemanticsLabel('Санхүү'))
@@ -106,7 +122,16 @@ void main() {
         await tap(t, 'module-$i');
         expect(find.text('Тун удахгүй'), findsOneWidget);
         expect(find.byKey(const Key('homeBalance')), findsNothing);
-        expect(find.byKey(const Key('module-3')), findsOneWidget);
+        await tap(t, 'openModuleMenu');
+        final label = ['Хийх зүйл', 'Авах зүйл', 'Санаа'][i];
+        expect(
+          t
+              .getSemantics(find.bySemanticsLabel(label).last)
+              .getSemanticsData()
+              .flagsCollection
+              .isSelected,
+          Tristate.isTrue,
+        );
       }
       await tap(t, 'module-3');
       expect(
@@ -122,16 +147,16 @@ void main() {
   );
 
   testWidgets(
-    'Persistent tabs preserve finance navigation and unsaved form; system Back is local',
+    'Module switches preserve finance navigation and unsaved form; Back is local',
     (t) async {
       await mount(t);
       await tap(t, 'myAccounts');
-      expect(find.byKey(const Key('module-0')), findsOneWidget);
+      expect(find.byKey(const Key('openModuleMenu')), findsOneWidget);
       await tap(t, 'addAccount');
       await t.enterText(find.byKey(const Key('accountName')), 'Өдрийн төсөв');
       t.testTextInput.hide();
       await t.pumpAndSettle();
-      await tap(t, 'module-0');
+      await chooseModule(t, 0);
       await t.binding.handlePopRoute();
       await t.pumpAndSettle();
       expect(find.byKey(const Key('accountName')), findsOneWidget);
@@ -154,7 +179,51 @@ void main() {
   );
 
   testWidgets(
-    '320dp and 1.8x text keep all four tabs labeled, safe and reachable',
+    'Right drawer closes by outside tap, close, Android Back and swipe',
+    (t) async {
+      final semantics = t.ensureSemantics();
+      await mount(t);
+      await tap(t, 'myAccounts');
+      final drawer = find.byKey(const Key('moduleDrawer'));
+      final page = find.byKey(const Key('addAccount'));
+
+      await tap(t, 'openModuleMenu');
+      expect(find.bySemanticsLabel('Цэс'), findsOneWidget);
+      final close = t.getSemantics(find.bySemanticsLabel('Цэс хаах'));
+      expect(close.rect.size, const Size.square(48));
+      expect(
+        t.getTopRight(drawer).dx,
+        t.view.physicalSize.width / t.view.devicePixelRatio,
+      );
+      expect(t.getTopLeft(drawer).dx, greaterThan(0));
+      expect(page.hitTestable(), findsNothing);
+      await t.tapAt(Offset(16, t.getCenter(drawer).dy));
+      await t.pumpAndSettle();
+      expect(drawer, findsNothing);
+      expect(page, findsOneWidget);
+
+      await tap(t, 'openModuleMenu');
+      await tap(t, 'closeModuleMenu');
+      expect(drawer, findsNothing);
+
+      await tap(t, 'openModuleMenu');
+      await t.binding.handlePopRoute();
+      await t.pumpAndSettle();
+      expect(drawer, findsNothing);
+      expect(page, findsOneWidget);
+
+      await tap(t, 'openModuleMenu');
+      await t.drag(drawer, const Offset(144, 0));
+      await t.pumpAndSettle();
+      expect(drawer, findsNothing);
+      expect(page, findsOneWidget);
+      semantics.dispose();
+      await finish(t);
+    },
+  );
+
+  testWidgets(
+    '320dp and 1.8x text keep all four drawer modules labeled, safe and reachable',
     (t) async {
       t.view.physicalSize = const Size(320, 568);
       t.view.devicePixelRatio = 1;
@@ -167,24 +236,27 @@ void main() {
       final semantics = t.ensureSemantics();
       await mount(t);
       for (var i = 0; i < 4; i++) {
+        await tap(t, 'openModuleMenu');
         final tab = find.byKey(Key('module-$i'));
         expect(t.getBottomRight(tab).dy, lessThanOrEqualTo(544));
-        await tap(t, 'module-$i');
+        expect(t.getTopLeft(tab).dy, greaterThanOrEqualTo(24));
         expect(t.takeException(), isNull);
         await expectLater(t, meetsGuideline(androidTapTargetGuideline));
         await expectLater(t, meetsGuideline(labeledTapTargetGuideline));
         await expectLater(t, meetsGuideline(textContrastGuideline));
+        await tap(t, 'module-$i');
       }
       await tap(t, 'myAccounts');
       await tap(t, 'addAccount');
       t.view.viewInsets = const FakeViewPadding(bottom: 240);
       await t.pumpAndSettle();
-      expect(find.byKey(const Key('module-3')), findsNothing);
+      await tap(t, 'openModuleMenu');
+      await tap(t, 'closeModuleMenu');
       await t.ensureVisible(find.byKey(const Key('accountSave')));
       expect(t.takeException(), isNull);
       t.view.resetViewInsets();
       await t.pumpAndSettle();
-      expect(find.byKey(const Key('module-3')), findsOneWidget);
+      expect(find.byKey(const Key('openModuleMenu')), findsOneWidget);
       semantics.dispose();
       await finish(t);
     },

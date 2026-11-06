@@ -1,11 +1,28 @@
 # HADGALY — PROJECT CONTEXT
 
-Last Updated: **2026-11-05, Asia/Ulaanbaatar**
+Last Updated: **2026-11-06, Asia/Ulaanbaatar**
 
 Current status: **Stages 1–4 explicitly approved and COMPLETE. Stage 5 implemented/verified for founder review; not accepted.**
 CEO #016 founder approval applies to the latest reviewed Stage 2 commit:
 **`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`** (verified Git HEAD before Stage 3 implementation).
 Earlier “Stage 2 pending/unapproved” entries below are historical and superseded by #016.
+
+## CEO #024 — current product navigation
+
+- Founder approved the right-side drawer design. Stage 5 implementation remains pending
+  explicit founder acceptance; Stage 6 is not started.
+- The upper-right hamburger replaces the four bottom tabs. From right to left it opens a
+  dimmed modal with exactly Хийх зүйл, Авах зүйл, Санаа and Санхүү. Soft Teal marks the
+  selected module; Finance initially opens. The other modules are coming-soon only.
+- Close with the X, outside tap, Android Back or a right swipe inside the drawer. Android
+  system edge gestures remain available. Opening the menu dismisses the keyboard while
+  keeping unsaved form text. Switching modules retains the Finance navigation stack.
+- The approved logo, colors and fonts stay in place. Finance Home, quick entry, History,
+  My Accounts, Reports, accounting code, schema v4, migrations and dependencies are unchanged.
+- Verified 139 unit/widget cases, guarded Android regressions, and real drawer gestures
+  with normal and 320dp/1.8× layouts. Main v4→v4 update preserved records and balances.
+- See STAGE5_DRAWER_024.md for native screenshots, safety checks and demo commands.
+  Earlier bottom-tab references describe historical versions.
 
 ## CEO #022 — latest Stage 5 navigation decision
 
@@ -216,7 +233,7 @@ This document is the consolidated source of truth for a new Codex conversation w
 ## 1. Product vision and identity
 
 - Official name: **Hadgaly**, associated with **Хадгалъя**. Earlier spelling “Hadgalay” is obsolete.
-- Future vision: modular personal organization app across **Tasks, Shopping lists, Ideas/notes, Finance**. Only manual-entry, offline-first finance is functionally active in the approved current stages, inspired by **Monefy**. Other tabs are explicit coming-soon surfaces; no non-finance data models or persistence.
+- Future vision: modular personal organization app across **Tasks, Shopping lists, Ideas/notes, Finance**. Only manual-entry, offline-first finance is functionally active in the approved current stages, inspired by **Monefy**. Other modules are explicit coming-soon surfaces; no non-finance data models or persistence.
 - Philosophy: **Simple Yet Effective**. Avoid accounting-like complexity and speculative features.
 - Strict priority order: **1. Fast transaction entry; 2. Simple, delightful UX; 3. Correct and reliable financial calculations.** Correctness remains mandatory; speed never authorizes incorrect calculations.
 - Proposed slogan, not approved: “Ухаалгаар зарцуулж, зорилготой хадгалъя.”
@@ -315,7 +332,7 @@ Six reference PNGs were visually examined in chat: dashboard, expense entry, his
 
 **Their presence on disk/Git is unverified; do not claim they are committed.** Original Monefy screen recording is not in the handoff.
 
-Visual direction: light neutral surfaces, midnight typography/primary controls, teal highlights and rose expense accents; rounded components, subtle separators, restrained motion/elevation. Do not invent category proportions or copy a central `+` at the expense of distinct `+` / `−` finance actions. Four product tabs are the current approved navigation; future module functionality requires separate authorization.
+Visual direction: light neutral surfaces, midnight typography/primary controls, teal highlights and rose expense accents; rounded components, subtle separators, restrained motion/elevation. Do not invent category proportions or copy a central `+` at the expense of distinct `+` / `−` finance actions. The right-side drawer is the current approved navigation design; future module functionality requires separate authorization.
 
 Mockup contradictions are examples, not requirements:
 

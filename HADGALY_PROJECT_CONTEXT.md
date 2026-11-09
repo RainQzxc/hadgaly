@@ -1,11 +1,20 @@
 # HADGALY — PROJECT CONTEXT
 
-Last Updated: **2026-11-06, Asia/Ulaanbaatar**
+Last Updated: **2026-11-09, Asia/Ulaanbaatar**
 
 Current status: **Stages 1–6 are founder-approved and complete.**
 CEO #016 founder approval applies to the latest reviewed Stage 2 commit:
 **`816af0e67bb92736ae1c887af9a2f5d2ab45dadc`** (verified Git HEAD before Stage 3 implementation).
 Earlier “Stage 2 pending/unapproved” entries below are historical and superseded by #016.
+
+## CEO #029 — Web/PWA
+
+- Web/PWA review branch `codex/web-pwa` preserves the approved Android Finance MVP and the subsequent `c721fe3` history. Web acceptance and public release are pending.
+- Web reuses the Flutter Finance UI, integer MNT ledger, SQLite v4 schema and migrations. Browser data lives in a separate Drift worker / IndexedDB SQLite database. One live finance tab per origin is allowed.
+- The app shell, fonts and SQLite WASM are cached for offline startup. Browser Settings offers `.hadgaly` v1 export, validated restore and a previous-generation export.
+- No cloud sync. Data is specific to the browser profile and origin. Clearing or eviction can remove browser data, so export periodic backups.
+- Build, installation and review instructions are in [WEB_PWA_DEPLOYMENT.md](WEB_PWA_DEPLOYMENT.md). See [architecture](WEB_PWA_ARCHITECTURE.md), [backup compatibility](WEB_BACKUP_COMPATIBILITY.md) and [test evidence](WEB_PWA_TEST_REPORT.md).
+- Real iPhone Safari and Home Screen verification await an accessible HTTPS preview. Public production deployment remains a founder decision.
 
 ## CEO #027 — Stage 6 authorization
 

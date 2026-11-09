@@ -11,3 +11,11 @@
 # Preserve upstream notice bytes/hashes, including upstream whitespace.
 assets/fonts/*-OFL.txt -text -whitespace
 assets/fonts/*-TRADEMARKS.md -text -whitespace
+
+# Keep pinned web artifacts and license notices byte-for-byte across checkouts.
+web/drift_worker.js -text
+web/sqlite3.wasm binary
+*.woff2 binary
+web/font-fallback/**/OFL.txt -text -whitespace
+web/font-fallback/OFL.txt -text -whitespace
+web/vendor-notices/*.txt -text -whitespace

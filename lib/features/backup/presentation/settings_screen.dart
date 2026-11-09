@@ -1,13 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../../core/presentation/hadgaly_ui.dart';
 import '../../onboarding/application/onboarding_controller.dart';
-import '../data/backup_service.dart';
+import '../data/platform_backup.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -17,7 +13,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  static const _files = MethodChannel('hadgaly/backup_files');
   bool _busy = false;
   bool _queued = false;
   String? _message;
@@ -28,31 +23,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       _busy = true;
       _message = null;
     });
-    Directory? work;
     try {
-      final cache = await getTemporaryDirectory();
-      work = await cache.createTemp('hadgaly-backup-');
-      final transfer = File.fromUri(work.uri.resolve('transfer.hadgaly'));
-      final image = File.fromUri(work.uri.resolve('image.sqlite'));
-      final service = BackupService(await getApplicationDocumentsDirectory());
+      final db = ref.read(databaseProvider);
       if (saving) {
-        await service.export(ref.read(databaseProvider), image, transfer);
-        if (await _files.invokeMethod<bool>('save', transfer.path) == true &&
-            mounted) {
+        if (await exportBackup(db) && mounted) {
           setState(() => _message = 'Нөөц файл хадгалагдлаа.');
         }
       } else {
-        if (await _files.invokeMethod<bool>('open', transfer.path) != true) {
-          return;
-        }
-        final preview = await service.inspect(transfer, image);
-        if (!mounted || !await _confirm(preview) || !mounted) return;
-        await service.stage(image);
-        if (!mounted) return;
-        setState(() => _queued = true);
-        // Settings covers Finance, so its stream listeners can be paused.
-        // Close the SQLite executor now. Engine teardown disposes the streams.
-        await ref.read(databaseProvider).executor.close();
+        final staged = await importBackup(
+          db,
+          (preview) async => mounted && await _confirm(preview) && mounted,
+        );
+        if (staged && mounted) setState(() => _queued = true);
       }
     } catch (_) {
       if (mounted && !_queued) {
@@ -63,11 +45,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       }
     } finally {
-      try {
-        await work?.delete(recursive: true);
-      } on FileSystemException {
-        // Scratch files stay in the app-private cache if cleanup fails.
-      }
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _exportRollback() async {
+    setState(() => _busy = true);
+    try {
+      await exportRollback();
+      if (mounted) setState(() => _message = 'Өмнөх өгөгдлийн нөөцийг татлаа.');
+    } catch (_) {
+      if (mounted) setState(() => _message = 'Өмнөх нөөцийг татаж чадсангүй.');
+    } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
@@ -112,18 +101,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     child: HadgalyPage(
       title: 'Тохиргоо',
       backEnabled: !_busy && !_queued,
+      menuEnabled: !_busy && !_queued,
       child: PageContent(
         children: [
           if (_queued) ...[
             const Text('Нөөц сэргээхэд бэлэн', style: sectionStyle),
             const SizedBox(height: 8),
-            const Text('Аппыг хаагаад дахин нээнэ үү.'),
+            Text(restartInstructions),
             const SizedBox(height: 16),
             HadgalyButton(
-              label: 'Аппыг хаах',
-              onPressed: _busy
-                  ? null
-                  : () => _files.invokeMethod<void>('closeForRestore'),
+              label: restartLabel,
+              onPressed: _busy ? null : restartForRestore,
             ),
           ] else ...[
             const Text('Нөөц ба сэргээх', style: sectionStyle),
@@ -131,6 +119,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const Text(
               'Нөөц файлд таны санхүүгийн мэдээлэл орно. Файл шифрлэгдээгүй тул итгэлтэй газарт хадгалаарай.',
             ),
+            if (storageGuidance case final guidance?) ...[
+              const SizedBox(height: 12),
+              Semantics(liveRegion: true, child: Text(guidance)),
+            ],
             const SizedBox(height: 16),
             HadgalyButton(
               key: const Key('exportBackup'),
@@ -146,6 +138,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               icon: CupertinoIcons.arrow_up_doc,
               onPressed: _busy ? null : () => _transfer(saving: false),
             ),
+            if (hasRollback)
+              HadgalyButton(
+                label: 'Өмнөх өгөгдлийн нөөцийг татах',
+                filled: false,
+                onPressed: _busy ? null : _exportRollback,
+              ),
             if (_busy) const CupertinoActivityIndicator(),
             if (_message case final message?) ...[
               const SizedBox(height: 8),

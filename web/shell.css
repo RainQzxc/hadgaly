@@ -1,0 +1,20 @@
+html, body {
+  margin: 0;
+  background: #f5f6f8;
+  color: #14243e;
+  font-family: system-ui, sans-serif;
+}
+#boot-status {
+  padding: max(1.5rem, env(safe-area-inset-top)) 1.5rem 1.5rem;
+}
+body:has(flutter-view) #boot-status {
+  display: none;
+}
+
+#safe-area-probe {
+  position: fixed;
+  visibility: hidden;
+  pointer-events: none;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+}

@@ -1,29 +1,35 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'app.dart';
 import 'core/presentation/font_licenses.dart';
 import 'core/presentation/hadgaly_ui.dart';
-import 'features/backup/data/backup_service.dart';
+import 'core/presentation/viewport.dart';
+import 'features/backup/data/platform_backup.dart';
+import 'features/onboarding/application/onboarding_controller.dart';
 import 'features/onboarding/presentation/onboarding_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   registerFontLicenses();
+  enablePlatformSemantics();
   try {
-    final directory = await getApplicationDocumentsDirectory();
-    final outcome = await BackupService(directory).applyPending();
-    runApp(ProviderScope(child: HadgalyApp(home: _RestoreNotice(outcome))));
-  } catch (_) {
+    final (:db, :outcome) = await initializePlatform();
     runApp(
-      const HadgalyApp(
+      ProviderScope(
+        overrides: [if (db != null) databaseProvider.overrideWithValue(db)],
+        child: HadgalyApp(home: _RestoreNotice(outcome)),
+      ),
+    );
+  } catch (error) {
+    runApp(
+      HadgalyApp(
         home: HadgalyPage(
           title: 'хадгалъя',
           child: PageContent(
             children: [
               Text(
-                'Өгөгдлийг нээх боломжгүй байна. Аппыг хаагаад дахин оролдоно уу.',
+                error is StorageStartupError ? error.message : 'Өгөгдлийг нээх боломжгүй байна. Аппыг хаагаад дахин оролдоно уу.',
               ),
             ],
           ),

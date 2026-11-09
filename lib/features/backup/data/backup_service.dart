@@ -10,22 +10,14 @@ import 'package:sqlite3/sqlite3.dart';
 import '../../accounts/data/accounts_repository.dart';
 import '../../onboarding/data/app_database.dart';
 import 'backup_validation.dart';
+import 'backup_types.dart';
+
+export 'backup_types.dart';
 
 const _maxImage = 64 * 1024 * 1024;
 const _headerSize = 40;
 final _magic = ascii.encode('HADGALY1');
 const _pendingPrefix = 'restore-ready-';
-
-enum RestoreOutcome { none, restored, rejected }
-
-typedef BackupPreview = ({
-  int accounts,
-  int entries,
-  int revisions,
-  int adjustments,
-  int audits,
-  BigInt balance,
-});
 
 class BackupService {
   BackupService(this.directory);

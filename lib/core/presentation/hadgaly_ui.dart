@@ -114,12 +114,14 @@ class HadgalyPage extends StatelessWidget {
     required this.child,
     this.onBack,
     this.backEnabled = true,
+    this.menuEnabled = true,
     this.trailing,
   });
   final String title;
   final Widget child;
   final VoidCallback? onBack;
   final bool backEnabled;
+  final bool menuEnabled;
   final Widget? trailing;
   @override
   Widget build(BuildContext context) {
@@ -150,7 +152,7 @@ class HadgalyPage extends StatelessWidget {
             ),
           )
         : const SizedBox(width: 48);
-    final openMenu = PageMenu.maybeOf(context);
+    final openMenu = menuEnabled ? PageMenu.maybeOf(context) : null;
     final pageTrailing = openMenu == null
         ? trailing
         : Row(

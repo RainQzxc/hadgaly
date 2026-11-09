@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import 'core/presentation/hadgaly_ui.dart';
+import 'core/presentation/viewport.dart';
 import 'features/onboarding/presentation/onboarding_screen.dart';
 
 export 'core/presentation/hadgaly_ui.dart'
@@ -50,6 +51,7 @@ class HadgalyApp extends StatelessWidget {
         ),
       ),
     ),
+    builder: (context, child) => platformViewport(context, child!),
     home: home,
   );
 }

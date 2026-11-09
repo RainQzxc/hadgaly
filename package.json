@@ -1,0 +1,12 @@
+{
+  "name": "hadgaly-web-checks",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:web": "node tool/build-web.mjs",
+    "test:web": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0"
+  }
+}

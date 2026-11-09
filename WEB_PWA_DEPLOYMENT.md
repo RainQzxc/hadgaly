@@ -15,9 +15,19 @@ node tool/serve-web.mjs
 
 Chrome эсвэл Edge дээр [локал демо](http://127.0.0.1:4173)-г нээнэ. `127.0.0.1` зөвхөн тухайн компьютероос нээгдэнэ. iPhone дээр туршихад утаснаас нээгдэх хүчинтэй HTTPS хаяг шаардлагатай.
 
+## Clerk Development нэвтрэлт
+
+Clerk Dashboard-ийн сонгосон аппын **Development → API Keys** хэсгээс `pk_test_` Publishable Key-г авна. PowerShell-ийн тухайн сессэд `$env:HADGALY_CLERK_PUBLISHABLE_KEY` болгож тохируулаад `npm run build:web` ажиллуулна. **Тохиргоо → Clerk бүртгэл** нь Clerk-ийн hosted нэвтрэх, бүртгүүлэх хуудсыг нээнэ. Түлхүүргүй build-д энэ үйлдэл харагдахгүй.
+
+Нэвтрэлт онлайн шаарддаг. Санхүүгийн хэсэг браузерт офлайнаар ажиллана. Clerk session нь локал SQLite өгөгдөлд эрхийн түгжээ болохгүй. MongoDB болон үүлэн синк тусдаа ажил.
+
+Vercel дээр **Settings → Environment Variables** хэсэгт `HADGALY_CLERK_PUBLISHABLE_KEY`-г **Preview** орчинд нэмээд дахин build хийнэ. Энэ туршилтын интеграц `pk_test_` түлхүүртэй. `CLERK_SECRET_KEY` эсвэл MongoDB нууц утгыг веб build-д өгөх хэрэггүй. [Vercel environment variables](https://vercel.com/docs/environment-variables)
+
 ## Vercel preview
 
 Root directory нь репозиторийн үндэс, framework preset **Other**, Node.js **22.x** эсвэл **24.x**. `vercel.json` нь SDK-г пинтэй суулгах build, `build/web` гаралт, extensionless SPA fallback, WASM MIME, CSP болон service-worker header-ийг тодорхойлно. Зөвхөн `build/web` нийтлэгдэнэ. Үйлчилгээний нууц эсвэл санхүүгийн өгөгдлийн сан тохируулах хэрэггүй.
+
+GitHub-тай холбосон deploy нь Git-д push хийсэн эх кодоос Vercel дээр шинээр build хийнэ. CLI-ээр локал эх код upload хийхэд `.vercelignore` нь өмнөх build, тестийн гаралт болон локал environment файлуудыг хасна. [Vercel-ийн үл хэрэгсэх файлын заавар](https://vercel.com/docs/deployments/vercel-ignore)
 
 Hadgaly-д зориулсан одоо байгаа Vercel төсөл байхгүй. Шинэ төслийн эхний deployment production болдог тул энэ ажлын хүрээнд deployment хийгээгүй. Founder тусдаа зөвшөөрсөн production суурьтай зориулалтын төсөл бэлэн бол дараах командууд preview үүсгэнэ. CLI буцаасан HTTPS хаягийг ашиглана. [Vercel CLI](https://vercel.com/docs/cli/deploy#prod)
 

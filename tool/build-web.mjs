@@ -6,6 +6,15 @@ import { join, resolve } from 'node:path';
 const version = readFileSync('.flutter-version', 'utf8').trim();
 const revision = 'c197ca5199e9ee5661e865596c9c07294dfab51c';
 const install = process.argv.includes('--install-flutter');
+const clerkKey = process.env.HADGALY_CLERK_PUBLISHABLE_KEY?.trim() ?? '';
+let clerkOrigin = '';
+if (clerkKey) {
+  const match = /^pk_test_([A-Za-z0-9+/_=-]+)$/.exec(clerkKey);
+  const decoded = match && Buffer.from(match[1], 'base64').toString('utf8');
+  const hostname = decoded && /^([a-z0-9-]+\.clerk\.accounts\.dev)\$$/.exec(decoded);
+  if (!hostname) throw new Error('Use the Clerk Development publishable key (pk_test_).');
+  clerkOrigin = 'https://' + hostname[1];
+}
 const windows = process.platform === 'win32';
 const sdk = process.env.FLUTTER_ROOT || (install ? resolve('.flutter-sdk') : null);
 const flutter = sdk ? join(sdk, 'bin', windows ? 'flutter.bat' : 'flutter') : 'flutter';
@@ -40,9 +49,15 @@ for (const [file, hash] of Object.entries(vendors)) {
 
 run(flutter, ['pub', 'get', '--enforce-lockfile']);
 run(flutter, ['build', 'web', '--release', '--no-pub', '--pwa-strategy=none',
-  '--no-web-resources-cdn', '--base-href=/']);
+  '--no-web-resources-cdn', '--base-href=/',
+  `--dart-define=HADGALY_CLERK_ENABLED=${Boolean(clerkOrigin)}`]);
 
 const output = 'build/web';
+const authPage = join(output, 'auth/index.html');
+writeFileSync(authPage, readFileSync(authPage, 'utf8')
+  .replaceAll('__CLERK_ORIGIN__', clerkOrigin));
+writeFileSync(join(output, 'auth/config.js'),
+  'window.hadgalyClerk = ' + JSON.stringify({ key: clerkKey, origin: clerkOrigin }) + ';\n');
 const template = readFileSync('tool/pwa-sw.js', 'utf8');
 const entries = readdirSync(output, { recursive: true, withFileTypes: true })
   .filter((entry) => entry.isFile())

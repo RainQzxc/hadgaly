@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' __CLERK_ORIGIN__; connect-src 'self' __CLERK_ORIGIN__ https://*.protect.clerk.com:*; frame-src https://challenges.cloudflare.com https://*.protect.clerk.com; style-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Clerk бүртгэл · Хадгалъя</title>
+  <link rel="stylesheet" href="/shell.css">
+  <link rel="stylesheet" href="/auth/account.css">
+  <script defer src="/auth/config.js"></script>
+  <script defer src="/auth/account.js"></script>
+</head>
+<body>
+  <main>
+    <h1>Clerk бүртгэл</h1>
+    <p>Санхүүгийн мэдээлэл энэ браузерт хадгалагдана. Clerk-д нэвтрэхэд үүл рүү шилжихгүй.</p>
+    <p id="status" role="status">Нэвтрэлтийг шалгаж байна…</p>
+    <button id="sign-in" type="button" hidden>Нэвтрэх</button>
+    <button id="sign-up" type="button" hidden>Бүртгүүлэх</button>
+    <button id="sign-out" type="button" hidden>Гарах</button>
+    <button id="retry" type="button" hidden>Дахин оролдох</button>
+    <a href="/">Хадгалъя руу буцах</a>
+  </main>
+</body>
+</html>

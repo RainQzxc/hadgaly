@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/presentation/hadgaly_ui.dart';
+import '../../auth/presentation/clerk_account.dart';
 import '../../onboarding/application/onboarding_controller.dart';
 import '../data/platform_backup.dart';
 
@@ -148,6 +149,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             if (_message case final message?) ...[
               const SizedBox(height: 8),
               Semantics(liveRegion: true, child: Text(message)),
+            ],
+            if (clerkAccountEnabled) ...[
+              const SizedBox(height: 24),
+              HadgalyButton(
+                label: 'Clerk бүртгэл',
+                filled: false,
+                icon: CupertinoIcons.person_crop_circle,
+                onPressed: _busy ? null : openClerkAccount,
+              ),
             ],
             const SizedBox(height: 24),
             const Text('Аппын тухай', style: sectionStyle),

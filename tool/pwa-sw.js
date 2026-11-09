@@ -47,7 +47,8 @@ self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
-  const key = request.mode === 'navigate' ? '/index.html' : url.pathname;
+  const key = request.mode === 'navigate' && url.pathname !== '/auth/index.html'
+    ? '/index.html' : url.pathname;
   if (!Object.hasOwn(assets, key)) return;
   event.respondWith((async () => {
     const cache = await caches.open(version);

@@ -31,7 +31,11 @@ if (install && !existsSync(flutter)) {
   run('git', ['clone', '--depth', '1', '--branch', version,
     'https://github.com/flutter/flutter.git', sdk]);
 }
-const sdkVersion = JSON.parse(run(flutter, ['--version', '--machine'], true));
+// A fresh Linux SDK can print bootstrap progress before the machine JSON.
+const versionOutput = run(flutter, ['--version', '--machine'], true);
+const versionJson = versionOutput.match(/^\{[\s\S]*?^\}/m)?.[0];
+if (!versionJson) throw new Error('Flutter did not report its version as JSON.');
+const sdkVersion = JSON.parse(versionJson);
 if (sdkVersion.frameworkVersion !== version || sdkVersion.frameworkRevision !== revision) {
   throw new Error('Use pinned Flutter ' + version + ' (' + revision + ')');
 }
